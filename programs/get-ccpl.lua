@@ -64,11 +64,14 @@ logFile.writeLine("Parsing URL...")
 local info = parseURL(sourceURL)
 logFile.writeLine("URL parsed!")
 
+logFile.writeLine("Creating file structure/downloading files:")
 for i, item in ipairs(info.treeObj) do
     if not includes(ignore, item.path) then
         if item.type == "tree" then
+            logFile.writeLine("Dir found! Creating /CCPL/"..item.path)
             fs.makeDir("/CCPL/"..item.path)
         elseif item.type == "blob" then
+            logFile.writeLine("File found! Downloading /CCPL/"..item.path)
             local dataToWrite = http.get("https://raw.githubusercontent.com/"..info.owner.."/"..info.repo.."/"..info.tree.."/"..item.path).readAll()
             local fileToWrite = fs.open("/CCPL/"..item.path,"w")
             fileToWrite.write(dataToWrite)
@@ -76,3 +79,4 @@ for i, item in ipairs(info.treeObj) do
         end
     end
 end
+logFile.writeLine("Finished!")
