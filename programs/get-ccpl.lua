@@ -3,6 +3,15 @@ local args = { ... }
 
 local ignore = {"LICENSE","README.md"} --files to ignore when grabbing CCPL
 
+local function includes(tArray, sVal)
+    for i, item in ipairs(tArray) do
+        if item == sVal then
+            return true
+        end 
+    end
+    return false
+end
+
 --takes URL in the form of "https://raw.githubusercontent.com/{username}/{repo-name}/tree/{tree-name}/"
 --and returns an object
 --owner = {username}
@@ -52,12 +61,14 @@ local info = parseURL(sourceURL)
 print("URL parsed!")
 
 for i, item in ipairs(info.treeObj) do
-    if item.type == "tree" then
-        fs.makeDir("/CCPL/"..item.path)
-    elseif item.type == "blob" then
-        local dataToWrite = http.get("https://raw.githubusercontent.com/"..info.owner.."/"..info.repo.."/"..info.tree.."/"..item.path).readAll()
-        local fileToWrite = fs.open("/CCPL/"..item.path,"w")
-        fileToWrite.write(dataToWrite)
-        fileToWrite.close()
+    if not includes(ignore, item) then
+        if item.type == "tree" then
+            fs.makeDir("/CCPL/"..item.path)
+        elseif item.type == "blob" then
+            local dataToWrite = http.get("https://raw.githubusercontent.com/"..info.owner.."/"..info.repo.."/"..info.tree.."/"..item.path).readAll()
+            local fileToWrite = fs.open("/CCPL/"..item.path,"w")
+            fileToWrite.write(dataToWrite)
+            fileToWrite.close()
+        end
     end
 end
