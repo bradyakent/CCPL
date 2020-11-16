@@ -5,5 +5,5 @@ shell.setPath(shell.path()..":"..installPath.."programs")
 
 -- run all scripts in "startup"
 for _, file in ipairs(fs.list(installPath.."startup/")) do
-    shell.run(file)
+    shell.run(installPath.."startup/"..file)
 end
