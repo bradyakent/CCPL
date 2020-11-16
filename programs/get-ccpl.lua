@@ -1,3 +1,9 @@
+--paths to ignore when grabbing CCPL
+local ignore = {
+    "LICENSE",
+    "README.md"
+}
+
 local args = { ... }
 --[[ 
 (optional) URL of the branch you want to download
@@ -65,8 +71,6 @@ local function acceptOverwrites(pathToFile)
         return true
     end
 end
-
-local ignore = {"LICENSE","README.md"} --paths to ignore when grabbing CCPL
 
 local function includes(tArray, sVal)
     for i, item in ipairs(tArray) do
@@ -136,6 +140,22 @@ for i, item in ipairs(info.treeObj) do
         end
     end
 end
+
+if not fs.exists("/startup") then
+    fs.makeDir("/startup")
+end
+local baseFile = fs.open("/startup/ccpl-startup.lua","w")
+baseFile.writeLine("local installPath = \""..installPath.."\"")
+baseFile.close()
+
+baseFile = fs.open("/startup/ccpl-startup.lua","a")
+local startingFile = fs.open(installPath.."/startup/ccpl-startup.lua","r")
+startingFile.readLine()
+local startupString = startingFile.readAll()
+baseFile.write(startupString)
+baseFile.close()
+fs.delete(installPath.."/startup/ccpl-startup.lua")
+
 outputLog("\nFinished!")
 if debugLog then
     logFile.close()
