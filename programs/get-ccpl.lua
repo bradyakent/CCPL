@@ -8,39 +8,51 @@ possible flags:
 -l [filename]: output debug info to a file. filename defaults to "/log.txt"
 --]]
 
+local logFile
 local currentFlag = ""
 local askAboutOverwrites = true
+local debugLog = false
 local installPath = "/CCPL/"
 local logPath = "/log.txt"
 local sourceURL = "https://github.com/BradyFromDiscord/CCPL/tree/development/"
 for _, arg in ipairs(args) do
     --check currentFlag
     if currentFlag == "-l" then
-        logFile = arg
+        if arg:sub(1,1) ~= "-" then
+            logPath = arg
+        end
         currentFlag = ""
     elseif currentFlag == "-i" then
-        if arg[#arg] ~= "/" then arg = arg.."/" end
+        if arg:sub(arg:len()) ~= "/" then arg = arg.."/" end
         installPath = arg
         currentFlag = ""
     else
         --check if there is a new flag
         if arg == "-l" then
+            print("-l detected!")
+            debugLog = true
             currentFlag = "-l"
         elseif arg == "-f" then
+            print("-f detected!")
             askAboutOverwrites = false
         elseif arg == "-i" then
-            currentFlag = "-l"
+            print("-i detected!")
+            currentFlag = "-i"
         else
             sourceURL = arg
         end
     end
 end
 
-local logFile = fs.open(logPath,"w")
+if debugLog then
+    logFile = fs.open(logPath,"w")
+end
 
 local function outputLog(input)
-    logFile.writeLine(input)
-    print(input)
+    if debugLog then
+        logFile.writeLine(input)
+        print(input)
+    end
 end
 
 local function acceptOverwrites(pathToFile)
@@ -128,4 +140,6 @@ for i, item in ipairs(info.treeObj) do
     end
 end
 outputLog("\nFinished!")
-logFile.close()
+if debugLog then
+    logFile.close()
+end
