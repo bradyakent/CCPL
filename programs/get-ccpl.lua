@@ -40,11 +40,11 @@ local function parseURL(URL)
     end
     local apiResult = http.get("https://api.github.com/repos/"..URLpath[1].."/"..URLpath[2].."/branches/"..URLpath[4])
     local apiObj = textutils.unserializeJSON(apiResult.readAll())
-    outputLog("- ".."\nGrabbing treeObj from")
+    outputLog("\n- ".."Grabbing treeObj from")
     outputLog("- "..apiObj.commit.commit.tree.url.."?recursive=1")
     local treeObj = textutils.unserializeJSON(http.get(apiObj.commit.commit.tree.url.."?recursive=1").readAll())
 
-    outputLog("- ".."\nBuilding simpleTreeObj:")
+    outputLog("\n- ".."Building simpleTreeObj:")
     local simpleTreeObj = {}
     for i=1,#treeObj.tree do
         outputLog("- "..treeObj.tree[i].path)
@@ -84,3 +84,4 @@ for i, item in ipairs(info.treeObj) do
     end
 end
 outputLog("\nFinished!")
+logFile.close()
