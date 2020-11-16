@@ -21,7 +21,7 @@ local function parseURL(URL)
     end
     local apiResult = http.get("https://api.github.com/repos/"..URLpath[1].."/"..URLpath[2].."/branches/"..URLpath[4])
     local apiObj = textutils.unserializeJSON(apiResult.readAll())
-    local treeObj = textutils.unserializeJSON(http.get(apiObj.commit.tree.url.."?recursive=1").readAll())
+    local treeObj = textutils.unserializeJSON(http.get(apiObj.commit.commit.tree.url.."?recursive=1").readAll())
 
     local result = {
         owner=URLpath[1],
