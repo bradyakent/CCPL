@@ -1,13 +1,61 @@
-local logFile = fs.open("/log.txt","w")
+local args = { ... }
+--[[ 
+(optional) URL of the branch you want to download
+
+possible flags:
+-f           : Force file/directory overwrites
+-i <path>    : Install CCPL to the specified path.
+-l [filename]: output debug info to a file. filename defaults to "/log.txt"
+--]]
+
+local currentFlag = ""
+local askAboutOverwrites = true
+local installPath = "/CCPL/"
+local logPath = "/log.txt"
+local sourceURL = "https://github.com/BradyFromDiscord/CCPL/tree/development/"
+for _, arg in args do
+    --check currentFlag
+    if currentFlag == "-l" then
+        logFile = arg
+        currentFlag = ""
+    elseif currentFlag == "-i" then
+        if arg[#arg] ~= "/" then arg = arg.."/" end
+        installPath = arg
+        currentFlag = ""
+    else
+        --check if there is a new flag
+        if arg == "-l" then
+            currentFlag = "-l"
+        elseif arg == "-f" then
+            askAboutOverwrites = false
+        elseif arg == "-i" then
+            currentFlag = "-l"
+        else
+            sourceURL = arg
+        end
+    end
+end
+
+local logFile = fs.open(logPath,"w")
 
 local function outputLog(input)
     logFile.writeLine(input)
     print(input)
 end
 
-
-local args = { ... }
---args[1] (optional) branch URL
+local function handleOverwrites(pathToFile)
+    if askAboutOverwrites then
+        print(pathToFile.." is about to be overwritten! Would you like to continue? (y/n)")
+        local userIn = read():lower()
+        if not (userIn == "yes" or userIn == "y") then
+            return true
+        else
+            return false
+        end
+    else
+        return true
+    end
+end
 
 local ignore = {"LICENSE","README.md"} --paths to ignore when grabbing CCPL
 
@@ -59,11 +107,6 @@ local function parseURL(URL)
     return result
 end
 
-local sourceURL = "https://github.com/BradyFromDiscord/CCPL/tree/development/"
-if args[1] then
-    sourceURL = args[1]
-end
-
 outputLog("Parsing URL...")
 local info = parseURL(sourceURL)
 outputLog("URL parsed!")
@@ -72,12 +115,13 @@ outputLog("\nCreating file structure/downloading files:")
 for i, item in ipairs(info.treeObj) do
     if not includes(ignore, item.path) then
         if item.type == "tree" then
-            outputLog("Dir found! Creating /CCPL/"..item.path)
-            fs.makeDir("/CCPL/"..item.path)
+            outputLog("Dir found! Creating "..installPath..item.path)
+            if not handleOverwrites(installPath..item.path) then do return end end
+            fs.makeDir(installPath..item.path)
         elseif item.type == "blob" then
-            outputLog("File found! Downloading /CCPL/"..item.path)
+            outputLog("File found! Downloading "..installPath..item.path)
             local dataToWrite = http.get("https://raw.githubusercontent.com/"..info.owner.."/"..info.repo.."/"..info.tree.."/"..item.path).readAll()
-            local fileToWrite = fs.open("/CCPL/"..item.path,"w")
+            local fileToWrite = fs.open(installPath..item.path,"w")
             fileToWrite.write(dataToWrite)
             fileToWrite.close()
         end
