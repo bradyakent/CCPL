@@ -45,7 +45,7 @@ local info = parseURL(sourceURL)
 
 for i, item in ipairs(info.treeObj) do
     if item.type == "tree" then
-        fs.makeDir(item.path)
+        fs.makeDir("/CCPL/"..item.path)
     elseif item.type == "blob" then
         local dataToWrite = http.get("https://raw.githubusercontent.com/"..info.owner.."/"..info.repo.."/"..info.tree.."/"..item.path).readAll()
         local fileToWrite = fs.open("/CCPL/"..item.path,"w")
