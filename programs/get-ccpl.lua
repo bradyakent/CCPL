@@ -43,11 +43,11 @@ local function outputLog(input)
     print(input)
 end
 
-local function handleOverwrites(pathToFile)
+local function acceptOverwrites(pathToFile)
     if askAboutOverwrites and fs.exists(pathToFile) then
         print(pathToFile.." is about to be overwritten! Would you like to continue? (y/n)")
         local userIn = read():lower()
-        if not (userIn == "yes" or userIn == "y") then
+        if (userIn == "yes" or userIn == "y") then
             return true
         else
             return false
@@ -116,7 +116,7 @@ for i, item in ipairs(info.treeObj) do
     if not includes(ignore, item.path) then
         if item.type == "tree" then
             outputLog("Dir found! Creating "..installPath..item.path)
-            if not handleOverwrites(installPath..item.path) then do return end end
+            if not acceptOverwrites(installPath..item.path) then do return end end
             fs.makeDir(installPath..item.path)
         elseif item.type == "blob" then
             outputLog("File found! Downloading "..installPath..item.path)
