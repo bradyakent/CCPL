@@ -1,7 +1,7 @@
 local args = { ... }
 --args[1] (optional) branch URL
 
-local ignore = {"LICENSE","README.md"} --files to ignore when grabbing CCPL
+local ignore = {"LICENSE","README.md"} --paths to ignore when grabbing CCPL
 
 local function includes(tArray, sVal)
     for i, item in ipairs(tArray) do
@@ -61,7 +61,7 @@ local info = parseURL(sourceURL)
 print("URL parsed!")
 
 for i, item in ipairs(info.treeObj) do
-    if not includes(ignore, item) then
+    if not includes(ignore, item.path) then
         if item.type == "tree" then
             fs.makeDir("/CCPL/"..item.path)
         elseif item.type == "blob" then
