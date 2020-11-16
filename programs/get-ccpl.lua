@@ -13,7 +13,7 @@ local askAboutOverwrites = true
 local installPath = "/CCPL/"
 local logPath = "/log.txt"
 local sourceURL = "https://github.com/BradyFromDiscord/CCPL/tree/development/"
-for _, arg in args do
+for _, arg in ipairs(args) do
     --check currentFlag
     if currentFlag == "-l" then
         logFile = arg
