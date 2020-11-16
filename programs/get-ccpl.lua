@@ -27,11 +27,12 @@ local function parseURL(URL)
     print(apiObj.commit.commit.tree.url.."?recursive=1")
     local treeObj = textutils.unserializeJSON(http.get(apiObj.commit.commit.tree.url.."?recursive=1").readAll())
 
+    print("Building simpleTreeObj:")
     local simpleTreeObj = {}
     for i=1,#treeObj.tree do
+        print(treeObj.tree[i].path)
         simpleTreeObj[#simpleTreeObj+1] = {path=treeObj.tree[i].path, type=treeObj.tree[i].type}
     end
-    
     local result = {
         owner=URLpath[1],
         repo=URLpath[2],
@@ -48,6 +49,7 @@ end
 
 print("Parsing URL...")
 local info = parseURL(sourceURL)
+print("URL parsed!")
 
 for i, item in ipairs(info.treeObj) do
     if item.type == "tree" then
