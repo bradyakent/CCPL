@@ -30,9 +30,9 @@ local function parseURL(URL)
 	local z, last = URL:find("github.com/",1,true)
     local snip = URL:sub(last+1,URL:len()+1)
     local URLpath = {}
-    outputLog("Snipping URL:")
+    outputLog("- ".."Snipping URL:")
     for x in snip:gmatch("%w+") do
-        outputLog(x)
+        outputLog("- "..x)
 		URLpath[#URLpath+1] = x
     end
     if not URLpath[4] then
@@ -40,14 +40,14 @@ local function parseURL(URL)
     end
     local apiResult = http.get("https://api.github.com/repos/"..URLpath[1].."/"..URLpath[2].."/branches/"..URLpath[4])
     local apiObj = textutils.unserializeJSON(apiResult.readAll())
-    outputLog("\nGrabbing treeObj from")
-    outputLog(apiObj.commit.commit.tree.url.."?recursive=1")
+    outputLog("- ".."\nGrabbing treeObj from")
+    outputLog("- "..apiObj.commit.commit.tree.url.."?recursive=1")
     local treeObj = textutils.unserializeJSON(http.get(apiObj.commit.commit.tree.url.."?recursive=1").readAll())
 
-    outputLog("\nBuilding simpleTreeObj:")
+    outputLog("- ".."\nBuilding simpleTreeObj:")
     local simpleTreeObj = {}
     for i=1,#treeObj.tree do
-        outputLog(treeObj.tree[i].path)
+        outputLog("- "..treeObj.tree[i].path)
         simpleTreeObj[#simpleTreeObj+1] = {path=treeObj.tree[i].path, type=treeObj.tree[i].type}
     end
     local result = {
