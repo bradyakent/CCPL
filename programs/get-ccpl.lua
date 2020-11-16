@@ -44,7 +44,7 @@ local function outputLog(input)
 end
 
 local function handleOverwrites(pathToFile)
-    if askAboutOverwrites then
+    if askAboutOverwrites and fs.exists(pathToFile) then
         print(pathToFile.." is about to be overwritten! Would you like to continue? (y/n)")
         local userIn = read():lower()
         if not (userIn == "yes" or userIn == "y") then
