@@ -12,8 +12,10 @@ local ignore = {"LICENSE","README.md"} --files to ignore when grabbing CCPL
 local function parseURL(URL)
 	local z, last = URL:find("github.com/",1,true)
     local snip = URL:sub(last+1,URL:len()+1)
-	local URLpath = {}
+    local URLpath = {}
+    print("Snipping URL:")
     for x in snip:gmatch("%w+") do
+        print(x)
 		URLpath[#URLpath+1] = x
     end
     if not URLpath[4] then
@@ -21,18 +23,21 @@ local function parseURL(URL)
     end
     local apiResult = http.get("https://api.github.com/repos/"..URLpath[1].."/"..URLpath[2].."/branches/"..URLpath[4])
     local apiObj = textutils.unserializeJSON(apiResult.readAll())
+    print("Grabbing treeObj from")
+    print(apiObj.commit.commit.tree.url.."?recursive=1")
     local treeObj = textutils.unserializeJSON(http.get(apiObj.commit.commit.tree.url.."?recursive=1").readAll())
 
+    local simpleTreeObj = {}
+    for i=1,#treeObj.tree do
+        simpleTreeObj[#simpleTreeObj+1] = {path=treeObj.tree[i].path, type=treeObj.tree[i].type}
+    end
+    
     local result = {
         owner=URLpath[1],
         repo=URLpath[2],
         tree=URLpath[4],
-        treeObj=treeObj
+        treeObj=simpleTreeObj
     }
-    for i=1,#treeObj.tree do
-        result[#result+1] = {path=treeObj.tree[i].path, type=treeObj.tree[i].type}
-    end
-
     return result
 end
 
@@ -41,6 +46,7 @@ if args[1] then
     sourceURL = args[1]
 end
 
+print("Parsing URL...")
 local info = parseURL(sourceURL)
 
 for i, item in ipairs(info.treeObj) do
