@@ -29,14 +29,11 @@ for _, arg in ipairs(args) do
     else
         --check if there is a new flag
         if arg == "-l" then
-            print("-l detected!")
             debugLog = true
             currentFlag = "-l"
         elseif arg == "-f" then
-            print("-f detected!")
             askAboutOverwrites = false
         elseif arg == "-i" then
-            print("-i detected!")
             currentFlag = "-i"
         else
             sourceURL = arg
