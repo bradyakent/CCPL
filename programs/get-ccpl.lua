@@ -10,7 +10,7 @@ local args = { ... }
 
 possible flags:
 -f           : Force file/directory overwrites
--i <path>    : Install CCPL to the specified path.
+-i <path>    : Install CCPL to the specified path. May break CCPL programs if not careful.
 -l [filename]: output debug info to a file. filename defaults to "/log.txt"
 --]]
 
@@ -18,7 +18,7 @@ local logFile
 local currentFlag = ""
 local askAboutOverwrites = true
 local debugLog = false
-local installPath = "/CCPL/"
+local installPath = "/"
 local logPath = "/log.txt"
 local sourceURL = "https://github.com/BradyFromDiscord/CCPL/tree/development/"
 for _, arg in ipairs(args) do
@@ -32,6 +32,14 @@ for _, arg in ipairs(args) do
         if arg:sub(arg:len()) ~= "/" then arg = arg.."/" end
         installPath = arg
         currentFlag = ""
+        printError("WARNING! A custom install path may lead to unintentional bugs when running programs that depend on CCPL.")
+        print("Are you sure you want to continue? (y/n)")
+        local userIn = read():lower()
+        if (userIn == "yes" or userIn == "y") then
+            return true
+        else
+            return false
+        end
     else
         --check if there is a new flag
         if arg == "-l" then
@@ -54,8 +62,8 @@ end
 local function outputLog(input)
     if debugLog then
         logFile.writeLine(input)
-        print(input)
     end
+    print(input)
 end
 
 local function acceptOverwrites(pathToFile)
@@ -128,13 +136,14 @@ outputLog("\nCreating file structure/downloading files:")
 for i, item in ipairs(info.treeObj) do
     if not includes(ignore, item.path) then
         if item.type == "tree" then
-            outputLog("Dir found! Creating "..installPath..item.path)
-            if not acceptOverwrites(installPath..item.path) then do return end end
-            fs.makeDir(installPath..item.path)
+            outputLog("Dir found! Creating "..installPath.."ccpl/"..item.path)
+            if not acceptOverwrites(installPath.."ccpl/"..item.path) then printError("Aborted.") do return end end
+            fs.makeDir(installPath.."ccpl/"..item.path)
         elseif item.type == "blob" then
-            outputLog("File found! Downloading "..installPath..item.path)
+            outputLog("File found! Downloading "..installPath.."ccpl/"..item.path)
+            if not acceptOverwrites(installPath.."ccpl/"..item.path) then printError("Aborted.") do return end end
             local dataToWrite = http.get("https://raw.githubusercontent.com/"..info.owner.."/"..info.repo.."/"..info.tree.."/"..item.path).readAll()
-            local fileToWrite = fs.open(installPath..item.path,"w")
+            local fileToWrite = fs.open(installPath.."ccpl/"..item.path,"w")
             fileToWrite.write(dataToWrite)
             fileToWrite.close()
         end
@@ -154,7 +163,7 @@ startingFile.readLine()
 local startupString = startingFile.readAll()
 baseFile.write(startupString)
 baseFile.close()
-fs.delete(installPath.."/startup/ccpl-startup.lua")
+fs.delete(installPath.."ccpl/startup/ccpl-startup.lua")
 
 outputLog("\nFinished!")
 if debugLog then
