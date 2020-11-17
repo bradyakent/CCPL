@@ -2,8 +2,7 @@ local complete = require("cc.shell.completion")
 local CCPLdir = fs.getDir(fs.getDir(shell.getRunningProgram()))
 
 local function fileIf(theShell, thisArg, prevArgs)
-    print(textutils.serialize(prevArgs))
-    if prevArgs[1] == "update" then
+    if prevArgs[2] == "update" then
         return complete.file(theShell, thisArg)
     end
 end
