@@ -88,7 +88,7 @@ end
 --tree = {tree-name}
 --treeObj = <array w/ the path and type of every item in the repo>
 local function parseURL(URL)
-	local z, last = URL:find("github.com/",1,true)
+	local _, last = URL:find("github.com/",1,true)
     local snip = URL:sub(last+1,URL:len()+1)
     local URLpath = {}
     outputLog("- ".."Snipping URL:")

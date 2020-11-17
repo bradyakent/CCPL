@@ -1,7 +1,7 @@
 local complete = require("cc.shell.completion")
-local programDir = fs.getDir(shell.dir()).."/programs/"
+local CCPLdir = fs.getDir(shell.dir())
 
-shell.setCompletionFunction(programDir.."gist.lua",complete.build(
-    { complete.choice, {"install ", "update"} },
+shell.setCompletionFunction(CCPLdir.."/programs/gist.lua",complete.build(
+    { complete.choice, {"install ", "update "} },
     complete.file
 ))
