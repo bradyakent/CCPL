@@ -1,9 +1,9 @@
-local installPath = "/CCPL/"
+local CCPLPath = settings.get("ccpl.path")
 
--- add CCPL to the path
-shell.setPath(shell.path()..":"..installPath.."programs")
+-- add CCPL programs to the path
+shell.setPath(shell.path()..":"..CCPLPath.."ccpl/programs")
 
 -- run all scripts in "startup"
-for _, file in ipairs(fs.list(installPath.."startup/")) do
-    shell.run(installPath.."startup/"..file)
+for _, file in ipairs(fs.list(CCPLPath.."ccpl/startup/")) do
+    shell.run(CCPLPath.."ccpl/startup/"..file)
 end

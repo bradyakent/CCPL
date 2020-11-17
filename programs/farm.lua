@@ -1,5 +1,6 @@
 -- implements basic farming API usage
-local farming = require("farming")
+local _p = settings.get("ccpl.path")
+local farming = require(_p.."ccpl.farming")
 
 local function printUsage()
     print("Usage:")
