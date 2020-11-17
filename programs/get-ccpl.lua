@@ -128,16 +128,16 @@ local function parseURL(URL)
     return result
 end
 
-if settings.getDetails("ccpl.install_path").value == nil then
-    settings.define("ccpl.install_path",{
+if settings.getDetails("ccpl.path").value == nil then
+    settings.define("ccpl.path",{
         description="The parent directory of CCPL.",
         default="/",
         type="string"
     })
-    settings.set("ccpl.install_path",installPath)
+    settings.set("ccpl.path",installPath)
     settings.save()
 else
-    if settings.get("ccpl.install_path") == installPath and askAboutOverwrites then
+    if settings.get("ccpl.path") == installPath and askAboutOverwrites then
         print("Old CCPL found! Would you like to overwrite it? (y/n)")
         local userIn = read():lower()
         if not (userIn == "yes" or userIn == "y") then
