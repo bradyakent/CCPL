@@ -128,6 +128,25 @@ local function parseURL(URL)
     return result
 end
 
+if settings.getDetails("ccpl.install_path").value == nil then
+    settings.define("ccpl.install_path",{
+        description="The parent directory of CCPL.",
+        default="/",
+        type="string"
+    })
+    settings.set("ccpl.install_path",installPath)
+    settings.save()
+else
+    if settings.get("ccpl.install_path") == installPath and askAboutOverwrites then
+        print("Old CCPL found! Would you like to overwrite it? (y/n)")
+        local userIn = read():lower()
+        if not (userIn == "yes" or userIn == "y") then
+            printError("Aborted.")
+            do return end
+        end
+    end
+end
+
 outputLog("Parsing URL...")
 local info = parseURL(sourceURL)
 outputLog("URL parsed!")
@@ -153,12 +172,9 @@ end
 if not fs.exists("/startup") then
     fs.makeDir("/startup")
 end
-local baseFile = fs.open("/startup/ccpl-startup.lua","w")
-baseFile.writeLine("local installPath = \""..installPath.."\"")
-baseFile.close()
 
-baseFile = fs.open("/startup/ccpl-startup.lua","a")
-local startingFile = fs.open(installPath.."/startup/ccpl-startup.lua","r")
+local baseFile = fs.open("/startup/ccpl-startup.lua","w")
+local startingFile = fs.open(installPath.."ccpl/startup/ccpl-startup.lua","r")
 startingFile.readLine()
 local startupString = startingFile.readAll()
 baseFile.write(startupString)
