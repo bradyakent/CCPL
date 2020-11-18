@@ -9,7 +9,7 @@ local usage = {
 local args = { ... }
 --args[1]: install, update
 --args[2]: <file-name>
---args[3]: <gist-raw-url>
+--args[3]: <gist-url>
 
 if #args ~= 3 or (args[2] ~= "install" and args[2] ~= "update") then
     ux.displayUsage("gist",usage)
@@ -20,7 +20,7 @@ if fs.exists(args[2]) then
     if args[1] == "install" then
         if not ux.confirm("File name already exists; would you like to replace it?",colors.red) then do return end end
     end
-    shell.run("rm",args[2])
+    fs.delete(args[2])
 end
 
 local z, last = string.find(args[3],"gist.github.com/")

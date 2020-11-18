@@ -14,7 +14,7 @@ end
 
 --moves turtle a specified distance forward
 local function forward(distance)
-    for i=1,distance do
+    for _=1,distance do
         turtle.forward()
     end
 end
