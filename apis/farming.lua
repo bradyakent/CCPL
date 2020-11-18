@@ -1,5 +1,11 @@
 local _p = settings.get("ccpl.path")
 local slots = require(_p.."ccpl.apis.slots")
+local plantableList = {
+    "minecraft:wheat_seeds",
+    "minecraft:potato",
+    "minecraft:carrot",
+    "minecraft:beetroot_seeds"
+}
 
 --performs floor division
 local function fdiv(top, bottom)
@@ -13,6 +19,19 @@ local function forward(distance)
     end
 end
 
+local function findStack(items)
+    if type(items) ~= "table" then items = { items } end
+    for i=1,16 do
+        local slot = turtle.getItemDetail(i)
+        for _, item in ipairs(items) do
+            if slot == item then
+                return i
+            end
+        end        
+    end
+    return nil
+end
+
 local function handleCrop(forcePlant)
     local exists, info = turtle.inspectDown()
     if exists then
@@ -24,8 +43,13 @@ local function handleCrop(forcePlant)
     elseif forcePlant == nil then
         return
     end
+    local slotsChecked = 0
     while turtle.placeDown() == false do
-        turtle.select(((turtle.getSelectedSlot())%16)+1)
+        local nextSlot = findStack(plantableList)
+        if nextSlot == nil then
+            return
+        end
+        turtle.select(nextSlot)
     end
 end
 
