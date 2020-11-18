@@ -9,6 +9,8 @@ local usage = {
 }
 
 local args = { ... }
+args[2] = tonumber(args[2])
+args[3] = tonumber(args[3])
 
 -- error checking
 if type(args[2]) ~= "number" or type(args[3]) ~= "number" then
