@@ -59,10 +59,14 @@ if debugLog then
     logFile = fs.open(logPath,"w")
 end
 
-local function outputLog(input)
+local function outputLog(input, color)
+    if not color or term.isColor() == false then
+        color = colors.white
+    end
     if debugLog then
         logFile.writeLine(input)
     end
+    term.setTextColor(color)
     print(input)
 end
 
@@ -99,9 +103,9 @@ local function parseURL(URL)
 	local _, last = URL:find("github.com/",1,true)
     local snip = URL:sub(last+1,URL:len()+1)
     local URLpath = {}
-    outputLog("- ".."Snipping URL:")
+    outputLog("- ".."Snipping URL:",colors.lightBlue)
     for x in snip:gmatch("%w+") do
-        outputLog("- "..x)
+        outputLog("- "..x,colors.lightGray)
 		URLpath[#URLpath+1] = x
     end
     if not URLpath[4] then
@@ -109,14 +113,14 @@ local function parseURL(URL)
     end
     local apiResult = http.get("https://api.github.com/repos/"..URLpath[1].."/"..URLpath[2].."/branches/"..URLpath[4])
     local apiObj = textutils.unserializeJSON(apiResult.readAll())
-    outputLog("\n- ".."Grabbing treeObj from")
-    outputLog("- "..apiObj.commit.commit.tree.url.."?recursive=1")
+    outputLog("\n- ".."Grabbing treeObj from",colors.lightBlue)
+    outputLog("- "..apiObj.commit.commit.tree.url.."?recursive=1",colors.lightBlue)
     local treeObj = textutils.unserializeJSON(http.get(apiObj.commit.commit.tree.url.."?recursive=1").readAll())
 
-    outputLog("\n- ".."Building simpleTreeObj:")
+    outputLog("\n- ".."Building simpleTreeObj:",colors.lightBlue)
     local simpleTreeObj = {}
     for i=1,#treeObj.tree do
-        outputLog("- "..treeObj.tree[i].path)
+        outputLog("- "..treeObj.tree[i].path,colors.lightGray)
         simpleTreeObj[#simpleTreeObj+1] = {path=treeObj.tree[i].path, type=treeObj.tree[i].type}
     end
     local result = {
@@ -147,19 +151,19 @@ else
     end
 end
 
-outputLog("Parsing URL...")
+outputLog("Parsing URL...", colors.yellow)
 local info = parseURL(sourceURL)
-outputLog("URL parsed!")
+outputLog("URL parsed!", colors.lime)
 
-outputLog("\nCreating file structure/downloading files:")
+outputLog("\nCreating file structure/downloading files:",colors.yellow)
 for i, item in ipairs(info.treeObj) do
     if not includes(ignore, item.path) then
         if item.type == "tree" then
-            outputLog("Dir found! Creating "..installPath.."ccpl/"..item.path)
+            outputLog("Dir found! Creating "..installPath.."ccpl/"..item.path,colors.cyan)
             if not acceptOverwrites(installPath.."ccpl/"..item.path) then printError("Aborted.") do return end end
             fs.makeDir(installPath.."ccpl/"..item.path)
         elseif item.type == "blob" then
-            outputLog("File found! Downloading "..installPath.."ccpl/"..item.path)
+            outputLog("File found! Downloading "..installPath.."ccpl/"..item.path,colors.orange)
             if not acceptOverwrites(installPath.."ccpl/"..item.path) then printError("Aborted.") do return end end
             local dataToWrite = http.get("https://raw.githubusercontent.com/"..info.owner.."/"..info.repo.."/"..info.tree.."/"..item.path).readAll()
             local fileToWrite = fs.open(installPath.."ccpl/"..item.path,"w")
@@ -175,11 +179,11 @@ end
 
 fs.move(installPath.."ccpl/startup/ccpl-startup.lua","/startup/ccpl-startup.lua")
 
-outputLog("\nFinished!")
+outputLog("\nFinished!",colors.lime)
 if debugLog then
     logFile.close()
 end
 sleep(0.5)
-outputLog("Rebooting...")
-sleep(0.5)
+outputLog("Rebooting...",colors.yellow)
+sleep(1)
 os.reboot()
