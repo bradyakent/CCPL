@@ -9,6 +9,7 @@ local args = { ... }
 (optional) URL of the branch you want to download
 
 possible flags:
+-b <branch>  : Get CCPL from a specific branch.
 -f           : Force file/directory overwrites
 -i <path>    : Install CCPL to the specified path. May break CCPL programs if not careful.
 -l [filename]: output debug info to a file. filename defaults to "/log.txt"
@@ -22,10 +23,13 @@ local debugLog = false
 local takeSteps = false
 local installPath = "/"
 local logPath = "/log.txt"
-local sourceURL = "https://github.com/BradyFromDiscord/CCPL/tree/tex-dev/"
+local branch = "development"
+local sourceURL = "https://github.com/BradyFromDiscord/CCPL/tree/"
 for _, arg in ipairs(args) do
     --check currentFlag
-    if currentFlag == "-l" then
+    if currentFlag == "-b" then
+        branch = arg
+    elseif currentFlag == "-l" then
         if arg:sub(1,1) ~= "-" then
             logPath = arg
         end
@@ -45,6 +49,8 @@ for _, arg in ipairs(args) do
         if arg == "-l" then
             debugLog = true
             currentFlag = "-l"
+        elseif arg == "-b" then
+            currentFlag = "-b"
         elseif arg == "-f" then
             askAboutOverwrites = false
         elseif arg == "-i" then
@@ -158,7 +164,7 @@ else
 end
 
 outputLog("Parsing URL...", colors.yellow)
-local info = parseURL(sourceURL)
+local info = parseURL(sourceURL..branch.."/")
 outputLog("URL parsed!", colors.lime)
 
 outputLog("\nCreating file structure/downloading files:",colors.yellow)
