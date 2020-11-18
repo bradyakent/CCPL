@@ -1,22 +1,22 @@
 -- implements basic farming API usage
 local _p = settings.get("ccpl.path")
 local farming = require(_p.."ccpl.apis.farming")
+local ux = require(_p.."ccpl.apis.ux")
 
-local function printUsage()
-    print("Usage:")
-    print("farm create <x> <y>")
-    print("farm harvest <x> <y>")
-end
+local usage = {
+    {"create",{"x","y"}},
+    {"harvest",{"x","y"}}
+}
 
 local args = { ... }
 
 -- error checking
 if type(args[2]) ~= "number" or type(args[3]) ~= "number" then
-    printUsage()
+    ux.displayUsage("farm",usage)
     do return end
 end
 if args[2] < 1 or args[3] < 1 then
-    printUsage()
+    ux.displayUsage("farm",usage)
     do return end
 end
 
@@ -25,5 +25,5 @@ if args[1] == "create" then
 elseif args[1] == "harvest" then
     farming.farm(args[2], args[3])
 else
-    printUsage()
+    ux.displayUsage("farm",usage)
 end
