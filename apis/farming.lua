@@ -27,7 +27,7 @@ local function handleCrop(forcePlant)
     local slot = tex.findStack(plantableList)
     if slot then
         tex.select(slot)
-        tex.plantDown()
+        tex.placeDown()
     end
 end
 
