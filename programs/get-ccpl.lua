@@ -173,13 +173,7 @@ if not fs.exists("/startup") then
     fs.makeDir("/startup")
 end
 
-local baseFile = fs.open("/startup/ccpl-startup.lua","w")
-local startingFile = fs.open(installPath.."ccpl/startup/ccpl-startup.lua","r")
-startingFile.readLine()
-local startupString = startingFile.readAll()
-baseFile.write(startupString)
-baseFile.close()
-fs.delete(installPath.."ccpl/startup/ccpl-startup.lua")
+fs.move(installPath.."ccpl/startup/ccpl-startup.lua","/startup/ccpl-startup.lua")
 
 outputLog("\nFinished!")
 if debugLog then
