@@ -179,3 +179,7 @@ outputLog("\nFinished!")
 if debugLog then
     logFile.close()
 end
+sleep(0.5)
+outputLog("Rebooting...")
+sleep(0.5)
+os.reboot()
