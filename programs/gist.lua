@@ -6,7 +6,8 @@ local args = { ... }
 if fs.exists(args[2]) then
     if args[1] == "install" then
         print("File name already exists; would you like to replace it? (yes/no)")
-        if read() ~= "yes" then
+        local userIn = read():lower()
+        if userIn ~= "yes" and userIn ~= "y" then
             printError("Aborted.")
             do return end
         end
