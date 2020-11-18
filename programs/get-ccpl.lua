@@ -37,10 +37,8 @@ for _, arg in ipairs(args) do
         printError("WARNING! A custom install path may lead to unintentional bugs when running programs that depend on CCPL.")
         print("Are you sure you want to continue? (y/n)")
         local userIn = read():lower()
-        if (userIn == "yes" or userIn == "y") then
-            return true
-        else
-            return false
+        if not (userIn == "yes" or userIn == "y") then
+            do return end
         end
     else
         --check if there is a new flag
