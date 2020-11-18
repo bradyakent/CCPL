@@ -97,6 +97,33 @@ local function findStack(items)
     return nil
 end
 
+local function dropAll()
+    local currentSlot = turtle.getSelectedSlot()
+    for i=1,16 do
+        turtle.select(i)
+        turtle.drop()
+    end
+    turtle.select(currentSlot)
+end
+
+local function dropAllDown()
+    local currentSlot = turtle.getSelectedSlot()
+    for i=1,16 do
+        turtle.select(i)
+        turtle.dropDown()
+    end
+    turtle.select(currentSlot)
+end
+
+local function dropAllUp()
+    local currentSlot = turtle.getSelectedSlot()
+    for i=1,16 do
+        turtle.select(i)
+        turtle.dropUp()
+    end
+    turtle.select(currentSlot)
+end
+
 local tex = {
     forward = forward,
     back = back,
@@ -105,8 +132,12 @@ local tex = {
     left = left,
     right = right,
     turnAround = turnAround,
-    findStack = findStack
+    findStack = findStack,
+    dropAll = dropAll,
+    dropAllDown = dropAllDown,
+    dropAllUp = dropAllUp
 }
+
 for f, v in pairs(turtle) do
     if tex[f] == nil then
         tex[f] = v
