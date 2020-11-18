@@ -74,6 +74,7 @@ local function outputLog(input, color)
     print(input)
     if takeSteps then
         read()
+        term.scroll(-1)
     end
 end
 
@@ -127,7 +128,7 @@ local function parseURL(URL)
     outputLog("\n- ".."Building simpleTreeObj:",colors.lightBlue)
     local simpleTreeObj = {}
     for i=1,#treeObj.tree do
-        outputLog("- "..treeObj.tree[i].path,colors.lightGray)
+        outputLog("- "..treeObj.tree[i].path,colors.gray)
         simpleTreeObj[#simpleTreeObj+1] = {path=treeObj.tree[i].path, type=treeObj.tree[i].type}
     end
     local result = {
