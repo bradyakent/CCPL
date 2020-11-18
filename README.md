@@ -15,7 +15,11 @@ The following are a list of programs included in this package:
 #### farm
 Usage: `farm <create/harvest> <x> <y>`
 This program allows the user to either create or harvest a farm of "x" by "y" size.
-When creating a farm, the farming API will ask for materials
+When creating a farm, the farming API will ask for materials in specific slots. If the materials are not provided, the turtle will still create the farm, but you may have to manually place those materials.
+
+#### gist
+Usage: `gist <install/update> <file-name> <gist-url>`
+This program is a quick way to download programs from Gist. It works similarly to the pastebin program, but allows you to overwrite the file at `<file-name>`. `update` just bypasses a warning that `install` displays when overwriting a file.
 
 -------------
 # Advanced Stuff
