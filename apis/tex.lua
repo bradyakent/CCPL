@@ -5,11 +5,15 @@ local function forward(distance, dig)
     for _=1,distance do
         if dig == true then
             while turtle.detect() do
-                turtle.dig()
+                local res, reason = turtle.dig()
+                if not res then
+                    return res, reason
+                end
             end
         end
-        if not turtle.forward() then
-            return false
+        local res, reason = turtle.forward()
+        if not res then
+            return res, reason
         end
     end
     return true
@@ -20,8 +24,9 @@ local function back(distance)
         distance = 1
     end
     for _=1,distance do
-        if not turtle.back() then
-            return false
+        local res, reason = turtle.back()
+        if not res then
+            return res, reason
         end
     end
     return true
@@ -37,8 +42,9 @@ local function up(distance, dig)
                 turtle.digUp()
             end
         end
-        if not turtle.up() then
-            return false
+        local res, reason = turtle.up()
+        if not res then
+            return res, reason
         end
     end
     return true
@@ -54,8 +60,9 @@ local function down(distance, dig)
                 turtle.digDown()
             end
         end
-        if not turtle.down() then
-            return false
+        local res, reason = turtle.down()
+        if not res then
+            return res, reason
         end
     end
     return true
