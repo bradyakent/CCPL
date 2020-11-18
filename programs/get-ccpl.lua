@@ -22,7 +22,7 @@ local debugLog = false
 local takeSteps = false
 local installPath = "/"
 local logPath = "/log.txt"
-local sourceURL = "https://github.com/BradyFromDiscord/CCPL/tree/development/"
+local sourceURL = "https://github.com/BradyFromDiscord/CCPL/tree/tex-dev/"
 for _, arg in ipairs(args) do
     --check currentFlag
     if currentFlag == "-l" then
