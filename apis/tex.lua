@@ -108,8 +108,6 @@ local tex = {
     findStack = findStack
 }
 for f, v in pairs(turtle) do
-    print(f)
-    print(v)
     if tex[f] == nil then
         tex[f] = v
     end
