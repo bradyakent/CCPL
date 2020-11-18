@@ -109,13 +109,15 @@ local function createFarm(x, y)
     --allow the user to bypass warnings about a farm too big
     if plots > 15 then
         printError("Warning: the turtle cannot hold enough buckets, would you like to continue? (yes/no)")
-        if read() ~= "yes" then
+        local userIn = read():lower()
+        if userIn ~= "yes" and userIn ~= "y" then
             error("Farm creation exited",2)
         end
     end
     if plots + pStacks + 2 > 16 then
         printError("Warning: the turtle doesn't have enough space for all the plantable items, would you like to continue? (yes/no)")
-        if read() ~= "yes" then
+        local userIn = read():lower()
+        if userIn ~= "yes" and userIn ~= "y" then
             error("Farm creation exited",2)
         end
     end
