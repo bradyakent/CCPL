@@ -1,5 +1,6 @@
 local _p = settings.get("ccpl.path")
 local ux = require(_p.."ccpl.apis.ux")
+local tex = require(_p.."ccpl.apis.tex")
 local plantableList = {
     "minecraft:wheat_seeds",
     "minecraft:potato",
@@ -12,80 +13,52 @@ local function fdiv(top, bottom)
     return (top - (top%bottom)) / bottom
 end
 
---moves turtle a specified distance forward
-local function forward(distance)
-    for _=1,distance do
-        turtle.forward()
-    end
-end
-
-local function findStack(items)
-    if type(items) ~= "table" then items = { items } end
-    for i=1,16 do
-        local slot = turtle.getItemDetail(i)
-        for _, item in ipairs(items) do
-            if slot == item then
-                return i
-            end
-        end        
-    end
-    return nil
-end
-
 local function handleCrop(forcePlant)
-    local exists, info = turtle.inspectDown()
+    local exists, info = tex.inspectDown()
     if exists then
         if info.state.age == 7 then
-            turtle.digDown()
+            tex.digDown()
         else
             return
         end
     elseif forcePlant == nil then
         return
     end
-    local slotsChecked = 0
-    while turtle.placeDown() == false do
-        local nextSlot = findStack(plantableList)
-        if nextSlot == nil then
-            return
-        end
-        turtle.select(nextSlot)
-    end
+    tex.select(tex.findStack(plantableList))
 end
 
 local function farm(x, y)
     x = tonumber(x)
     y = tonumber(y)
-    turtle.forward()
+    tex.forward()
     for i=1,x do
         for j=1,y do
             handleCrop()
-            if j < y then turtle.forward() end
+            if j < y then tex.forward() end
         end
         if i < x then
             if i%2 == 1 then
-                turtle.turnRight()
-                turtle.forward()
-                turtle.turnRight()
+                tex.turnRight()
+                tex.forward()
+                tex.turnRight()
             else
-                turtle.turnLeft()
-                turtle.forward()
-                turtle.turnLeft()
+                tex.turnLeft()
+                tex.forward()
+                tex.turnLeft()
             end
         end
     end
     if y%2 == 1 then
-        turtle.turnLeft()
-        turtle.turnLeft()
-        forward(y-1)
+        tex.turnAround()
+        tex.forward(y-1)
     end
-    turtle.turnRight()
-    forward(x-1)
-    turtle.turnRight()
-    turtle.back()
+    tex.turnRight()
+    tex.forward(x-1)
+    tex.turnRight()
+    tex.back()
     for i=1,16 do
-        turtle.select(i)
-        turtle.dropDown()
+        tex.select(i)
+        tex.dropDown()
     end
 end
 
@@ -132,86 +105,83 @@ local function createFarm(x, y)
     ux.displaySlots(items)
 
     --place chest
-    turtle.up()
-    turtle.select(1)
-    turtle.placeDown()
-    turtle.forward()
+    tex.up()
+    tex.select(1)
+    tex.placeDown()
+    tex.forward()
 
     --place water
     local waterUsed = 0
-    forward(offsetY)
-    turtle.turnRight()
-    forward(offsetX)
+    tex.forward(offsetY)
+    tex.turnRight()
+    tex.forward(offsetX)
     turtle.down()
     for j=1,plotsY do
-        turtle.digDown()
-        turtle.select(waterUsed + 2)
-        turtle.placeDown()
+        tex.digDown()
+        tex.select(waterUsed + 2)
+        tex.placeDown()
         waterUsed = waterUsed + 1
         for i=1,plotsX-1 do
-            forward(9)
-            turtle.digDown()
-            turtle.select(waterUsed + 2)
-            turtle.placeDown()
+            tex.forward(9)
+            tex.digDown()
+            tex.select(waterUsed + 2)
+            tex.placeDown()
             waterUsed = waterUsed + 1
         end
         if j<plotsY then
             if j%2==1 then
-                turtle.turnLeft()
-                forward(9)
-                turtle.turnLeft()
+                tex.turnLeft()
+                tex.forward(9)
+                tex.turnLeft()
             else
-                turtle.turnRight()
-                forward(9)
-                turtle.turnRight()
+                tex.turnRight()
+                tex.forward(9)
+                tex.turnRight()
             end
         end
     end
 
     --return to chest corner
-    turtle.up()
+    tex.up()
 
     if plotsY%2 == 1 then
-        turtle.turnRight()
-        turtle.turnRight()
-        forward(9*(plotsX-1))
+        tex.turnAround()
+        tex.forward(9*(plotsX-1))
     end
-    forward(offsetX)
-    turtle.turnLeft()
+    tex.forward(offsetX)
+    tex.turnLeft()
 
-    forward((9*(plotsY-1))+offsetY)
-    turtle.turnRight()
-    turtle.turnRight()
+    tex.forward((9*(plotsY-1))+offsetY)
+    tex.turnAround()
 
     --till land
     for i=1,x do
         for j=1,y do
-            if turtle.digDown() then
+            if tex.digDown() then
                 handleCrop(true)
             end
-            if j < y then turtle.forward() end
+            if j < y then tex.forward() end
         end
         if i < x then
             if i%2 == 1 then
-                turtle.turnRight()
-                turtle.forward()
-                turtle.turnRight()
+                tex.turnRight()
+                tex.forward()
+                tex.turnRight()
             else
-                turtle.turnLeft()
-                turtle.forward()
-                turtle.turnLeft()
+                tex.turnLeft()
+                tex.forward()
+                tex.turnLeft()
             end
         end
     end
     if y%2 == 1 then
-        turtle.turnLeft()
-        turtle.turnLeft()
-        forward(y-1)
+        tex.turnAround()
+        tex.forward(y-1)
     end
-    turtle.turnRight()
-    forward(x-1)
-    turtle.turnRight()
-    turtle.back()
+    tex.turnRight()
+    tex.forward(x-1)
+    tex.turnRight()
+    tex.back()
 end
 
 return {
