@@ -61,8 +61,7 @@ local function findStack(items)
     return nil
 end
 
-return {
-    table.unpack(turtle), --grab native turtle functions
+local tex = {
     forward,
     back,
     up,
@@ -72,3 +71,10 @@ return {
     turnAround,
     findStack
 }
+for f, v in pairs(turtle) do
+    if tex[f] == nil then
+        tex[f] = v
+    end
+end
+
+return tex
