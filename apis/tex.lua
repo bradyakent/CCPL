@@ -62,16 +62,18 @@ local function findStack(items)
 end
 
 local tex = {
-    forward,
-    back,
-    up,
-    down,
-    left,
-    right,
-    turnAround,
-    findStack
+    forward = forward,
+    back = back,
+    up = up,
+    down = down,
+    left = left,
+    right = right,
+    turnAround = turnAround,
+    findStack = findStack
 }
 for f, v in pairs(turtle) do
+    print(f)
+    print(v)
     if tex[f] == nil then
         tex[f] = v
     end
