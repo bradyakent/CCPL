@@ -5,7 +5,7 @@ This library is essentially just a collection of APIs and programs that I've wri
 
 ### Installation Instructions
 
-1. Download `get-ccpl.lua` by running `wget <url-to-branch-you-want-to-download>`
+1. Download `get-ccpl.lua` by running `wget https://github.com/BradyFromDiscord/CCPL/tree/development`
 2. Run `get-ccpl.lua`
 And that's it! You can use the programs as if they were vanilla.
 
