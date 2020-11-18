@@ -1,20 +1,28 @@
-# CCPL
-## ComputerCraft Personal Library
+# ComputerCraft Personal Library
 
-This library is essentially just a collection of APIs and programs that I've written. Instead of having to write the same code over and over again, I decided to make an easily installable library/package/whatever the correct term for this thing is.
+This library is essentially just a collection of APIs and programs that I've written. Instead of having to write the same code over and over again, I decided to make an easily installable package.
 
-### Installation Instructions
+## Installation Instructions
 
 1. Download `get-ccpl.lua` by running `wget https://github.com/BradyFromDiscord/CCPL/tree/development/programs/get-ccpl.lua`
 2. Run `get-ccpl.lua`
 And that's it! You can use the programs as if they were vanilla.
 
+## Programs
+
+The following are a list of programs included in this package:
+
+#### farm
+Usage: `farm <create/harvest> <x> <y>`
+This program allows the user to either create or harvest a farm of "x" by "y" size.
+When creating a farm, the farming API will ask for materials
+
 -------------
-## Advanced Stuff
+# Advanced Stuff
 
 You only need this stuff if you're going to be programming with CCPL.
 
-### Advanced Installation
+## Advanced Installation
 
 There are custom flags that you may use with the `get-ccpl.lua` program:
 
@@ -25,7 +33,7 @@ There are custom flags that you may use with the `get-ccpl.lua` program:
 | `-l [path/file]` | Dumps debug output to a log file. File defaults to `/log.txt` |
 | `-s`             | Steps through debug output, in case you're into that          |
 
-### Using the APIs
+## Before using the APIs
 
 Since there is no way to add custom paths to `require()`'s list of paths, and I have an option to install CCPL in a custom path, I needed a way to reference my APIs no matter where they are, even though `require()` would need an absolute path. 
 This is the snippet to do that:
