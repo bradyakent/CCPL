@@ -1,8 +1,13 @@
-local function forward(distance)
+local function forward(distance, dig)
     if distance == nil then
         distance = 1
     end
     for _=1,distance do
+        if dig == true then
+            while turtle.detect() do
+                turtle.dig()
+            end
+        end
         turtle.forward()
     end
 end
@@ -16,20 +21,30 @@ local function back(distance)
     end
 end
 
-local function up(distance)
+local function up(distance, dig)
     if distance == nil then
         distance = 1
     end
     for _=1,distance do
+        if dig == true then
+            while turtle.detectUp() do
+                turtle.digUp()
+            end
+        end
         turtle.up()
     end
 end
 
-local function down(distance)
+local function down(distance, dig)
     if distance == nil then
         distance = 1
     end
     for _=1,distance do
+        if dig == true then
+            while turtle.detectDown() do
+                turtle.digDown()
+            end
+        end
         turtle.down()
     end
 end
