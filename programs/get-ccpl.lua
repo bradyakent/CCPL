@@ -183,6 +183,10 @@ if not fs.exists("/startup") then
     fs.makeDir("/startup")
 end
 
+if fs.exists("/startup/ccpl-startup.lua") then
+    outputLog("Warning: ccpl-startup.lua found! There may be incompatibilities if you continue.",colors.red)
+    if not acceptOverwrites("/startup/ccpl-startup.lua") then do return end end
+end
 fs.move(installPath.."ccpl/startup/ccpl-startup.lua","/startup/ccpl-startup.lua")
 
 outputLog("\nFinished!",colors.lime)
