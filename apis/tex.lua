@@ -87,10 +87,12 @@ end
 local function findStack(items)
     if type(items) ~= "table" then items = { items } end
     for i=1,16 do
-        local slot = turtle.getItemDetail(i).name
-        for _, item in ipairs(items) do
-            if slot == item then
-                return i
+        if turtle.getItemDetail(i) then
+            local slot = turtle.getItemDetail(i).name
+            for _, item in ipairs(items) do
+                if slot == item then
+                    return i
+                end
             end
         end
     end
