@@ -1,5 +1,5 @@
-local farming = {}
-local slots = require("/customAPIs/slots")
+local _p = settings.get("ccpl.path")
+local slots = require(_p.."ccpl.apis.slots")
 
 --performs floor division
 local function fdiv(top, bottom)
@@ -29,7 +29,7 @@ local function handleCrop(forcePlant)
     end
 end
 
-function farming.farm(x, y)
+local function farm(x, y)
     x = tonumber(x)
     y = tonumber(y)
     turtle.forward()
@@ -65,7 +65,7 @@ function farming.farm(x, y)
     end
 end
 
-function farming.createFarm(x, y)
+local function createFarm(x, y)
     x = tonumber(x)
     y = tonumber(y)
     --error checking
@@ -192,4 +192,7 @@ function farming.createFarm(x, y)
     turtle.back()
 end
 
-return farming
+return {
+    createFarm = createFarm,
+    farm = farm
+}
