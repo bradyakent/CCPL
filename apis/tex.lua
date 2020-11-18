@@ -8,8 +8,11 @@ local function forward(distance, dig)
                 turtle.dig()
             end
         end
-        turtle.forward()
+        if not turtle.forward() then
+            return false
+        end
     end
+    return true
 end
 
 local function back(distance)
@@ -17,8 +20,11 @@ local function back(distance)
         distance = 1
     end
     for _=1,distance do
-        turtle.back()
+        if not turtle.back() then
+            return false
+        end
     end
+    return true
 end
 
 local function up(distance, dig)
@@ -31,8 +37,11 @@ local function up(distance, dig)
                 turtle.digUp()
             end
         end
-        turtle.up()
+        if not turtle.up() then
+            return false
+        end
     end
+    return true
 end
 
 local function down(distance, dig)
@@ -45,21 +54,26 @@ local function down(distance, dig)
                 turtle.digDown()
             end
         end
-        turtle.down()
+        if not turtle.down() then
+            return false
+        end
     end
+    return true
 end
 
 local function left()
-    turtle.turnLeft()
+    return turtle.turnLeft()
 end
 
 local function right()
-    turtle.turnRight()
+    return turtle.turnRight()
 end
 
 local function turnAround()
-    turtle.turnLeft()
-    turtle.turnLeft()
+    if turtle.turnLeft() and turtle.turnLeft() then
+        return true
+    end
+    return false
 end
 
 -- can take a string or table of strings
