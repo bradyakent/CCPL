@@ -24,7 +24,11 @@ local function handleCrop(forcePlant)
     elseif forcePlant == nil then
         return
     end
-    tex.select(tex.findStack(plantableList))
+    local slot = tex.findStack(plantableList)
+    if slot then
+        tex.select(slot)
+        tex.plantDown()
+    end
 end
 
 local function farm(x, y)
@@ -56,10 +60,7 @@ local function farm(x, y)
     tex.forward(x-1)
     tex.turnRight()
     tex.back()
-    for i=1,16 do
-        tex.select(i)
-        tex.dropDown()
-    end
+    tex.dropAllDown()
 end
 
 local function createFarm(x, y)
@@ -182,6 +183,7 @@ local function createFarm(x, y)
     tex.forward(x-1)
     tex.turnRight()
     tex.back()
+    tex.dropAllDown()
 end
 
 return {
