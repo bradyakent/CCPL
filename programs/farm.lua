@@ -13,9 +13,11 @@ local args = { ... }
 -- error checking
 if type(args[2]) ~= "number" or type(args[3]) ~= "number" then
     printUsage()
+    do return end
 end
 if args[2] < 1 or args[3] < 1 then
     printUsage()
+    do return end
 end
 
 if args[1] == "create" then
