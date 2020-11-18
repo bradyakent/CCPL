@@ -110,7 +110,7 @@ local function parseURL(URL)
     local snip = URL:sub(last+1,URL:len()+1)
     local URLpath = {}
     outputLog("- ".."Snipping URL:",colors.lightBlue)
-    for x in snip:gmatch("%w+") do
+    for x in snip:gmatch("[%w-]+") do
         outputLog("- "..x,colors.gray)
 		URLpath[#URLpath+1] = x
     end
