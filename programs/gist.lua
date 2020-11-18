@@ -11,7 +11,7 @@ local args = { ... }
 --args[2]: <file-name>
 --args[3]: <gist-url>
 
-if #args ~= 3 or (args[2] ~= "install" and args[2] ~= "update") then
+if #args ~= 3 or (args[1] ~= "install" and args[1] ~= "update") then
     ux.displayUsage("gist",usage)
     do return end
 end
