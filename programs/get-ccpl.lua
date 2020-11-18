@@ -12,12 +12,14 @@ possible flags:
 -f           : Force file/directory overwrites
 -i <path>    : Install CCPL to the specified path. May break CCPL programs if not careful.
 -l [filename]: output debug info to a file. filename defaults to "/log.txt"
+-s           : pause after every outputLog() call.
 --]]
 
 local logFile
 local currentFlag = ""
 local askAboutOverwrites = true
 local debugLog = false
+local takeSteps = false
 local installPath = "/"
 local logPath = "/log.txt"
 local sourceURL = "https://github.com/BradyFromDiscord/CCPL/tree/development/"
@@ -49,6 +51,8 @@ for _, arg in ipairs(args) do
             askAboutOverwrites = false
         elseif arg == "-i" then
             currentFlag = "-i"
+        elseif arg == "-s" then
+                takeSteps = true
         else
             sourceURL = arg
         end
@@ -68,11 +72,14 @@ local function outputLog(input, color)
     end
     term.setTextColor(color)
     print(input)
+    if takeSteps then
+        read()
+    end
 end
 
 local function acceptOverwrites(pathToFile)
     if askAboutOverwrites and fs.exists(pathToFile) then
-        print(pathToFile.." is about to be overwritten! Would you like to continue? (y/n)")
+        outputLog(pathToFile.." is about to be overwritten! Would you like to continue? (y/n)",colors.red)
         local userIn = read():lower()
         if (userIn == "yes" or userIn == "y") then
             return true
@@ -142,7 +149,7 @@ if settings.getDetails("ccpl.path").value == nil then
     settings.save()
 else
     if settings.get("ccpl.path") == installPath and askAboutOverwrites then
-        print("Old CCPL found! Would you like to overwrite it? (y/n)")
+        outputLog("Old CCPL found! Would you like to overwrite it? (y/n)",colors.red)
         local userIn = read():lower()
         if not (userIn == "yes" or userIn == "y") then
             printError("Aborted.")
