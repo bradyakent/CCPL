@@ -1,5 +1,5 @@
 local complete = require("cc.shell.completion")
-local CCPLPath = settings.get("ccpl.path")
+local CCPLPath = settings.get("ccpl.path"):sub(2)
 
 local function fileIf(theShell, thisArg, prevArgs, text)
     if prevArgs[2] == text then
