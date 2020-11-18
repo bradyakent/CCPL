@@ -77,7 +77,7 @@ local function outputLog(input, color)
 end
 
 local function acceptOverwrites(pathToFile)
-    if askAboutOverwrites and fs.exists(pathToFile) then
+    if askAboutOverwrites == true and fs.exists(pathToFile) then
         outputLog(pathToFile.." is about to be overwritten! Would you like to continue? (y/n)",colors.red)
         local userIn = read():lower()
         if (userIn == "yes" or userIn == "y") then
@@ -111,7 +111,7 @@ local function parseURL(URL)
     local URLpath = {}
     outputLog("- ".."Snipping URL:",colors.lightBlue)
     for x in snip:gmatch("%w+") do
-        outputLog("- "..x,colors.lightGray)
+        outputLog("- "..x,colors.gray)
 		URLpath[#URLpath+1] = x
     end
     if not URLpath[4] then
@@ -186,6 +186,7 @@ end
 if fs.exists("/startup/ccpl-startup.lua") then
     outputLog("Warning: ccpl-startup.lua found! There may be incompatibilities if you continue.",colors.red)
     if not acceptOverwrites("/startup/ccpl-startup.lua") then do return end end
+    fs.delete("/startup/ccpl-startup.lua")
 end
 fs.move(installPath.."ccpl/startup/ccpl-startup.lua","/startup/ccpl-startup.lua")
 
