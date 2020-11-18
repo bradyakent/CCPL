@@ -4,7 +4,7 @@ This library is essentially just a collection of APIs and programs that I've wri
 
 ## Installation Instructions
 
-1. Download `get-ccpl.lua` by running `wget https://github.com/BradyFromDiscord/CCPL/tree/tex-dev/programs/get-ccpl.lua`
+1. Download `get-ccpl.lua` by running `wget https://raw.githubusercontent.com/BradyFromDiscord/CCPL/tex-dev/programs/get-ccpl.lua`
 2. Run `get-ccpl.lua`
 And that's it! You can use the programs as if they were vanilla.
 
