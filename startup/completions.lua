@@ -16,17 +16,11 @@ shell.setCompletionFunction(CCPLPath.."ccpl/programs/gist.lua",complete.build(
 --programs/farm.lua
 shell.setCompletionFunction(CCPLPath.."ccpl/programs/farm.lua",complete.build({ complete.choice, {"create ", "harvest "} }))
 
-local function printCompletion(theShell, thisArg, prevArgs, text)
-    if #prevArgs == 1 then
-        return complete.choice(theShell, text, prevArgs, "scan ", "print ")
-    end
-    if prevArgs[2] == "scan" then
-        if #prevArgs < 5 then
-            return nil
-        end
-        return complete.file(theShell, text)
-    elseif prevArgs[2] == "print" then
-        return complete.file(theShell, text)
+local function printCompletion(theShell, argument, prevArgs)
+    if #prevArgs == 0 then
+        return complete.choice(theShell, argument, prevArgs, { "scan ", "print " })
+    elseif prevArgs[1] == "print" or (prevArgs[1] == "scan" and #prevArgs == 4) then
+        return complete.file(theShell, argument)
     end
 end
 --programs/3dprint.lua
