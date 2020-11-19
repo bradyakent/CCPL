@@ -1,5 +1,5 @@
 local _p = settings.get("ccpl.path")
-local tprint = require("ccpl.apis.tprint")
+local tprint = require(_p.."ccpl.apis.tprint")
 
 if read() == "yes" then
     local output = fs.open("test.hob", "w")
