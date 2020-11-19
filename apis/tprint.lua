@@ -28,7 +28,7 @@ local function handleBlock(houseObj, up)
             houseObj.data[#houseObj.data + 1]=material
         else
             houseObj.materials[#houseObj.materials + 1] = { name=block.name, amount=1 }
-            houseObj.data[#houseObj.data + 1] = #houseObj.materials + 1
+            houseObj.data[#houseObj.data + 1] = #houseObj.materials
         end
     else
         houseObj.data[#houseObj.data + 1] = 0
