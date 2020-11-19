@@ -14,7 +14,7 @@ possible flags:
 -i <path>    : Install CCPL to the specified path. May break CCPL programs if not careful.
 -l [filename]: output debug info to a file. filename defaults to "/log.txt"
 -s           : pause after every outputLog() call.
--t           : download the program run-tests.lua
+-d           : download tests
 --]]
 
 local logFile
@@ -25,7 +25,7 @@ local takeSteps = false
 local downloadTest = false
 local installPath = "/"
 local logPath = "/log.txt"
-local branch = "development"
+local branch = "main"
 local sourceURL = "https://github.com/BradyFromDiscord/CCPL/tree/"
 for _, arg in ipairs(args) do
     --check currentFlag
@@ -67,7 +67,7 @@ for _, arg in ipairs(args) do
     end
 end
 
-if not downloadTest then
+if downloadTest then
     ignore[#ignore+1] = "ccpl/programs/run-tests.lua"
 end
 
@@ -84,6 +84,7 @@ local function outputLog(input, color)
     end
     term.setTextColor(color)
     print(input)
+    term.setTextColor(colors.white)
     if takeSteps then
         read()
         term.scroll(-1)
