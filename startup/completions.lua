@@ -17,13 +17,9 @@ shell.setCompletionFunction(CCPLPath.."ccpl/programs/gist.lua",complete.build(
 shell.setCompletionFunction(CCPLPath.."ccpl/programs/farm.lua",complete.build({ complete.choice, {"create ", "harvest "} }))
 
 local function printCompletion(theShell, argument, prevArgs)
-    for _, theArg in ipairs(prevArgs) do
-        term.write(theArg.." ")
-    end
-    print()
-    if #prevArgs == 0 then
+    if #prevArgs == 1 then
         return complete.choice(theShell, argument, prevArgs, { "scan ", "print " })
-    elseif prevArgs[1] == "print" or (prevArgs[1] == "scan" and #prevArgs == 4) then
+    elseif prevArgs[2] == "print" or (prevArgs[2] == "scan" and #prevArgs == 4) then
         return complete.file(theShell, argument)
     end
 end
