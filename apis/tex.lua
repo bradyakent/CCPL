@@ -147,8 +147,8 @@ local function vPath(width, height, depth)
             end
             --if width is even, flip turn direction at every even height
             --if wt % 2 == 1, turn right, else turn left
-            
-            if (width%2 == 0 and ht % 2 == 0) and (wt%2 == 0) or (wt%2 == 1) then
+            local flip = (width%2 == 0 and ht % 2 == 0)
+            if (wt%2 == 0 and flip) or (wt%2 == 1 and not flip) then
                 wt = wt + 1
                 return dirs[3]
             else
