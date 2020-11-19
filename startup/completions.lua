@@ -25,7 +25,7 @@ local function printCompletion(theShell, thisArg, prevArgs, text)
             return nil
         end
         return complete.file(theShell, text)
-    else prevArgs[2] == "print" then
+    elseif prevArgs[2] == "print" then
         return complete.file(theShell, text)
     end
 end
