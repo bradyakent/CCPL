@@ -14,6 +14,7 @@ possible flags:
 -i <path>    : Install CCPL to the specified path. May break CCPL programs if not careful.
 -l [filename]: output debug info to a file. filename defaults to "/log.txt"
 -s           : pause after every outputLog() call.
+-t           : download the program run-tests.lua
 --]]
 
 local logFile
@@ -21,6 +22,7 @@ local currentFlag = ""
 local askAboutOverwrites = true
 local debugLog = false
 local takeSteps = false
+local downloadTest = false
 local installPath = "/"
 local logPath = "/log.txt"
 local branch = "development"
@@ -56,11 +58,17 @@ for _, arg in ipairs(args) do
         elseif arg == "-i" then
             currentFlag = "-i"
         elseif arg == "-s" then
-                takeSteps = true
+            takeSteps = true
+        elseif arg == "-t" then
+            downloadTest = true
         else
             sourceURL = arg
         end
     end
+end
+
+if not downloadTest then
+    ignore[#ignore+1] = "ccpl/programs/run-tests.lua"
 end
 
 if debugLog then
