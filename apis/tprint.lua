@@ -30,17 +30,17 @@ local testHouse = {
 local function handleBlock(houseObj, up)
     local func = (up and tex.inspectUp or tex.inspect)
     if tex.inspect() then
-        local block = tex.inspect()
+        local _, block = tex.inspect()
         local material = getIndex(houseObj.materials, block.name)
         if material then
             houseObj.materials[material].amount = houseObj.materials[material].amount + 1
-            houseObj.data[i]=material
+            houseObj.data[#houseObj.data + 1]=material
         else
             houseObj.materials[#houseObj.materials + 1] = { name=block.name, amount=1 }
-            houseObj.data[i]=#houseObj.materials + 1
+            houseObj.data[#houseObj.data + 1]=#houseObj.materials + 1
         end
     else
-        houseObj.data[i] = 0
+        houseObj.data[#houseObj.data + 1] = 0
     end
 end
 
