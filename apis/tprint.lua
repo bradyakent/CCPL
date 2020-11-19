@@ -18,26 +18,17 @@ local function extrude(data, currIndex)
     end
 end
 
-local testHouse = {
-    name="Test House",
-    width=5,
-    height=5,
-    depth=5,
-    data={},
-    materials={}
-}
-
 local function handleBlock(houseObj, up)
     local func = (up and tex.inspectUp or tex.inspect)
-    if tex.inspect() then
-        local _, block = tex.inspect()
+    if func() then
+        local _, block = func()
         local material = getIndex(houseObj.materials, block.name)
         if material then
             houseObj.materials[material].amount = houseObj.materials[material].amount + 1
             houseObj.data[#houseObj.data + 1]=material
         else
             houseObj.materials[#houseObj.materials + 1] = { name=block.name, amount=1 }
-            houseObj.data[#houseObj.data + 1]=#houseObj.materials + 1
+            houseObj.data[#houseObj.data + 1] = #houseObj.materials + 1
         end
     else
         houseObj.data[#houseObj.data + 1] = 0
@@ -53,11 +44,9 @@ local function scan(name, width, height, depth)
         data={},
         materials={}
     }
-    local i = 1
     handleBlock(result)
     tex.forward(1,true)
     for instruction in tex.vPath(width, height, depth) do
-        i = i + 1
         if instruction == "left" then
             tex.left()
             handleBlock(result)
@@ -70,8 +59,10 @@ local function scan(name, width, height, depth)
             tex.right()
         elseif instruction == "up" then
             tex.turnAround()
+            handleBlock(result,true)
             tex.up(1,true)
-        else
+        elseif instruction == "forward" then
+            handleBlock(result)
             tex.forward(1,true)
         end
     end
