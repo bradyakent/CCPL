@@ -126,6 +126,41 @@ local function dropAllUp()
     turtle.select(currentSlot)
 end
 
+-- creates a path iterator through a volume
+local function createVPath(width, height, depth)
+    local i = 0
+    local dirs = {"forward", "left", "right", "up"}
+    local dt = 1
+    local wt = 1
+    local ht = 1
+    return function()
+        i = i + 1
+        if ht == height and wt == width and dt == depth then
+            return nil
+        end
+        if dt == depth then
+            dt = 1
+            if wt == width then
+                wt = 1
+                ht = ht + 1
+                return dirs[4]
+            end
+            --if width is even, flip turn direction at every even height
+            --if wt % 2 == 1, turn right, else turn left
+            
+            if (width%2 == 0 and ht % 2 == 0) and (wt%2 == 0) or (wt%2 == 1) then
+                wt = wt + 1
+                return dirs[3]
+            else
+                wt = wt + 1
+                return dirs[2]
+            end
+        end
+        dt = dt + 1
+        return dirs[1]
+    end
+end
+
 local tex = {
     forward = forward,
     back = back,
@@ -137,7 +172,8 @@ local tex = {
     findStack = findStack,
     dropAll = dropAll,
     dropAllDown = dropAllDown,
-    dropAllUp = dropAllUp
+    dropAllUp = dropAllUp,
+    createVPath = createVPath
 }
 
 for f, v in pairs(turtle) do
