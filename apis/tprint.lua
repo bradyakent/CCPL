@@ -4,7 +4,7 @@ local ux = require(_p.."ccpl.apis.ux")
 
 local function getIndex(array, value)
     for i, item in ipairs(array) do
-        if item == value then
+        if item.name == value then
             return i
         end
     end
