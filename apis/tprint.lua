@@ -53,11 +53,10 @@ local function scan(name, width, height, depth)
         data={},
         materials={}
     }
-    local vPath = tex.createVPath(width, height, depth)
     local i = 1
     handleBlock(result)
     tex.forward(1,true)
-    for instruction in vPath() do
+    for instruction in tex.vPath(width, height, depth) do
         i = i + 1
         if instruction == "left" then
             tex.left()
