@@ -1,53 +1,47 @@
 local _p = settings.get("ccpl.path")
 local tex = require(_p.."ccpl.apis.tex")
+local ux = require(_p.."ccpl.apis.ux")
+
+local args = { ... }
+
+local width = tonumber(args[1])
+local height = tonumber(args[2])
+local depth = tonumber(args[3])
+
+local usage = {
+    {"width",{"depth","height"}}
+}
 
 local function fdiv(top, bottom)
     return (top - (top%bottom)) / bottom
 end
 
-print("Enter width of the room:")
-local width = tonumber(read())
-print("Enter depth of the room:")
-local depth = tonumber(read())
-print("Enter height of the room:")
-local height = tonumber(read())
+if #args ~= 3 or type(width) ~= "number" or type(height) ~= "number" or type(depth) ~= "number" then
+    ux.displayUsage("make-room",usage)
+    do return end
+end
 
 local half = fdiv(width, 2)
 
 tex.forward(1,true)
 tex.left()
 tex.forward(half,true)
-tex.turnAround()
+tex.right()
 
-for y = 1, height do
-    for x = 1, depth do
-        tex.forward(width-1,true)
-        if x < depth then
-            if depth % 2 == 0 and y % 2 == 0 then
-                if x % 2 == 1 then
-                    tex.right()
-                    tex.forward(1,true)
-                    tex.right()
-                else
-                    tex.left()
-                    tex.forward(1,true)
-                    tex.left()
-                end
-            else
-                if x % 2 == 1 then
-                    tex.left()
-                    tex.forward(1,true)
-                    tex.left()
-                else
-                    tex.right()
-                    tex.forward(1,true)
-                    tex.right()
-                end
-            end
-        end
-    end
-    if y < height then
+for instruction in tex.vPath(width, height, depth) do
+    if instruction == "up" then
         tex.turnAround()
-        tex.up(1,true)
+        tex.up(1, true)
+    elseif instruction == "left" then
+        tex.left()
+        tex.forward(1, true)
+        tex.left()
+    elseif instruction == "right" then
+        tex.right()
+        tex.forward(1, true)
+        tex.right()
+    elseif instruction == "forward" then
+        tex.forward(1, true)
     end
 end
+tex.down(height-1)
