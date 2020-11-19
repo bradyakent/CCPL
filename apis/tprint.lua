@@ -71,9 +71,8 @@ end
 
 local function print(houseObj)
     ux.displaySlots(houseObj.materials)
-    local vPath = tex.createVPath(houseObj.width,houseObj.height,houseObj.depth)
-    i = 0
-    for instruction in vPath() do
+    local i = 0
+    for instruction in tex.vPath(houseObj.width,houseObj.height,houseObj.depth) do
         i = i + 1
         if instruction == "left" then
             tex.left()
@@ -86,7 +85,7 @@ local function print(houseObj)
         elseif instruction == "up" then
             tex.turnAround()
             tex.up()
-        else
+        elseif instruction == "forward" then
             tex.forward()
         end
         extrude(houseObj.data, i)
