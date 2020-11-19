@@ -23,7 +23,7 @@ local debugLog = false
 local takeSteps = false
 local installPath = "/"
 local logPath = "/log.txt"
-local branch = "make-room-dev"
+local branch = "development"
 local sourceURL = "https://github.com/BradyFromDiscord/CCPL/tree/"
 for _, arg in ipairs(args) do
     --check currentFlag
