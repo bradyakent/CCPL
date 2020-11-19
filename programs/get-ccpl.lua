@@ -23,7 +23,7 @@ local debugLog = false
 local takeSteps = false
 local installPath = "/"
 local logPath = "/log.txt"
-local branch = "tex-dev"
+local branch = "tprint-dev"
 local sourceURL = "https://github.com/BradyFromDiscord/CCPL/tree/"
 for _, arg in ipairs(args) do
     --check currentFlag
