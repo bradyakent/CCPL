@@ -1,6 +1,6 @@
 local _p = settings.get("ccpl.path")
-local tex = settings.get(_p.."ccpl.apis.tex")
-local ux = settings.get(_p.."ccpl.apis.ux")
+local tex = require(_p.."ccpl.apis.tex")
+local ux = require(_p.."ccpl.apis.ux")
 
 local function getIndex(array, value)
     for i, item in ipairs(array) do
