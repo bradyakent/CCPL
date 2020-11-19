@@ -127,7 +127,7 @@ local function dropAllUp()
 end
 
 -- creates a path iterator through a volume
-local function createVPath(width, height, depth)
+local function vPath(width, height, depth)
     local i = 0
     local dirs = {"forward", "left", "right", "up"}
     local dt = 1
@@ -173,7 +173,7 @@ local tex = {
     dropAll = dropAll,
     dropAllDown = dropAllDown,
     dropAllUp = dropAllUp,
-    createVPath = createVPath
+    vPath = vPath
 }
 
 for f, v in pairs(turtle) do
