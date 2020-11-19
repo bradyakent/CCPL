@@ -128,13 +128,11 @@ end
 
 -- creates a path iterator through a volume
 local function vPath(width, height, depth)
-    local i = 0
     local dirs = {"forward", "left", "right", "up"}
     local dt = 1
     local wt = 1
     local ht = 1
     return function()
-        i = i + 1
         if ht == height and wt == width and dt == depth then
             return nil
         end
