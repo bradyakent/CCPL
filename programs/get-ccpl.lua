@@ -67,7 +67,7 @@ for _, arg in ipairs(args) do
     end
 end
 
-if downloadTest then
+if not downloadTest then
     ignore[#ignore+1] = "ccpl/programs/run-tests.lua"
 end
 
