@@ -33,7 +33,7 @@ if args[1] == "scan" then
     tex.left()
     tex.forward(args[2]-1)
     tex.left()
-    tex.forward(args[4]-1)
+    tex.forward(args[4])
     tex.turnAround()
     print("Scanned! You can print this structure by running \"3dprint print "..args[5].."\".")
 
