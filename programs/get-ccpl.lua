@@ -25,7 +25,7 @@ local takeSteps = false
 local downloadTest = false
 local installPath = "/"
 local logPath = "/log.txt"
-local branch = "main"
+local branch = "stable"
 local sourceURL = "https://github.com/BradyFromDiscord/CCPL/tree/"
 for _, arg in ipairs(args) do
     --check currentFlag
