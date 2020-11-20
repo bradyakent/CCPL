@@ -19,23 +19,31 @@ local function tcodeToMob(tcodeObj)
         mob.materials[i] = { name=material.name, amount=material.amount }
     end
 
-    local pw = 1
-    local ph = 1
-    local pd = tcodeObj.depth
-    local direction = -1
+    local pos = {
+        x=1,
+        y=1,
+        z=tcodeObj.depth
+    }
+    local dir = {
+        x=0,
+        z=-1
+    }
     for i in ipairs(tcodeObj.data) do
-        mob.model[ph][pd][pw] = tcodeObj.data[i]
+        mob.model[pos.y][pos.z][pos.x] = tcodeObj.data[i]
         if tcodeObj.instructions[i] == "forward" then
-            pd = pd + direction
+            pos.x = pos.x + dir.x
+            pos.z = pos.z + dir.z
         elseif tcodeObj.instructions[i] == "right" then
-            pw = pw + (-direction)
-            direction = -direction
+            dir.x, dir.z = dir.z, -dir.x
+            pos.x = pos.x + dir.x
+            pos.z = pos.z + dir.z
         elseif tcodeObj.instructions[i] == "left" then
-            pw = pw + direction
-            direction = -direction
+            dir.x, dir.z = -dir.z, dir.x
+            pos.x = pos.x + dir.x
+            pos.z = pos.z + dir.z
         elseif tcodeObj.instructions[i] == "up" then
-            ph = ph + 1
-            direction = -direction
+            dir.x, dir.z = -dir.x, -dir.z
+            pos.y = pos.y + 1
         end
     end
     return mob
