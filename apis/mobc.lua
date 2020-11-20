@@ -62,9 +62,40 @@ local function naiveMobToTcode(mob)
         tcode.materials[i] = { name=material.name, amount=material.amount }
     end
 
-    
+    local pos = {
+        x=1,
+        y=1,
+        z=mob.depth
+    }
+    local dir = {
+        x=0,
+        z=-1
+    }
+    tcode.data[#tcode.data + 1] = mob.model[pos.y][pos.z][pos.x]
+    for instruction in tex.vPath(mob.width, mob.height, mob.depth) do
+        tcode.instructions[#tcode.instructions+1] = instruction
+        if instruction == "forward" then
+            pos.x = pos.x + dir.x
+            pos.z = pos.z + dir.z
+        elseif instruction == "right" then
+            dir.x, dir.z = -dir.z, dir.x
+            pos.x = pos.x + dir.x
+            pos.z = pos.z + dir.z
+        elseif instruction == "left" then
+            dir.x, dir.z = dir.z, -dir.x
+            pos.x = pos.x + dir.x
+            pos.z = pos.z + dir.z
+        elseif instruction == "up" then
+            dir.x, dir.z = -dir.x, -dir.z
+            pos.y = pos.y + 1
+        end
+        tcode.data[#tcode.data + 1] = mob.model[pos.y][pos.z][pos.x]
+    end
+    return tcode
 end
 
 return {
-    tcodeToMob=tcodeToMob
+    tcodeToMob=tcodeToMob,
+    naiveMobToTcode=naiveMobToTcode,
+    mobToTcode=naiveMobToTcode
 }
