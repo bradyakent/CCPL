@@ -75,7 +75,7 @@ local function print(tcodeObj)
     ux.displaySlots(tcodeObj.materials)
     local i = 0
     tex.up()
-    for instruction in tcodeObj.instructions do
+    for instruction in ipairs(tcodeObj.instructions) do
         i = i + 1
         extrude(tcodeObj.data, i)
         if instruction == "left" then
