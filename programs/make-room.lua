@@ -35,11 +35,9 @@ for instruction in tex.vPath(width, height, depth) do
     elseif instruction == "left" then
         tex.left()
         tex.forward(1, true)
-        tex.left()
     elseif instruction == "right" then
         tex.right()
         tex.forward(1, true)
-        tex.right()
     elseif instruction == "forward" then
         tex.forward(1, true)
     end

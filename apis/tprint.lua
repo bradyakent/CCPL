@@ -53,12 +53,10 @@ local function scan(name, width, height, depth)
             tex.left()
             handleBlock(result)
             tex.forward(1,true)
-            tex.left()
         elseif instruction == "right" then
             tex.right()
             handleBlock(result)
             tex.forward(1,true)
-            tex.right()
         elseif instruction == "up" then
             tex.turnAround()
             handleBlock(result,true)
@@ -79,12 +77,10 @@ local function print(tcodeObj)
         if tcodeObj.instructions[i] == "left" then
             tex.left()
             tex.forward()
-            tex.left()
-        elseif tcodeObj.instructions[i] == "right" then
+        elseif instruction == "right" then
             tex.right()
             tex.forward()
-            tex.right()
-        elseif tcodeObj.instructions[i] == "up" then
+        elseif instruction == "up" then
             tex.turnAround()
             tex.up()
         elseif tcodeObj.instructions[i] == "forward" then
