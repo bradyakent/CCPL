@@ -146,8 +146,9 @@ local function vPath(width, height, depth)
             return dirs[2]
         end
         if dt == depth then
-            dt = 0
+            dt = 1
             if wt == width then
+                wt = 1
                 ht = ht + 1
                 return dirs[4]
             end
