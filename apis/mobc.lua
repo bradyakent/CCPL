@@ -26,7 +26,7 @@ format of .mob objects:
         },
     },
     materials={
-        {name="block-name", amount}
+        {name="block-name", amount=num}
     }
 }
 --]]
@@ -37,5 +37,16 @@ local function tcodeToMob(tcodeObj)
         width=tcodeObj.width,
         height=tcodeObj.height,
         depth=tcodeObj.depth,
+        model={},
+        materials={}
     }
+    for i=1,height do
+        mob.model[i] = {}
+        for j=1,depth do
+            mob.model[i][j] = {}
+        end
+    end
+    for i, instruction in ipairs(tcodeObj.instructions) do
+        
+    end
 end
