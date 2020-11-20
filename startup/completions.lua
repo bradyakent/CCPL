@@ -19,7 +19,7 @@ shell.setCompletionFunction(CCPLPath.."ccpl/programs/farm.lua",complete.build({ 
 local function printCompletion(theShell, argument, prevArgs)
     if #prevArgs == 1 then
         return complete.choice(theShell, argument, prevArgs, { "scan ", "print " })
-    elseif prevArgs[2] == "print" or (prevArgs[2] == "scan" and #prevArgs == 4) then
+    elseif prevArgs[2] == "print" or (prevArgs[2] == "scan" and #prevArgs == 5) then
         return complete.file(theShell, argument)
     end
 end
