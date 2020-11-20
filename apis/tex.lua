@@ -132,14 +132,22 @@ local function vPath(width, height, depth)
     local dt = 1
     local wt = 1
     local ht = 1
+    local shiftRight = false
+    local shiftLeft = false
     return function()
         if ht == height and wt == width and dt == depth then
             return nil
         end
+        if shiftRight == true then
+            shiftRight = false
+            return dirs[3]
+        elseif shiftLeft == true then
+            shiftLeft = false
+            return dirs[2]
+        end
         if dt == depth then
-            dt = 1
+            dt = 0
             if wt == width then
-                wt = 1
                 ht = ht + 1
                 return dirs[4]
             end
@@ -147,9 +155,11 @@ local function vPath(width, height, depth)
             --if wt % 2 == 1, turn right, else turn left
             local flip = (width%2 == 0 and ht % 2 == 0)
             if (wt%2 == 0 and flip) or (wt%2 == 1 and not flip) then
+                shiftRight = true
                 wt = wt + 1
                 return dirs[3]
             else
+                shiftLeft = true
                 wt = wt + 1
                 return dirs[2]
             end
