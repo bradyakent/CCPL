@@ -74,20 +74,20 @@ end
 local function print(tcodeObj)
     ux.displaySlots(tcodeObj.materials)
     tex.up()
-    for i, instruction in ipairs(tcodeObj.instructions) do
+    for i in ipairs(tcodeObj.data) do
         extrude(tcodeObj.data, i)
-        if instruction == "left" then
+        if tcodeObj.instructions[i] == "left" then
             tex.left()
             tex.forward()
             tex.left()
-        elseif instruction == "right" then
+        elseif tcodeObj.instructions[i] == "right" then
             tex.right()
             tex.forward()
             tex.right()
-        elseif instruction == "up" then
+        elseif tcodeObj.instructions[i] == "up" then
             tex.turnAround()
             tex.up()
-        elseif instruction == "forward" then
+        elseif tcodeObj.instructions[i] == "forward" then
             tex.forward()
         end
     end

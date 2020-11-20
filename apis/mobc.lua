@@ -50,17 +50,17 @@ local function tcodeToMob(tcodeObj)
     local ph = 1
     local pd = tcodeObj.depth
     local direction = -1
-    for i, instruction in ipairs(tcodeObj.instructions) do
+    for i in ipairs(tcodeObj.data) do
         mob.model[ph][pd][pw] = tcodeObj.data[i]
-        if instruction == "forward" then
+        if tcodeObj.instructions[i] == "forward" then
             pd = pd + direction
-        elseif instruction == "right" then
+        elseif tcodeObj.instructions[i] == "right" then
             pw = pw + (-direction)
             direction = -direction
-        elseif instruction == "left" then
+        elseif tcodeObj.instructions[i] == "left" then
             pw = pw + direction
             direction = -direction
-        elseif instruction == "up" then
+        elseif tcodeObj.instructions[i] == "up" then
             ph = ph + 1
             direction = -direction
         end
