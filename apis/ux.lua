@@ -3,7 +3,8 @@ local function confirm(message, color)
         color = colors.white
     end
     term.setTextColor(color)
-    print(message.." (y/n)")
+	print(message.." (y/n)")
+    term.setTextColor(colors.white)
     local userIn = read():lower()
     if userIn == "y" or userIn == "yes" then
         return true
