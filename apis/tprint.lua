@@ -42,11 +42,13 @@ local function scan(name, width, height, depth)
         height=height,
         depth=depth,
         data={},
+        instructions={},
         materials={}
     }
     handleBlock(result)
     tex.forward(1,true)
     for instruction in tex.vPath(width, height, depth) do
+        result.instructions[#result.instructions + 1] = instruction
         if instruction == "left" then
             tex.left()
             handleBlock(result)
@@ -71,10 +73,8 @@ end
 
 local function print(tcodeObj)
     ux.displaySlots(tcodeObj.materials)
-    local i = 0
     tex.up()
-    for instruction in tex.vPath(tcodeObj.width,tcodeObj.height,tcodeObj.depth) do
-        i = i + 1
+    for i, instruction in ipairs(tcodeObj.instructions) do
         extrude(tcodeObj.data, i)
         if instruction == "left" then
             tex.left()

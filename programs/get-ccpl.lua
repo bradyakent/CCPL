@@ -31,6 +31,7 @@ for _, arg in ipairs(args) do
     --check currentFlag
     if currentFlag == "-b" then
         branch = arg
+        currentFlag = ""
     elseif currentFlag == "-l" then
         if arg:sub(1,1) ~= "-" then
             logPath = arg
