@@ -19,9 +19,26 @@ When creating a farm, the farming API will ask for materials in specific slots. 
 
 #### gist
 Usage: `gist <install/update> <file-name> <gist-url>`
-This program is a quick way to download programs from Gist. It works similarly to the pastebin program, but allows you to overwrite the file at `<file-name>`. `update` just bypasses a warning that `install` displays when overwriting a file.
+This program is a quick way to download programs from Gist. It works similarly to the pastebin program, but allows you to overwrite the file at `file-name`. `update` just bypasses a warning that `install` displays when overwriting a file.
 
--------------
+#### make-room
+Usage: `make-room <width> <height> <depth>`
+This program will dig out a volume, starting from the bottom center. If `width` is even, the extra block will be dug out from the right, so if you need a two-door and want it to be even, put the turtle at the bottom left, then run the program.
+
+#### 3dprint
+Usage: `3dprint <scan> <width> <height> <depth> <file-name>` or `3dprint <print> <file-name>`
+This program can scan a structure and output a file at `file-name`, or print the file at `file-name`.
+When using this program, there are a few things to note:
+
+- Scanning is destructive. The turtle will dig every block in the volume specified. If the volume includes glass or other blocks the turtle is not able to pick up, they will be destroyed.
+- Certain blocks and other things in the volume may cause some weirdness. Currently, scan does not know how to get the direction of blocks. It also may not pick up torches and doors correctly, as they must be attached to other blocks.
+- If more than 16 slots are necessary to store all the items from the structure when scanning, the generated file won't work correctly.
+- Scanning starts in the bottom left corner of the structure, with the turtle facing the bottom left block of the structure.
+- Printing also starts in the bottom left corner of the structure, but the first block will be placed where the turtle is located.
+
+It's a good idea to test this program on a small structure to understand what it will do before trying to copy larger structures.
+_____________________________
+
 # Advanced Stuff
 
 You only need this stuff if you're going to be programming with CCPL.
@@ -32,6 +49,7 @@ There are custom flags that you may use with the `get-ccpl.lua` program:
 
 | Flag             | Usage                                                         |
 |------------------|---------------------------------------------------------------|
+| `-b <branch>`    | Download CCPL from `<branch>`                                 |
 | `-f`             | Force overwrites (does not stop custom path warning)          |
 | `-i <path>`      | Install CCPL at `<path>`, may break badly written programs    |
 | `-l [path/file]` | Dumps debug output to a log file. File defaults to `/log.txt` |

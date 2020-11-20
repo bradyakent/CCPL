@@ -9,7 +9,7 @@ local height = tonumber(args[2])
 local depth = tonumber(args[3])
 
 local usage = {
-    {"width",{"depth","height"}}
+    {"width",{"height","depth"}}
 }
 
 local function fdiv(top, bottom)

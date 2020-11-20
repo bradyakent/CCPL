@@ -18,20 +18,20 @@ local function extrude(data, currIndex)
     end
 end
 
-local function handleBlock(houseObj, up)
+local function handleBlock(tcodeObj, up)
     local func = (up and tex.inspectUp or tex.inspect)
     if func() then
         local _, block = func()
-        local material = getIndex(houseObj.materials, block.name)
+        local material = getIndex(tcodeObj.materials, block.name)
         if material then
-            houseObj.materials[material].amount = houseObj.materials[material].amount + 1
-            houseObj.data[#houseObj.data + 1]=material
+            tcodeObj.materials[material].amount = tcodeObj.materials[material].amount + 1
+            tcodeObj.data[#tcodeObj.data + 1]=material
         else
-            houseObj.materials[#houseObj.materials + 1] = { name=block.name, amount=1 }
-            houseObj.data[#houseObj.data + 1] = #houseObj.materials
+            tcodeObj.materials[#tcodeObj.materials + 1] = { name=block.name, amount=1 }
+            tcodeObj.data[#tcodeObj.data + 1] = #tcodeObj.materials
         end
     else
-        houseObj.data[#houseObj.data + 1] = 0
+        tcodeObj.data[#tcodeObj.data + 1] = 0
     end
 end
 
@@ -69,13 +69,13 @@ local function scan(name, width, height, depth)
     return result
 end
 
-local function print(houseObj)
-    ux.displaySlots(houseObj.materials)
+local function print(tcodeObj)
+    ux.displaySlots(tcodeObj.materials)
     local i = 0
     tex.up()
-    for instruction in tex.vPath(houseObj.width,houseObj.height,houseObj.depth) do
+    for instruction in tex.vPath(tcodeObj.width,tcodeObj.height,tcodeObj.depth) do
         i = i + 1
-        extrude(houseObj.data, i)
+        extrude(tcodeObj.data, i)
         if instruction == "left" then
             tex.left()
             tex.forward()
