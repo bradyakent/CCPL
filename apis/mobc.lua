@@ -1,3 +1,6 @@
+local _p = settings.get("ccpl.path")
+local tex = require(_p.."ccpl.apis.path")
+
 local function tcodeToMob(tcodeObj)
     local mob = {
         width=tcodeObj.width,
@@ -36,6 +39,22 @@ local function tcodeToMob(tcodeObj)
         end
     end
     return mob
+end
+
+local function naiveMobToTcode(mob)
+    local tcode = {
+        width=mob.width,
+        height=mob.height,
+        depth=mob.depth,
+        data={},
+        instructions={},
+        materials={}
+    }
+    for i, material in ipairs(mob.materials) do
+        tcode.materials[i] = { name=material.name, amount=material.amount }
+    end
+
+    
 end
 
 return {
