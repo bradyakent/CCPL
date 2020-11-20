@@ -77,10 +77,10 @@ local function print(tcodeObj)
         if tcodeObj.instructions[i] == "left" then
             tex.left()
             tex.forward()
-        elseif instruction == "right" then
+        elseif tcodeObj.instructions[i] == "right" then
             tex.right()
             tex.forward()
-        elseif instruction == "up" then
+        elseif tcodeObj.instructions[i] == "up" then
             tex.turnAround()
             tex.up()
         elseif tcodeObj.instructions[i] == "forward" then
