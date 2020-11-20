@@ -139,9 +139,11 @@ local function vPath(width, height, depth)
             return nil
         end
         if shiftRight == true then
+            dt = dt + 1
             shiftRight = false
             return dirs[3]
         elseif shiftLeft == true then
+            dt = dt + 1
             shiftLeft = false
             return dirs[2]
         end
