@@ -12,6 +12,10 @@ local function tcodeToMob(tcodeObj)
             mob.model[i][j] = {}
         end
     end
+    for i, material in ipairs(tcodeObj.materials) do
+        mob.materials[i] = { name=material.name, amount=material.amount }
+    end
+
     local pw = 1
     local ph = 1
     local pd = tcodeObj.depth
