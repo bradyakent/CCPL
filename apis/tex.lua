@@ -135,9 +135,14 @@ local function vPath(width, height, depth)
     local shiftRight = false
     local shiftLeft = false
     return function()
+        --the turtle has been through every block
         if ht == height and wt == width and dt == depth then
             return nil
         end
+
+        --if either of these flags are true, the turtle is in the middle of shifting columns
+        --that means the turtle will turn, then move forward along the depth axis
+        --therefore, dt must be incremented by 1
         if shiftRight == true then
             dt = dt + 1
             shiftRight = false
@@ -147,13 +152,20 @@ local function vPath(width, height, depth)
             shiftLeft = false
             return dirs[2]
         end
+
+        --if the turtle has reached the end of a column
         if dt == depth then
+            --reset dt; the turtle is starting on a new column
             dt = 1
+            --if the turtle has reached the end of a layer
             if wt == width then
+                --reset the width travelled
                 wt = 1
+                --go to the next layer
                 ht = ht + 1
                 return dirs[4]
             end
+            --if the turtle is in the middle of a layer, shift columns
             --if width is even, flip turn direction at every even height
             --if wt % 2 == 1, turn right, else turn left
             local flip = (width%2 == 0 and ht % 2 == 0)
