@@ -37,8 +37,8 @@ When using this program, there are a few things to note:
 - Printing also starts in the bottom left corner of the structure, but the first block will be placed where the turtle is located.
 
 It's a good idea to test this program on a small structure to understand what it will do before trying to copy larger structures.
+_____________________________
 
--------------
 # Advanced Stuff
 
 You only need this stuff if you're going to be programming with CCPL.
