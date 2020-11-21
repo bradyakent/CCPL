@@ -26,7 +26,7 @@ if args[1] == "scan" then
         if not ux.confirm(args[5].." already exists! Would you like to replace it?",colors.red) then do return end end
     end
 
-    local tcode = tprint.scan(args[5],tonumber(args[2]),tonumber(args[3]),tonumber(args[4]))
+    local tcode = tprint.scan(tonumber(args[2]),tonumber(args[3]),tonumber(args[4]))
     local mob = mobc.tcodeToMob(tcode)
     local file = fs.open(args[5],"w")
     file.write(textutils.serialize(mob))
