@@ -35,8 +35,8 @@ local function includes(table, pos)
     return (
         pos.x > 0 and
         pos.z > 0 and
-        pos.z < #table and
-        pos.x < #table[pos.z]
+        pos.z <= #table and
+        pos.x <= #table[pos.z]
     )
 end
 
