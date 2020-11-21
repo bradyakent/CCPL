@@ -27,6 +27,15 @@ function Queue.empty(queue)
     return false
 end
 
+local function includes(table, pos)
+    return (
+        pos.x > 0 and
+        pos.z > 0 and
+        pos.z < #table and
+        pos.x < #table[pos.z]
+    )
+end
+
 local function turnDir(currDir, direction)
     local dir = {}
     if direction == "right" then
@@ -179,44 +188,46 @@ local function goToPos(currPos, currDir, destPos)
     end
 end
 
-local function findNearestBlock(mob, pos, dir, searched, queue)
+local function findNearestBlock(mob, pos, dir, placed, searched, queue)
     if queue then
 		searched[pos.z][pos.x] = true
-		if mob[pos.z][pos.x] > 0 then
-			return pos, searched
+		if mob.model[pos.y][pos.z][pos.x] > 0 and not placed[pos.z][pos.x] then
+            placed[pos.z][pos.x] = true
+			return pos, placed
 		end
 		
-		local newPos = {x=pos.x+dir.x, z=pos.z+dir.z}
-		if includes(mob, newPos) and not searched[newPos.z][newPos.x] then
+		local newPos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
+		if includes(mob.model[pos.y], newPos) and not searched[newPos.z][newPos.x] then
 			queue:push({pos=newPos, dir=dir})
 		end
 		local left = turnDir(dir, "left")
-		newPos = {x=pos.x+left.x, z=pos.z+left.z}
-		if includes(mob, newPos) and not searched[newPos.z][newPos.x] then
+		newPos = {x=pos.x+left.x, y=pos.y, z=pos.z+left.z}
+		if includes(mob.model[pos.y], newPos) and not searched[newPos.z][newPos.x] then
 			queue:push({pos=newPos, dir=left})
 		end
 		local right = turnDir(dir, "right")
-		newPos = {x=pos.x+right.x, z=pos.z+right.z}
-		if includes(mob, newPos) and not searched[newPos.z][newPos.x] then
+		newPos = {x=pos.x+right.x, y=pos.y, z=pos.z+right.z}
+		if includes(mob.model[pos.y], newPos) and not searched[newPos.z][newPos.x] then
 			queue:push({pos=newPos, dir=right})
 		end
-		return nil, searched
+		return nil, placed
 	else
 		queue = Queue:new()
 		queue:push({pos=pos, dir=dir})
 		searched = {}
-		for i=1,#mob do
+		for i=1,mob.depth do
 			searched[i] = {}
 		end
 		local result
 		while not queue:isEmpty() do
 			local possible = queue:pop()
-			result, searched = findNearestBlock(mob, possible.pos, possible.dir, queue, searched)
+			result, placed = findNearestBlock(mob, possible.pos, possible.dir, placed, searched, queue)
 			if result then
-				return result
+                print(textutils.serialize(result))
+				return result, placed
 			end
 		end
-		return nil
+		return nil, placed
 	end
 end
 
@@ -238,25 +249,59 @@ local function mobToTcode(mob)
         x=0,
         z=-1
     }
-    local searched = {} -- searched only needs to hold the current layer, as the turtle won't move up unless the entire layer has been printed.
+    local placed = {} -- searched only needs to hold the current layer, as the turtle won't move up unless the entire layer has been printed.
     for i=1,mob.depth do
-        searched[i] = {}
+        placed[i] = {}
     end
     local totalMaterials = 0
     for _, material in ipairs(mob.materials) do
         totalMaterials = totalMaterials + material.amount
     end
     local extruded = 0
+    local i = 0
     while extruded < totalMaterials do
-        local blockPos, searched = findNearestBlock(mob, pos, dir, searched)
+        i=i+1
+        local blockPos
+        blockPos, placed = findNearestBlock(mob, pos, dir, placed)
         if blockPos then
-            while goToPos(pos,dir,blockPos) do
-                tcode.instructions[#tcode.instructions+1] = goToPos(pos,dir,blockPos)
+            local instruction = goToPos(pos,dir,blockPos)
+            while instruction do
+                tcode.instructions[#tcode.instructions+1] = instruction
                 tcode.data[#tcode.data+1] = mob.model[pos.y][pos.z][pos.x]
+                if mob.model[pos.y][pos.z][pos.x] > 0 then
+                    extruded = extruded + 1
+                end
+                if instruction == "forward" then
+                    pos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
+                elseif instruction == "left" then
+                    dir = turnDir(dir, "left")
+                    pos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
+                elseif instruction == "right" then
+                    dir = turnDir(dir, "right")
+                    pos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
+                end
+                instruction = goToPos(pos,dir,blockPos)
             end
         else
-            tcode.instructions[#tcode.instructions+1] = "up"
             tcode.data[#tcode.data+1] = mob.model[pos.y][pos.z][pos.x]
+            if mob.model[pos.y][pos.z][pos.x] > 0 then
+                extruded = extruded + 1
+            end
+            if not (pos.y == mob.height) then
+                placed = {}
+                for i=1,mob.depth do
+                    placed[i] = {}
+                end
+                tcode.instructions[#tcode.instructions+1] = "up"
+                dir = {x=-dir.x, z=-dir.z}
+                pos = {x=pos.x, y=pos.y+1, z=pos.z}
+                placed[pos.z][pos.x] = true
+            end
+            
+        end
+        if i > 20 then
+            print("Inf loop.")
+            return tcode
         end
     end
     return tcode
@@ -265,5 +310,5 @@ end
 return {
     tcodeToMob=tcodeToMob,
     naiveMobToTcode=naiveMobToTcode,
-    mobToTcode=naiveMobToTcode
+    mobToTcode=mobToTcode
 }
