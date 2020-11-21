@@ -264,10 +264,14 @@ local function mobToTcode(mob)
     end
     local extruded = 0
     while extruded < totalMaterials do
-        tcode.data[#tcode.data+1] = mob.model[pos.y][pos.z][pos.x]
-        if mob.model[pos.y][pos.z][pos.x] > 0 then
+        if not placed[pos.z][pos.x] then
             placed[pos.z][pos.x] = true
-            extruded = extruded + 1
+            tcode.data[#tcode.data+1] = mob.model[pos.y][pos.z][pos.x]
+            if mob.model[pos.y][pos.z][pos.x] > 0 then
+                extruded = extruded + 1
+            end
+        else
+            tcode.data[#tcode.data+1] = 0
         end
         local blockPos
         blockPos = findNearestBlock(mob, pos, dir, placed)
