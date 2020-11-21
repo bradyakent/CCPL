@@ -31,6 +31,10 @@ function Queue:isEmpty()
     return false
 end
 
+function Queue:len()
+    return self.last-self.first + 1
+end
+
 local function includes(table, pos)
     return (
         pos.x > 0 and
@@ -192,7 +196,7 @@ local function findNearestBlock(mob, pos, dir, placed, searched, queue)
     if queue then
 		searched[pos.z][pos.x] = true
 		if mob.model[pos.y][pos.z][pos.x] > 0 and not placed[pos.z][pos.x] then
-			return pos, searched
+			return pos
 		end
 		
 		local newPos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
@@ -214,7 +218,7 @@ local function findNearestBlock(mob, pos, dir, placed, searched, queue)
 		if includes(mob.model[pos.y], newPos) and not searched[newPos.z][newPos.x] then
 			queue:push({pos=newPos, dir=back})
 		end
-		return nil, searched
+		return nil
 	else
 		queue = Queue:new()
 		queue:push({pos=pos, dir=dir})
@@ -223,9 +227,12 @@ local function findNearestBlock(mob, pos, dir, placed, searched, queue)
 			searched[i] = {}
 		end
 		local result
-		while not queue:isEmpty() do
+        while not queue:isEmpty() do
+            if queue:len() > mob.width * mob.depth then
+                error("Something went wrong in the queue again, queue length "..queue:len())
+            end
 			local possible = queue:pop()
-			result, searched = findNearestBlock(mob, possible.pos, possible.dir, placed, searched, queue)
+			result = findNearestBlock(mob, possible.pos, possible.dir, placed, searched, queue)
 			if result then
 				return result
 			end
