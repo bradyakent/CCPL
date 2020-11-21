@@ -3,6 +3,7 @@ local _p = settings.get("ccpl.path")
 local tex = require(_p.."ccpl.apis.tex")
 local tprint = require(_p.."ccpl.apis.tprint")
 local ux = require(_p.."ccpl.apis.ux")
+local mobc = require(_p.."ccpl.apis.mobc")
 
 local args = { ... }
 
@@ -19,14 +20,16 @@ if args[1] == "scan" then
         if args[i] == nil then ux.displayUsage("3dprint",usage) do return end end
     end
 
-    if string.find(args[5], ".tcode",1,true) == nil then args[5] = args[5]..".tcode" end
+    if string.find(args[5], ".mob",1,true) == nil then args[5] = args[5]..".mob" end
 
     if fs.exists(args[5]) then
         if not ux.confirm(args[5].." already exists! Would you like to replace it?",colors.red) then do return end end
     end
 
+    local tcode = tprint.scan(args[5],tonumber(args[2]),tonumber(args[3]),tonumber(args[4]))
+    local mob = mobc.tcodeToMob(tcode)
     local file = fs.open(args[5],"w")
-    file.write(textutils.serialize(tprint.scan(args[5],tonumber(args[2]),tonumber(args[3]),tonumber(args[4]))))
+    file.write(textutils.serialize(mob))
     file.close()
 
     tex.down(args[3]-1)
@@ -40,14 +43,15 @@ if args[1] == "scan" then
 elseif args[1] == "print" then
     if #args ~= 2 then ux.displayUsage("3dprint",usage) do return end end
 
-    if fs.exists(args[2]..".tcode") then args[2] = args[2]..".tcode" end
+    if fs.exists(args[2]..".mob") then args[2] = args[2]..".mob" end
 
     if not fs.exists(args[2]) then ux.displayUsage("3dprint",usage) do return end end
 
     local file = fs.open(args[2],"r")
-    local tcodeObj = textutils.unserialize(file.readAll())
+    local mob = textutils.unserialize(file.readAll())
     file.close()
-    tprint.print(tcodeObj)
+    local tcode = mobc.mobToTcode(mob)
+    tprint.print(tcode)
     print("Printed!")
 else
     ux.displayUsage("3dprint",usage)
