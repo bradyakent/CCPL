@@ -192,39 +192,42 @@ local function goToPos(currPos, currDir, destPos)
     return "back"
 end
 
-local function findNearestBlock(mob, pos, dir, placed, searched, queue)
+local function findNearestBlock(mob, pos, dir, placed, queued, queue)
     if queue then
-		searched[pos.z][pos.x] = true
 		if mob.model[pos.y][pos.z][pos.x] > 0 and not placed[pos.z][pos.x] then
 			return pos
 		end
 		
 		local newPos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
-		if includes(mob.model[pos.y], newPos) and not searched[newPos.z][newPos.x] then
+		if includes(mob.model[pos.y], newPos) and not queued[newPos.z][newPos.x] then
+            queued[pos.z][pos.x] = true
 			queue:push({pos=newPos, dir=dir})
 		end
 		local left = turnDir(dir, "left")
 		newPos = {x=pos.x+left.x, y=pos.y, z=pos.z+left.z}
-		if includes(mob.model[pos.y], newPos) and not searched[newPos.z][newPos.x] then
+		if includes(mob.model[pos.y], newPos) and not queued[newPos.z][newPos.x] then
+            queued[pos.z][pos.x] = true
 			queue:push({pos=newPos, dir=left})
 		end
 		local right = turnDir(dir, "right")
 		newPos = {x=pos.x+right.x, y=pos.y, z=pos.z+right.z}
-		if includes(mob.model[pos.y], newPos) and not searched[newPos.z][newPos.x] then
+		if includes(mob.model[pos.y], newPos) and not queued[newPos.z][newPos.x] then
+            queued[pos.z][pos.x] = true
 			queue:push({pos=newPos, dir=right})
         end
         local back = {x=-dir.x, z=-dir.z}
 		newPos = {x=pos.x+back.x, y=pos.y, z=pos.z+back.z}
-		if includes(mob.model[pos.y], newPos) and not searched[newPos.z][newPos.x] then
+		if includes(mob.model[pos.y], newPos) and not queued[newPos.z][newPos.x] then
+            queued[pos.z][pos.x] = true
 			queue:push({pos=newPos, dir=back})
 		end
 		return nil
 	else
 		queue = Queue:new()
 		queue:push({pos=pos, dir=dir})
-		searched = {}
+		queued = {}
 		for i=1,mob.depth do
-			searched[i] = {}
+			queued[i] = {}
 		end
 		local result
         while not queue:isEmpty() do
@@ -232,7 +235,7 @@ local function findNearestBlock(mob, pos, dir, placed, searched, queue)
                 error("Something went wrong in the queue again, queue length "..queue:len())
             end
 			local possible = queue:pop()
-			result = findNearestBlock(mob, possible.pos, possible.dir, placed, searched, queue)
+			result = findNearestBlock(mob, possible.pos, possible.dir, placed, queued, queue)
 			if result then
 				return result
 			end
