@@ -227,7 +227,6 @@ local function findNearestBlock(mob, pos, dir, placed, searched, queue)
 			local possible = queue:pop()
 			result, placed = findNearestBlock(mob, possible.pos, possible.dir, placed, searched, queue)
 			if result then
-                print(textutils.serialize(result))
 				return result, placed
 			end
 		end
@@ -258,7 +257,9 @@ local function mobToTcode(mob)
         placed[i] = {}
     end
     local totalMaterials = 0
+    
     for _, material in ipairs(mob.materials) do
+        tcode.materials[i] = { name=material.name, amount=material.amount }
         totalMaterials = totalMaterials + material.amount
     end
     local extruded = 0
