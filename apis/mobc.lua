@@ -196,7 +196,6 @@ local function findNearestBlock(mob, pos, dir, placed, searched, queue)
     if queue then
 		searched[pos.z][pos.x] = true
 		if mob.model[pos.y][pos.z][pos.x] > 0 and not placed[pos.z][pos.x] then
-            placed[pos.z][pos.x] = true
 			return pos, placed
 		end
 		
@@ -274,6 +273,7 @@ local function mobToTcode(mob)
                 tcode.instructions[#tcode.instructions+1] = instruction
                 tcode.data[#tcode.data+1] = mob.model[pos.y][pos.z][pos.x]
                 if mob.model[pos.y][pos.z][pos.x] > 0 then
+                    placed[pos.z][pos.x] = true
                     extruded = extruded + 1
                 end
                 if instruction == "forward" then
@@ -303,7 +303,7 @@ local function mobToTcode(mob)
                 placed[pos.z][pos.x] = true
             end
         end
-        if i > 20 then
+        if i > 30 then
             print("Inf loop.")
             return tcode
         end
