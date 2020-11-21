@@ -1,27 +1,31 @@
 local _p = settings.get("ccpl.path")
-local tex = require(_p.."ccpl.apis.path")
+local tex = require(_p.."ccpl.apis.tex")
 
-local Queue = {}
-function Queue.new()
-    return { first=0, last=-1 }
+local Queue = { first=0, last=-1 }
+
+function Queue:new(o)
+    o = o or {}
+    setmetatable(o, self)
+    self.__index = self
+    return o
 end
 
-function Queue.push(queue, value)
-    local last = queue.last + 1
-    queue.last = last
-    queue[last] = value
+function Queue:push(value)
+    local last = self.last + 1
+    self.last = last
+    self[last] = value
 end
 
-function Queue.pop(queue)
-    local first = queue.first
-    local value = queue[first]
-    queue[first] = nil
-    queue.first = first + 1
+function Queue:pop()
+    local first = self.first
+    local value = self[first]
+    self[first] = nil
+    self.first = first + 1
     return value
 end
 
-function Queue.empty(queue)
-    if queue.first > queue.last then
+function Queue:isEmpty()
+    if self.first > self.last then
         return true
     end
     return false
