@@ -128,12 +128,13 @@ end
 
 -- creates a path iterator through a volume
 local function vPath(width, height, depth)
-    local dirs = {"forward", "left", "right", "up"}
+    local dirs = {"forward", "left", "right", "up", "back"}
     local dt = 1
     local wt = 1
     local ht = 1
     local shiftRight = false
     local shiftLeft = false
+    local goBack = false
     return function()
         --the turtle has been through every block
         if ht == height and wt == width and dt == depth then
@@ -151,6 +152,10 @@ local function vPath(width, height, depth)
             dt = dt + 1
             shiftLeft = false
             return dirs[2]
+        elseif goBack == true then
+            dt = dt + 1
+            goBack = false
+            return dirs[5]
         end
 
         --if the turtle has reached the end of a column
@@ -159,6 +164,7 @@ local function vPath(width, height, depth)
             dt = 1
             --if the turtle has reached the end of a layer
             if wt == width then
+                goBack = true
                 --reset the width travelled
                 wt = 1
                 --go to the next layer

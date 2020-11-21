@@ -57,10 +57,13 @@ local function scan(width, height, depth)
             handleBlock(result)
             tex.forward(1,true)
         elseif instruction == "up" then
-            tex.turnAround()
             handleBlock(result,true)
             tex.up(1,true)
         elseif instruction == "forward" then
+            handleBlock(result)
+            tex.forward(1,true)
+        elseif instruction == "back" then
+            tex.turnAround()
             handleBlock(result)
             tex.forward(1,true)
         end
@@ -80,9 +83,11 @@ local function print(tcodeObj)
             tex.right()
             tex.forward()
         elseif tcodeObj.instructions[i] == "up" then
-            tex.turnAround()
             tex.up()
         elseif tcodeObj.instructions[i] == "forward" then
+            tex.forward()
+        elseif tcodeObj.instructions[i] == "back" then
+            tex.turnAround()
             tex.forward()
         end
     end

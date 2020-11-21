@@ -93,6 +93,10 @@ local function tcodeToMob(tcodeObj)
         elseif tcodeObj.instructions[i] == "up" then
             dir.x, dir.z = -dir.x, -dir.z
             pos.y = pos.y + 1
+        elseif tcodeObj.instructions[i] == "back" then
+            dir.x, dir.z = -dir.x, -dir.z
+            pos.x = pos.x + dir.x
+            pos.z = pos.z + dir.z
         end
     end
     return mob
@@ -135,8 +139,11 @@ local function naiveMobToTcode(mob)
             pos.x = pos.x + dir.x
             pos.z = pos.z + dir.z
         elseif instruction == "up" then
-            dir.x, dir.z = -dir.x, -dir.z
             pos.y = pos.y + 1
+        elseif instruction == "back" then
+            dir.x, dir.z = -dir.x, -dir.z
+            pos.x = pos.x + dir.x
+            pos.z = pos.z + dir.z
         end
         tcode.data[#tcode.data + 1] = mob.model[pos.y][pos.z][pos.x]
     end
@@ -179,17 +186,7 @@ local function goToPos(currPos, currDir, destPos)
     end
 
     -- if a value hasn't been returned yet, the destination is directly behind the turtle
-    -- if the turtle can turn left without possibly leaving the bounds, turn left, otherwise turn right
-    if (
-        (currPos.x == 1 and left.x == 1) or
-        (currPos.z == 1 and left.z == 1) or
-        (currPos.x > 1 and left.x == -1) or
-        (currPos.z > 1 and left.z == -1)
-    ) then
-        return "left"
-    else
-        return "right"
-    end
+    return "back"
 end
 
 local function findNearestBlock(mob, pos, dir, placed, searched, queue)
@@ -212,6 +209,11 @@ local function findNearestBlock(mob, pos, dir, placed, searched, queue)
 		newPos = {x=pos.x+right.x, y=pos.y, z=pos.z+right.z}
 		if includes(mob.model[pos.y], newPos) and not searched[newPos.z][newPos.x] then
 			queue:push({pos=newPos, dir=right})
+        end
+        local back = {x=-dir.x, z=-dir.z}
+		newPos = {x=pos.x+right.x, y=pos.y, z=pos.z+right.z}
+		if includes(mob.model[pos.y], newPos) and not searched[newPos.z][newPos.x] then
+			queue:push({pos=newPos, dir=back})
 		end
 		return nil
 	else
@@ -262,7 +264,6 @@ local function mobToTcode(mob)
         totalMaterials = totalMaterials + material.amount
     end
     local extruded = 0
-    local i = 0
     while extruded < totalMaterials do
         tcode.data[#tcode.data+1] = mob.model[pos.y][pos.z][pos.x]
         if mob.model[pos.y][pos.z][pos.x] > 0 then
@@ -283,6 +284,9 @@ local function mobToTcode(mob)
             elseif instruction == "right" then
                 dir = turnDir(dir, "right")
                 pos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
+            elseif instruction == "back" then
+                dir = {x=-dir.x, z=-dir.z}
+                pos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
             end
         else
             if not (pos.y == mob.height) then
@@ -291,13 +295,8 @@ local function mobToTcode(mob)
                     placed[j] = {}
                 end
                 tcode.instructions[#tcode.instructions+1] = "up"
-                dir = {x=-dir.x, z=-dir.z}
                 pos = {x=pos.x, y=pos.y+1, z=pos.z}
             end
-        end
-        if i > 30 then
-            print("Inf loop.")
-            return tcode
         end
     end
     return tcode

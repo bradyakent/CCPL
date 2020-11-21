@@ -30,7 +30,6 @@ tex.right()
 
 for instruction in tex.vPath(width, height, depth) do
     if instruction == "up" then
-        tex.turnAround()
         tex.up(1, true)
     elseif instruction == "left" then
         tex.left()
@@ -39,6 +38,9 @@ for instruction in tex.vPath(width, height, depth) do
         tex.right()
         tex.forward(1, true)
     elseif instruction == "forward" then
+        tex.forward(1, true)
+    elseif instruction == "back" then
+        tex.turnAround()
         tex.forward(1, true)
     end
 end
