@@ -35,9 +35,8 @@ local function handleBlock(tcodeObj, up)
     end
 end
 
-local function scan(name, width, height, depth)
+local function scan(width, height, depth)
     local result = {
-        name=name,
         width=width,
         height=height,
         depth=depth,
