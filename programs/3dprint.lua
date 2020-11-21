@@ -11,6 +11,7 @@ local usage = {
     {"scan",{"width",{"height",{"depth","file-name"}}}},
     {"print","file-name"}
 }
+local start = os.clock()
 
 if args[1] == "scan" then
     if #args ~= 5 then ux.displayUsage("3dprint",usage) do return end end
@@ -33,7 +34,9 @@ if args[1] == "scan" then
     file.close()
 
     tex.down(args[3]-1)
-    print("Scanned! You can print this structure by running \"3dprint print "..args[5].."\".")
+    local stop = os.clock()
+    print("Scanned in "..(stop-start).." seconds!")
+    print("You can print this structure by running \"3dprint print "..args[5].."\".")
 
 elseif args[1] == "print" then
     if #args ~= 2 then ux.displayUsage("3dprint",usage) do return end end
@@ -47,7 +50,8 @@ elseif args[1] == "print" then
     file.close()
     local tcode = mobc.mobToTcode(mob)
     tprint.print(tcode)
-    print("Printed!")
+    local stop = os.clock()
+    print("Printed in "..(stop-start).." seconds!")
 else
     ux.displayUsage("3dprint",usage)
 end

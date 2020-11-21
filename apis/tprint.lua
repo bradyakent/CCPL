@@ -22,13 +22,21 @@ local function handleBlock(tcodeObj, up)
     local func = (up and tex.inspectUp or tex.inspect)
     if func() then
         local _, block = func()
-        local material = getIndex(tcodeObj.materials, block.name)
-        if material then
-            tcodeObj.materials[material].amount = tcodeObj.materials[material].amount + 1
-            tcodeObj.data[#tcodeObj.data + 1]=material
-        else
-            tcodeObj.materials[#tcodeObj.materials + 1] = { name=block.name, amount=1 }
-            tcodeObj.data[#tcodeObj.data + 1] = #tcodeObj.materials
+        local foundSlot = false
+        local slot = 0
+        while not foundSlot do
+            slot = slot + 1
+            if tcodeObj.materials[slot] then
+                if tcodeObj.materials[slot].name == block.name and tcodeObj.materials[slot].amount < 64 then
+                    tcodeObj.materials[slot].amount = tcodeObj.materials[slot].amount + 1
+                    tcodeObj.data[#tcodeObj.data + 1]=slot
+                    foundSlot = true
+                end
+            else
+                tcodeObj.materials[slot] = { name=block.name, amount=1 }
+                tcodeObj.data[#tcodeObj.data + 1]=slot
+                foundSlot = true
+            end
         end
     else
         tcodeObj.data[#tcodeObj.data + 1] = 0
