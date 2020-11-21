@@ -268,25 +268,22 @@ local function mobToTcode(mob)
         local blockPos
         blockPos, placed = findNearestBlock(mob, pos, dir, placed)
         if blockPos then
-            local instruction
-            repeat
-                instruction = goToPos(pos,dir,blockPos)
-                tcode.instructions[#tcode.instructions+1] = instruction
-                tcode.data[#tcode.data+1] = mob.model[pos.y][pos.z][pos.x]
-                if mob.model[pos.y][pos.z][pos.x] > 0 then
-                    placed[pos.z][pos.x] = true
-                    extruded = extruded + 1
-                end
-                if instruction == "forward" then
-                    pos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
-                elseif instruction == "left" then
-                    dir = turnDir(dir, "left")
-                    pos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
-                elseif instruction == "right" then
-                    dir = turnDir(dir, "right")
-                    pos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
-                end
-            until not instruction
+            local instruction = goToPos(pos,dir,blockPos)
+            if instruction == "forward" then
+                pos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
+            elseif instruction == "left" then
+                dir = turnDir(dir, "left")
+                pos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
+            elseif instruction == "right" then
+                dir = turnDir(dir, "right")
+                pos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
+            end
+            tcode.instructions[#tcode.instructions+1] = instruction
+            tcode.data[#tcode.data+1] = mob.model[pos.y][pos.z][pos.x]
+            if mob.model[pos.y][pos.z][pos.x] > 0 then
+                placed[pos.z][pos.x] = true
+                extruded = extruded + 1
+            end
         else
             tcode.data[#tcode.data+1] = mob.model[pos.y][pos.z][pos.x]
             if mob.model[pos.y][pos.z][pos.x] > 0 then
