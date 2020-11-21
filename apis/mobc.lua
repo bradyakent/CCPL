@@ -293,15 +293,14 @@ local function mobToTcode(mob)
             end
             if not (pos.y == mob.height) then
                 placed = {}
-                for i=1,mob.depth do
-                    placed[i] = {}
+                for j=1,mob.depth do
+                    placed[j] = {}
                 end
                 tcode.instructions[#tcode.instructions+1] = "up"
                 dir = {x=-dir.x, z=-dir.z}
                 pos = {x=pos.x, y=pos.y+1, z=pos.z}
                 placed[pos.z][pos.x] = true
             end
-            
         end
         if i > 20 then
             print("Inf loop.")
