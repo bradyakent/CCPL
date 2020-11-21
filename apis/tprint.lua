@@ -30,10 +30,12 @@ local function handleBlock(tcodeObj, up)
                 if tcodeObj.materials[slot].name == block.name and tcodeObj.materials[slot].amount < 64 then
                     tcodeObj.materials[slot].amount = tcodeObj.materials[slot].amount + 1
                     tcodeObj.data[#tcodeObj.data + 1]=slot
+                    foundSlot = true
                 end
             else
                 tcodeObj.materials[slot] = { name=block.name, amount=1 }
                 tcodeObj.data[#tcodeObj.data + 1]=slot
+                foundSlot = true
             end
         end
     else
