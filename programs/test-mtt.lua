@@ -17,5 +17,8 @@ else
     local mob = textutils.unserialize(file.readAll())
     file.close()
     local tcode = mobc.mobToTcode(mob)
+    file = fs.open("output.tcode","w")
+    file.write(textutils.serialize(tcode))
+    file.close()
     tprint.print(tcode)
 end
