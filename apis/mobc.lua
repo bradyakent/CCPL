@@ -196,7 +196,7 @@ local function findNearestBlock(mob, pos, dir, placed, searched, queue)
     if queue then
 		searched[pos.z][pos.x] = true
 		if mob.model[pos.y][pos.z][pos.x] > 0 and not placed[pos.z][pos.x] then
-			return pos, placed
+			return pos
 		end
 		
 		local newPos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
@@ -213,7 +213,7 @@ local function findNearestBlock(mob, pos, dir, placed, searched, queue)
 		if includes(mob.model[pos.y], newPos) and not searched[newPos.z][newPos.x] then
 			queue:push({pos=newPos, dir=right})
 		end
-		return nil, placed
+		return nil
 	else
 		queue = Queue:new()
 		queue:push({pos=pos, dir=dir})
@@ -224,12 +224,12 @@ local function findNearestBlock(mob, pos, dir, placed, searched, queue)
 		local result
 		while not queue:isEmpty() do
 			local possible = queue:pop()
-			result, placed = findNearestBlock(mob, possible.pos, possible.dir, placed, searched, queue)
+			result = findNearestBlock(mob, possible.pos, possible.dir, placed, searched, queue)
 			if result then
-				return result, placed
+				return result
 			end
 		end
-		return nil, placed
+		return nil
 	end
 end
 
@@ -266,7 +266,7 @@ local function mobToTcode(mob)
     while extruded < totalMaterials do
         i=i+1
         local blockPos
-        blockPos, placed = findNearestBlock(mob, pos, dir, placed)
+        blockPos = findNearestBlock(mob, pos, dir, placed)
         if blockPos then
             local instruction = goToPos(pos,dir,blockPos)
             if instruction == "forward" then
