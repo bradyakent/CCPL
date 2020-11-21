@@ -128,28 +128,59 @@ end
 
 -- creates a path iterator through a volume
 local function vPath(width, height, depth)
-    local dirs = {"forward", "left", "right", "up"}
+    local dirs = {"forward", "left", "right", "up", "back"}
     local dt = 1
     local wt = 1
     local ht = 1
+    local shiftRight = false
+    local shiftLeft = false
+    local goBack = false
     return function()
+        --the turtle has been through every block
         if ht == height and wt == width and dt == depth then
             return nil
         end
+
+        --if either of these flags are true, the turtle is in the middle of shifting columns
+        --that means the turtle will turn, then move forward along the depth axis
+        --therefore, dt must be incremented by 1
+        if shiftRight == true then
+            dt = dt + 1
+            shiftRight = false
+            return dirs[3]
+        elseif shiftLeft == true then
+            dt = dt + 1
+            shiftLeft = false
+            return dirs[2]
+        elseif goBack == true then
+            dt = dt + 1
+            goBack = false
+            return dirs[5]
+        end
+
+        --if the turtle has reached the end of a column
         if dt == depth then
+            --reset dt; the turtle is starting on a new column
             dt = 1
+            --if the turtle has reached the end of a layer
             if wt == width then
+                goBack = true
+                --reset the width travelled
                 wt = 1
+                --go to the next layer
                 ht = ht + 1
                 return dirs[4]
             end
+            --if the turtle is in the middle of a layer, shift columns
             --if width is even, flip turn direction at every even height
             --if wt % 2 == 1, turn right, else turn left
             local flip = (width%2 == 0 and ht % 2 == 0)
             if (wt%2 == 0 and flip) or (wt%2 == 1 and not flip) then
+                shiftRight = true
                 wt = wt + 1
                 return dirs[3]
             else
+                shiftLeft = true
                 wt = wt + 1
                 return dirs[2]
             end

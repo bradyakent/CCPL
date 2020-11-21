@@ -35,9 +35,8 @@ local function handleBlock(tcodeObj, up)
     end
 end
 
-local function scan(name, width, height, depth)
+local function scan(width, height, depth)
     local result = {
-        name=name,
         width=width,
         height=height,
         depth=depth,
@@ -53,17 +52,18 @@ local function scan(name, width, height, depth)
             tex.left()
             handleBlock(result)
             tex.forward(1,true)
-            tex.left()
         elseif instruction == "right" then
             tex.right()
             handleBlock(result)
             tex.forward(1,true)
-            tex.right()
         elseif instruction == "up" then
-            tex.turnAround()
             handleBlock(result,true)
             tex.up(1,true)
         elseif instruction == "forward" then
+            handleBlock(result)
+            tex.forward(1,true)
+        elseif instruction == "back" then
+            tex.turnAround()
             handleBlock(result)
             tex.forward(1,true)
         end
@@ -74,20 +74,20 @@ end
 local function print(tcodeObj)
     ux.displaySlots(tcodeObj.materials)
     tex.up()
-    for i, instruction in ipairs(tcodeObj.instructions) do
+    for i in ipairs(tcodeObj.data) do
         extrude(tcodeObj.data, i)
-        if instruction == "left" then
+        if tcodeObj.instructions[i] == "left" then
             tex.left()
             tex.forward()
-            tex.left()
-        elseif instruction == "right" then
+        elseif tcodeObj.instructions[i] == "right" then
             tex.right()
             tex.forward()
-            tex.right()
-        elseif instruction == "up" then
-            tex.turnAround()
+        elseif tcodeObj.instructions[i] == "up" then
             tex.up()
-        elseif instruction == "forward" then
+        elseif tcodeObj.instructions[i] == "forward" then
+            tex.forward()
+        elseif tcodeObj.instructions[i] == "back" then
+            tex.turnAround()
             tex.forward()
         end
     end
