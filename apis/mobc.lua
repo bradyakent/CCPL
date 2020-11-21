@@ -206,19 +206,19 @@ local function findNearestBlock(mob, pos, dir, placed, queued, queue)
 		local left = turnDir(dir, "left")
 		newPos = {x=pos.x+left.x, y=pos.y, z=pos.z+left.z}
 		if includes(mob.model[pos.y], newPos) and not queued[newPos.z][newPos.x] then
-            queued[pos.z][pos.x] = true
+            queued[newPos.z][newPos.x] = true
 			queue:push({pos=newPos, dir=left})
 		end
 		local right = turnDir(dir, "right")
 		newPos = {x=pos.x+right.x, y=pos.y, z=pos.z+right.z}
 		if includes(mob.model[pos.y], newPos) and not queued[newPos.z][newPos.x] then
-            queued[pos.z][pos.x] = true
+            queued[newPos.z][newPos.x] = true
 			queue:push({pos=newPos, dir=right})
         end
         local back = {x=-dir.x, z=-dir.z}
 		newPos = {x=pos.x+back.x, y=pos.y, z=pos.z+back.z}
 		if includes(mob.model[pos.y], newPos) and not queued[newPos.z][newPos.x] then
-            queued[pos.z][pos.x] = true
+            queued[newPos.z][newPos.x] = true
 			queue:push({pos=newPos, dir=back})
 		end
 		return nil
