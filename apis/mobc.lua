@@ -268,8 +268,9 @@ local function mobToTcode(mob)
         local blockPos
         blockPos, placed = findNearestBlock(mob, pos, dir, placed)
         if blockPos then
-            local instruction = goToPos(pos,dir,blockPos)
-            while instruction do
+            local instruction
+            repeat
+                instruction = goToPos(pos,dir,blockPos)
                 tcode.instructions[#tcode.instructions+1] = instruction
                 tcode.data[#tcode.data+1] = mob.model[pos.y][pos.z][pos.x]
                 if mob.model[pos.y][pos.z][pos.x] > 0 then
@@ -285,8 +286,7 @@ local function mobToTcode(mob)
                     dir = turnDir(dir, "right")
                     pos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
                 end
-                instruction = goToPos(pos,dir,blockPos)
-            end
+            until not instruction
         else
             tcode.data[#tcode.data+1] = mob.model[pos.y][pos.z][pos.x]
             if mob.model[pos.y][pos.z][pos.x] > 0 then
