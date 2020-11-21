@@ -192,7 +192,7 @@ local function findNearestBlock(mob, pos, dir, placed, searched, queue)
     if queue then
 		searched[pos.z][pos.x] = true
 		if mob.model[pos.y][pos.z][pos.x] > 0 and not placed[pos.z][pos.x] then
-			return pos
+			return pos, searched
 		end
 		
 		local newPos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
@@ -210,11 +210,11 @@ local function findNearestBlock(mob, pos, dir, placed, searched, queue)
 			queue:push({pos=newPos, dir=right})
         end
         local back = {x=-dir.x, z=-dir.z}
-		newPos = {x=pos.x+right.x, y=pos.y, z=pos.z+right.z}
+		newPos = {x=pos.x+back.x, y=pos.y, z=pos.z+back.z}
 		if includes(mob.model[pos.y], newPos) and not searched[newPos.z][newPos.x] then
 			queue:push({pos=newPos, dir=back})
 		end
-		return nil
+		return nil, searched
 	else
 		queue = Queue:new()
 		queue:push({pos=pos, dir=dir})
@@ -225,7 +225,7 @@ local function findNearestBlock(mob, pos, dir, placed, searched, queue)
 		local result
 		while not queue:isEmpty() do
 			local possible = queue:pop()
-			result = findNearestBlock(mob, possible.pos, possible.dir, placed, searched, queue)
+			result, searched = findNearestBlock(mob, possible.pos, possible.dir, placed, searched, queue)
 			if result then
 				return result
 			end
