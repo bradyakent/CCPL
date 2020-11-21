@@ -258,7 +258,7 @@ local function mobToTcode(mob)
     end
     local totalMaterials = 0
     
-    for _, material in ipairs(mob.materials) do
+    for i, material in ipairs(mob.materials) do
         tcode.materials[i] = { name=material.name, amount=material.amount }
         totalMaterials = totalMaterials + material.amount
     end
