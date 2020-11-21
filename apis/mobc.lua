@@ -264,16 +264,16 @@ local function mobToTcode(mob)
     local extruded = 0
     local i = 0
     while extruded < totalMaterials do
-        i=i+1
+        tcode.data[#tcode.data+1] = mob.model[pos.y][pos.z][pos.x]
+        if mob.model[pos.y][pos.z][pos.x] > 0 then
+            placed[pos.z][pos.x] = true
+            extruded = extruded + 1
+        end
         local blockPos
         blockPos = findNearestBlock(mob, pos, dir, placed)
         if blockPos then
-            tcode.data[#tcode.data+1] = mob.model[pos.y][pos.z][pos.x]
-            if mob.model[pos.y][pos.z][pos.x] > 0 then
-                placed[pos.z][pos.x] = true
-                extruded = extruded + 1
-            end
             local instruction = goToPos(pos,dir,blockPos)
+            if instruction == nil then print("nil!") end
             tcode.instructions[#tcode.instructions+1] = instruction
             if instruction == "forward" then
                 pos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
@@ -285,10 +285,6 @@ local function mobToTcode(mob)
                 pos = {x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z}
             end
         else
-            tcode.data[#tcode.data+1] = mob.model[pos.y][pos.z][pos.x]
-            if mob.model[pos.y][pos.z][pos.x] > 0 then
-                extruded = extruded + 1
-            end
             if not (pos.y == mob.height) then
                 placed = {}
                 for j=1,mob.depth do
@@ -297,7 +293,6 @@ local function mobToTcode(mob)
                 tcode.instructions[#tcode.instructions+1] = "up"
                 dir = {x=-dir.x, z=-dir.z}
                 pos = {x=pos.x, y=pos.y+1, z=pos.z}
-                placed[pos.z][pos.x] = true
             end
         end
         if i > 30 then
