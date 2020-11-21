@@ -91,7 +91,6 @@ local function tcodeToMob(tcodeObj)
             pos.x = pos.x + dir.x
             pos.z = pos.z + dir.z
         elseif tcodeObj.instructions[i] == "up" then
-            dir.x, dir.z = -dir.x, -dir.z
             pos.y = pos.y + 1
         elseif tcodeObj.instructions[i] == "back" then
             dir.x, dir.z = -dir.x, -dir.z
