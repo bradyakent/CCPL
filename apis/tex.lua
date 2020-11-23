@@ -129,15 +129,15 @@ end
 -- creates a path iterator through a volume
 local function vPath(width, height, depth)
     local dirs = {"forward", "left", "right", "up", "back"}
-    local dt = 1
-    local wt = 1
-    local ht = 1
+    local depthTravelled = 1
+    local widthTravelled = 1
+    local heightTravelled = 1
     local shiftRight = false
     local shiftLeft = false
     local goBack = false
     return function()
         --the turtle has been through every block
-        if ht == height and wt == width and dt == depth then
+        if heightTravelled == height and widthTravelled == width and depthTravelled == depth then
             return nil
         end
 
@@ -145,47 +145,47 @@ local function vPath(width, height, depth)
         --that means the turtle will turn, then move forward along the depth axis
         --therefore, dt must be incremented by 1
         if shiftRight == true then
-            dt = dt + 1
+            depthTravelled = depthTravelled + 1
             shiftRight = false
             return dirs[3]
         elseif shiftLeft == true then
-            dt = dt + 1
+            depthTravelled = depthTravelled + 1
             shiftLeft = false
             return dirs[2]
         elseif goBack == true then
-            dt = dt + 1
+            depthTravelled = depthTravelled + 1
             goBack = false
             return dirs[5]
         end
 
         --if the turtle has reached the end of a column
-        if dt == depth then
+        if depthTravelled == depth then
             --reset dt; the turtle is starting on a new column
-            dt = 1
+            depthTravelled = 1
             --if the turtle has reached the end of a layer
-            if wt == width then
+            if widthTravelled == width then
                 goBack = true
                 --reset the width travelled
-                wt = 1
+                widthTravelled = 1
                 --go to the next layer
-                ht = ht + 1
+                heightTravelled = heightTravelled + 1
                 return dirs[4]
             end
             --if the turtle is in the middle of a layer, shift columns
             --if width is even, flip turn direction at every even height
             --if wt % 2 == 1, turn right, else turn left
-            local flip = (width%2 == 0 and ht % 2 == 0)
-            if (wt%2 == 0 and flip) or (wt%2 == 1 and not flip) then
+            local flip = (width%2 == 0 and heightTravelled % 2 == 0)
+            if (widthTravelled%2 == 0 and flip) or (widthTravelled%2 == 1 and not flip) then
                 shiftRight = true
-                wt = wt + 1
+                widthTravelled = widthTravelled + 1
                 return dirs[3]
             else
                 shiftLeft = true
-                wt = wt + 1
+                widthTravelled = widthTravelled + 1
                 return dirs[2]
             end
         end
-        dt = dt + 1
+        depthTravelled = depthTravelled + 1
         return dirs[1]
     end
 end
