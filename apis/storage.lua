@@ -159,17 +159,28 @@ local function put()
         local stack = tex.getItemDetail()
         if stack then
             for i=1,(2*warehouse.depth*warehouse.height) do
-                -- create new info if location is empty
-                if warehouse.contents[i] == nil then
-                    warehouse.contents[i] = { name=stack.name, amount=0 }
-                end
-                if warehouse.contents[i].name == stack.name then
+                if warehouse.contents[i] and warehouse.contents[i].name == stack.name then
                     turtleGoTo(i)
                     tex.drop()
                     warehouse.contents[i].amount = warehouse.contents[i].amount + (stack.count - tex.getItemCount())
                     stack.count = tex.getItemCount()
                     if stack.count == 0 then
                         break
+                    end
+                end
+            end
+            if stack.count > 0 then
+                for i=1,(2*warehouse.depth*warehouse.height) do
+                    -- create new info if location is empty
+                    if warehouse.contents[i] == nil then
+                        warehouse.contents[i] = { name=stack.name, amount=0 }
+                        turtleGoTo(i)
+                        tex.drop()
+                        warehouse.contents[i].amount = warehouse.contents[i].amount + (stack.count - tex.getItemCount())
+                        stack.count = tex.getItemCount()
+                        if stack.count == 0 then
+                            break
+                        end
                     end
                 end
             end
