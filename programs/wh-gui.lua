@@ -74,6 +74,8 @@ function listing:onScroll(direction)
     listing.scrollOffset = listing.scrollOffset + direction
     if listing.scrollOffset < 1 then
         listing.scrollOffset = 1
+    elseif #listing.list - listing.scrollOffset < listing:height() then
+        listing.scrollOffset = #listing.list - listing:height() + 1
     end
 end
 
