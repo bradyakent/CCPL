@@ -25,3 +25,6 @@ local function printCompletion(theShell, argument, prevArgs)
 end
 --programs/3dprint.lua
 shell.setCompletionFunction(CCPLPath.."ccpl/programs/3dprint.lua",complete.build({ printCompletion, many=true }))
+
+
+shell.setCompletionFunction(CCPLPath.."ccpl/programs/warehouse.lua",complete.build({ complete.choice, {"new ", "list", "get ", "put "} }))
