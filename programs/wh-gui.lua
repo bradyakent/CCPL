@@ -59,11 +59,13 @@ function listing:onClick(x, y)
         helper:write(1,1,listing.displayed[innerY].name:sub(listing.displayed[innerY].name:find(":")+1),colors.yellow,colors.black)
     elseif innerX >= listing:width()-3 and innerX <= listing:width() then
         if listing.displayed[innerY] then
+            helper:write(1,1,"Press enter when done...", colors.yellow, colors.black)
             local userIn
             listing:draw(listing:width()-3,innerY,colors.gray,listing:width(),innerY)
             term.setCursorPos(listing:width()-3,y)
             userIn = tonumber(read())
             if not userIn then userIn = 0 end
+            helper:fill(colors.black)
             listing.requested[listing.displayed[innerY].location] = tonumber(userIn)
             if (listing.displayed[innerY].location > listing.requested.n) then listing.requested.n = listing.displayed[innerY].location end
         end
@@ -72,10 +74,11 @@ end
 
 function listing:onScroll(direction)
     listing.scrollOffset = listing.scrollOffset + direction
+    if #listing.list - listing.scrollOffset < listing:height() then
+        listing.scrollOffset = #listing.list - listing:height() + 1
+    end
     if listing.scrollOffset < 1 then
         listing.scrollOffset = 1
-    elseif #listing.list - listing.scrollOffset < listing:height() then
-        listing.scrollOffset = #listing.list - listing:height() + 1
     end
 end
 
@@ -91,6 +94,7 @@ local getButton = gui.Object:new(width-6,height-6,width,height-4,true)
 getButton:fill(colors.cyan)
 getButton:write(3,2,"Get",colors.white)
 function getButton:onClick()
+    helper:write(1,1,"Getting items...", colors.yellow, colors.black)
     local itemTable = {}
     for i=1,listing.requested.n do
         if listing.requested[i] then
@@ -105,6 +109,8 @@ function getButton:onClick()
             helper:write(1,1,"The turtle can't hold that many items.", colors.red, colors.black)
         end
     else
+        helper:fill(colors.black)
+        helper:write(1,1,"Done!", colors.green, colors.black)
         storage.update("info.wh")
         listing.requested = {}
         listing.requested.n = 0
@@ -115,12 +121,16 @@ local putButton = gui.Object:new(width-6,height-3,width,height-1,true)
 putButton:fill(colors.blue)
 putButton:write(3,2,"Put",colors.white)
 function putButton:onClick()
+    helper:write(1,1,"Putting away items...", colors.yellow, colors.black)
     local passed, failReason = storage.put()
     storage.update("info.wh")
     if not passed then
         if failReason == "Warehouse full" then
             helper:write(1,1,"Warning: Warehouse full", colors.red, colors.black)
         end
+    else
+        helper:fill(colors.black)
+        helper:write(1,1,"Done!", colors.green, colors.black)
     end
 end
 
