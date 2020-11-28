@@ -79,5 +79,11 @@ elseif args[1] == "put" then
         end
     end
 elseif args[1] == "list" then
-    storage.list()
+    local list = storage.list()
+    local listString = ""
+    for _, item in ipairs(list) do
+        listString = listString..item.location..": "..item.name.." - "..item.amount.."\n"
+    end
+    local _, height = term.getSize()
+    textutils.pagedPrint(listString, height - 2)
 end

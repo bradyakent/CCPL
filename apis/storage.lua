@@ -141,7 +141,12 @@ local function get(itemTable)
     end
     for _, item in ipairs(warehouse.requests) do
         turtleGoTo(item.location)
-        tex.suck(item.amount)
+        while item.amount > 0 do
+            while tex.getItemCount() > 0 do tex.select((tex.getSelectedSlot()%16) + 1) end
+            tex.suck()
+            item.amount = item.amount - tex.getItemCount()
+        end
+        tex.drop(-item.amount)
     end
     turtleGoTo(0)
     warehouse.requests = {}
@@ -154,17 +159,28 @@ local function put()
         local stack = tex.getItemDetail()
         if stack then
             for i=1,(2*warehouse.depth*warehouse.height) do
-                -- create new info if location is empty
-                if warehouse.contents[i] == nil then
-                    warehouse.contents[i] = { name=stack.name, amount=0 }
-                end
-                if warehouse.contents[i].name == stack.name then
+                if warehouse.contents[i] and warehouse.contents[i].name == stack.name then
                     turtleGoTo(i)
                     tex.drop()
                     warehouse.contents[i].amount = warehouse.contents[i].amount + (stack.count - tex.getItemCount())
                     stack.count = tex.getItemCount()
                     if stack.count == 0 then
                         break
+                    end
+                end
+            end
+            if stack.count > 0 then
+                for i=1,(2*warehouse.depth*warehouse.height) do
+                    -- create new info if location is empty
+                    if warehouse.contents[i] == nil then
+                        warehouse.contents[i] = { name=stack.name, amount=0 }
+                        turtleGoTo(i)
+                        tex.drop()
+                        warehouse.contents[i].amount = warehouse.contents[i].amount + (stack.count - tex.getItemCount())
+                        stack.count = tex.getItemCount()
+                        if stack.count == 0 then
+                            break
+                        end
                     end
                 end
             end
@@ -185,15 +201,14 @@ local function queryLocation(location)
 end
 
 local function list()
-    local list = ""
+    local list = {}
     for location=1,2*warehouse.depth*warehouse.height do
         local item = warehouse.contents[location]
         if item then
-            list = list..tostring(location)..": "..item.name.." - "..item.amount.."\n"
+            list[#list+1] = { name=item.name, amount=item.amount, location=location }
         end
     end
-    local _, height = term.getSize()
-    textutils.pagedPrint(list, height - 2)
+    return list
 end
 
 return {
