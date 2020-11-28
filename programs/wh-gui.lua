@@ -122,16 +122,19 @@ function putButton:onClick()
     end
 end
 
+storage.sync("info.wh")
+listing.list = storage.list()
+helper:write(1,1,"Click on an item to see its name", colors.yellow)
 while mainLoop do
-    storage.sync("info.wh")
-    listing.list = storage.list()
     listing:fill(colors.black)
     listing:populate()
     local e, b, x, y = os.pullEvent()
-    if e ~= "mouse_up" then helper:fill(colors.black) end
+    if e ~= "mouse_up" and e ~= "key_up" then helper:fill(colors.black) end
     if e == "mouse_click" then
         local clicked = gui.objAt(x, y)
         if clicked then clicked:onClick(x, y) end
+        storage.sync("info.wh")
+        listing.list = storage.list()
     elseif e == "mouse_scroll" then
         listing:onScroll(b)
     end
