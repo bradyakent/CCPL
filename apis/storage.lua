@@ -141,7 +141,12 @@ local function get(itemTable)
     end
     for _, item in ipairs(warehouse.requests) do
         turtleGoTo(item.location)
-        tex.suck(item.amount)
+        while item.amount > 0 do
+            while tex.getItemCount() > 0 do tex.select((tex.getSelectedSlot()%16) + 1) end
+            tex.suck()
+            item.amount = item.amount - tex.getItemCount()
+        end
+        tex.drop(-item.amount)
     end
     turtleGoTo(0)
     warehouse.requests = {}
