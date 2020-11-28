@@ -190,15 +190,14 @@ local function queryLocation(location)
 end
 
 local function list()
-    local list = ""
+    local list = {}
     for location=1,2*warehouse.depth*warehouse.height do
         local item = warehouse.contents[location]
         if item then
-            list = list..tostring(location)..": "..item.name.." - "..item.amount.."\n"
+            list[#list+1] = { name=item.name, amount=item.amount, location=location }
         end
     end
-    local _, height = term.getSize()
-    textutils.pagedPrint(list, height - 2)
+    return list
 end
 
 return {
