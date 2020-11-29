@@ -1,21 +1,23 @@
-local Buffer = {
-    data="",
-    changed=false
+local Buffer = {}
+local Buffer_mt = {
+    __index=function(instance, key) -- if key is a number, get that line from this instance, otherwise call the corresponding method
+        return type(key) == "number" and instance:getLine(key) or Buffer[key]
+    end
 }
 
-local mt_Buffer = {
-}
 
-mt_Buffer.__index = function(instace, key) -- if key is a number, return data at key, otherwise return the function at that key
-    return type(key) == "number" and instace.data:sub(key,key) or mt_Buffer[key]
+function Buffer:new(dataString)
+    return setmetatable({
+        data=dataString,
+        changed=true
+    },Buffer_mt)
 end
 
-mt_Buffer.__newindex = function(instance, key, value)
-    instance.data = instance.data:sub(1,key-1)..value:sub(1,1)..instance.data:sub(key+1)
-end
-
-mt_Buffer.load = function(instance, newDataString)
-    if instance.data == newDataString then return end
-    instance.data = newDataString
+function Buffer:load(newDataString, start)
+    if self.data == newDataString then return end
+    if start then newDataString
+    self.data = newDataString
     changed = true
 end
+
+function Buffer:blit()
