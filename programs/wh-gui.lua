@@ -10,23 +10,20 @@ end
 local width, height = term.getSize()
 local mainLoop = true
 
-term.setBackgroundColor(colors.black)
-term.clear()
-
-local exitButton = gui.Object:new(width-6,1,width,1,true)
+local exitButton = gui.Object:new(width-6,1,width,1)
 exitButton:fill(colors.red)
-exitButton:write(2,1,"Close",colors.white)
+exitButton:write("Close",2,1,colors.white)
 function exitButton:onClick()
     mainLoop = false
 end
 
-local helper = gui.Object:new(1,height, width, height)
+local helper = gui.Object:new(1, height, width, height)
 
 local listingLabels = gui.Object:new(1,1,width-8,1)
-listingLabels:write(1, 1, "i    Block Name")
-listingLabels:write(listingLabels:width()-9, 1, "Stock Pull")
+listingLabels:write("i    Block Name", 1, 1)
+listingLabels:write("Stock Pull", listingLabels.width-9, 1)
 
-local listing = gui.Object:new(1,2,width-8,height-1,true)
+local listing = gui.Object:new(1,2,width-8,height-1)
 listing.scrollOffset = 1
 listing.length = 1
 listing.displayed = {}
@@ -43,33 +40,38 @@ function listing:populate()
         listing.displayed[#listing.displayed+1] = item
         listing.length = listing.length + 1
         if not listing:contains(1,listing.length + listing.y1 - 1) then break end
-        listing:draw(1, listing.length, colors.black, listing:width(), listing.length)
+        listing:draw(colors.black, 1, listing.length, listing.width, listing.length)
         local itemText = item.location..": "..item.name:sub(item.name:find(":")+1)
-        if #itemText > listing:width() - 10 then
-            itemText = itemText:sub(1,listing:width() - 13).."..."
+        if #itemText > listing.width - 10 then
+            itemText = itemText:sub(1,listing.width - 13).."..."
         end
-        listing:write(1, listing.length, itemText, colors.white, colors.black)
-        listing:write(listing:width()-#tostring(item.amount)-4, listing.length, tostring(item.amount), colors.white, colors.black)
-        listing:draw(listing:width()-3, listing.length, colors.gray, listing:width(), listing.length)
+        listing:write(itemText, 1, listing.length, colors.white, colors.black)
+        listing:write(tostring(item.amount), listing.width-#tostring(item.amount)-4, listing.length, colors.white, colors.black)
+        listing:draw(colors.gray, listing.width-3, listing.length, listing.width, listing.length)
         if listing.requested[item.location] then
-            listing:write(listing:width()-#tostring(listing.requested[item.location])+1, listing.length, tostring(listing.requested[item.location]), colors.white, colors.gray)
+            listing:write(tostring(listing.requested[item.location]), listing.width-#tostring(listing.requested[item.location])+1, listing.length, colors.white, colors.gray)
         else
-            listing:write(listing:width(), listing.length, tostring(0), colors.white, colors.gray)
+            listing:write(tostring(0), listing.width, listing.length, colors.white, colors.gray)
         end
     end
+    gui.render()
 end
 
 function listing:onClick(x, y)
     local innerX = listing:x(x)
     local innerY = listing:y(y)
-    if innerX >= 1 and innerX <= listing:width() - 10 then
-        helper:write(1,1,listing.displayed[innerY].name:sub(listing.displayed[innerY].name:find(":")+1),colors.yellow,colors.black)
-    elseif innerX >= listing:width()-3 and innerX <= listing:width() then
+    if innerX >= 1 and innerX <= listing.width - 10 then
+        helper:fill(colors.black)
+        helper:write(listing.displayed[innerY].name:sub(listing.displayed[innerY].name:find(":")+1),1,1,colors.yellow,colors.black)
+        gui.render()
+    elseif innerX >= listing.width-3 and innerX <= listing.width then
         if listing.displayed[innerY] then
-            helper:write(1,1,"Press enter when done...", colors.yellow, colors.black)
+            helper:fill(colors.black)
+            helper:write("Press enter when done...", 1, 1, colors.yellow, colors.black)
             local userIn
-            listing:draw(listing:width()-3,innerY,colors.gray,listing:width(),innerY)
-            term.setCursorPos(listing:width()-3,y)
+            listing:draw(colors.gray,listing.width-3,innerY,listing.width,innerY)
+            gui.render()
+            term.setCursorPos(listing.width-3,y)
             userIn = tonumber(read())
             if not userIn then userIn = 0 end
             helper:fill(colors.black)
@@ -77,31 +79,34 @@ function listing:onClick(x, y)
             if (listing.displayed[innerY].location > listing.requested.n) then listing.requested.n = listing.displayed[innerY].location end
         end
     end
+    gui.render()
 end
 
 function listing:onScroll(direction)
     listing.scrollOffset = listing.scrollOffset + direction
-    if #listing.list - listing.scrollOffset < listing:height() then
-        listing.scrollOffset = #listing.list - listing:height() + 1
+    if #listing.list - listing.scrollOffset < listing.height then
+        listing.scrollOffset = #listing.list - listing.height + 1
     end
     if listing.scrollOffset < 1 then
         listing.scrollOffset = 1
     end
 end
 
-local clearButton = gui.Object:new(width-6,height-9,width,height-7,true)
+local clearButton = gui.Object:new(width-6,height-9,width,height-7)
 clearButton:fill(colors.blue)
-clearButton:write(2,2,"Clear",colors.white)
+clearButton:write("Clear",2,2,colors.white)
 function clearButton:onClick()
     listing.requested = {}
     listing.requested.n = 0
 end
 
-local getButton = gui.Object:new(width-6,height-6,width,height-4,true)
+local getButton = gui.Object:new(width-6,height-6,width,height-4)
 getButton:fill(colors.cyan)
-getButton:write(3,2,"Get",colors.white)
+getButton:write("Get",3,2,colors.white)
 function getButton:onClick()
-    helper:write(1,1,"Getting items...", colors.yellow, colors.black)
+    helper:fill(colors.black)
+    helper:write("Getting items...", 1, 1, colors.yellow, colors.black)
+    gui.render()
     local itemTable = {}
     for i=1,listing.requested.n do
         if listing.requested[i] then
@@ -111,41 +116,51 @@ function getButton:onClick()
     local passed, failReason = storage.get(itemTable)
     if not passed then
         if failReason == "Not enough items" then
-            helper:write(1,1,"Not enough of the requested items.", colors.red, colors.black)
+            helper:fill(colors.black)
+            helper:write("Not enough of the requested items.", 1, 1, colors.red, colors.black)
+            gui.render()
         else
-            helper:write(1,1,"The turtle can't hold that many items.", colors.red, colors.black)
+            helper:fill(colors.black)
+            helper:write("The turtle can't hold that many items.", 1, 1, colors.red, colors.black)
+            gui.render()
         end
     else
         helper:fill(colors.black)
-        helper:write(1,1,"Done!", colors.green, colors.black)
+        helper:write("Done!", 1, 1, colors.green, colors.black)
         storage.update("info.wh")
         listing.requested = {}
         listing.requested.n = 0
     end
 end
 
-local putButton = gui.Object:new(width-6,height-3,width,height-1,true)
+local putButton = gui.Object:new(width-6,height-3,width,height-1)
 putButton:fill(colors.blue)
-putButton:write(3,2,"Put",colors.white)
+putButton:write("Put", 3, 2, colors.white)
 function putButton:onClick()
-    helper:write(1,1,"Putting away items...", colors.yellow, colors.black)
+    helper:write("Putting away items...", 1, 1, colors.yellow, colors.black)
+    gui.render()
     local passed, failReason = storage.put()
     storage.update("info.wh")
     if not passed then
         if failReason == "Warehouse full" then
-            helper:write(1,1,"Warning: Warehouse full", colors.red, colors.black)
+            helper:fill(colors.black)
+            helper:write("Warning: Warehouse full", 1, 1, colors.red, colors.black)
+            gui.render()
         end
     else
         helper:fill(colors.black)
-        helper:write(1,1,"Done!", colors.green, colors.black)
+        helper:write("Done!", 1, 1, colors.green, colors.black)
+        gui.render()
     end
 end
 
 storage.sync("info.wh")
 listing.list = storage.list()
-helper:write(1,1,"Click on an item to see its name", colors.yellow)
+helper:fill(colors.black)
+helper:write("Click on an item to see its name", 1, 1, colors.yellow)
 while mainLoop do
     listing:populate()
+    gui.render()
     local e, b, x, y = os.pullEvent()
     if e ~= "mouse_up" and e ~= "key_up" then helper:fill(colors.black) end
     if e == "mouse_click" then
@@ -161,3 +176,4 @@ end
 term.setBackgroundColor(colors.black)
 term.setCursorPos(1,1)
 term.clear()
+print("nice")
