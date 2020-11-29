@@ -47,7 +47,7 @@ end
 -- @tparam string image The string containing the raw-image data.
 -- @treturn table The parsed image data, suitable for use with
 -- @{paintutils.drawImage}.
-function parseImage(image)
+local function parseImage(image)
     expect(1, image, "string")
     local tImage = {}
     for sLine in (image .. "\n"):gmatch("(.-)\n") do
@@ -68,7 +68,7 @@ end
 --
 --     local image = paintutils.loadImage("test-image.nfp")
 --     paintutils.drawImage(image, term.getCursorPos())
-function loadImage(path)
+local function loadImage(path)
     expect(1, path, "string")
 
     if fs.exists(path) then
@@ -89,7 +89,7 @@ end
 -- @tparam number yPos The y position to draw at, where 1 is the very top.
 -- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
 -- the current background colour if not specified.
-function drawPixel(xPos, yPos, colour)
+local function drawPixel(xPos, yPos, colour)
     expect(1, xPos, "number")
     expect(2, yPos, "number")
     expect(3, colour, "number", "nil")
@@ -112,7 +112,7 @@ end
 -- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
 -- the current background colour if not specified.
 -- @usage paintutils.drawLine(2, 3, 30, 7, colors.red)
-function drawLine(startX, startY, endX, endY, colour)
+local function drawLine(startX, startY, endX, endY, colour)
     expect(1, startX, "number")
     expect(2, startY, "number")
     expect(3, endX, "number")
@@ -176,7 +176,7 @@ end
 -- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
 -- the current background colour if not specified.
 -- @usage paintutils.drawBox(2, 3, 30, 7, colors.red)
-function drawBox(startX, startY, endX, endY, nColour)
+local function drawBox(startX, startY, endX, endY, nColour)
     expect(1, startX, "number")
     expect(2, startY, "number")
     expect(3, endX, "number")
@@ -229,7 +229,7 @@ end
 -- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
 -- the current background colour if not specified.
 -- @usage paintutils.drawFilledBox(2, 3, 30, 7, colors.red)
-function drawFilledBox(startX, startY, endX, endY, nColour)
+local function drawFilledBox(startX, startY, endX, endY, nColour)
     expect(1, startX, "number")
     expect(2, startY, "number")
     expect(3, endX, "number")
@@ -267,7 +267,7 @@ end
 -- @tparam table image The parsed image data.
 -- @tparam number xPos The x position to start drawing at.
 -- @tparam number xPos The y position to start drawing at.
-function drawImage(image, xPos, yPos)
+local function drawImage(image, xPos, yPos)
     expect(1, image, "table")
     expect(2, xPos, "number")
     expect(3, yPos, "number")
@@ -282,3 +282,12 @@ function drawImage(image, xPos, yPos)
     end
 end
 
+return {
+    parseImage=parseImage,
+    loadImage=loadImage,
+    drawPixel=drawPixel,
+    drawLine=drawLine,
+    drawBox=drawBox,
+    drawFilledBox=drawFilledBox,
+    drawImage=drawImage
+}

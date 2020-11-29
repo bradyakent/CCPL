@@ -1,5 +1,5 @@
 local _p = settings.get("ccpl.path")
-local paintutils = require(_p.."ccpl.apis.bpu")
+local bpu = require(_p.."ccpl.apis.bpu")
 
 if not term.isColor() then
     error("term doesn't support gui API", 2)
@@ -49,7 +49,7 @@ end
 function guiObject:fill(color)
     if color then self.bgColor = color end
     term.setBackgroundColor(self.bgColor)
-    paintutils.drawFilledBox(self.x1,self.y1,self.x2,self.y2)
+    bpu.drawFilledBox(self.x1,self.y1,self.x2,self.y2)
 end
 
 function guiObject:contains(x, y)
@@ -76,9 +76,9 @@ function guiObject:draw(x, y, color, x2, y2)
     term.setBackgroundColor(self.bgColor)
     if x2 and y2 then
         if not self:contains(x2 + self.x1 - 1, y2 + self.y1 - 1) then error("coords outside of GUI object bounds",2) end
-        paintutils.drawFilledBox(x + self.x1 - 1, y + self.y1 - 1, x2 + self.x1 - 1, y2 + self.y1 - 1)
+        bpu.drawFilledBox(x + self.x1 - 1, y + self.y1 - 1, x2 + self.x1 - 1, y2 + self.y1 - 1)
     else
-        paintutils.drawPixel(x, y)
+        bpu.drawPixel(x, y)
     end
 end
 
