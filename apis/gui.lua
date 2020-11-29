@@ -1,3 +1,6 @@
+local _p = settings.get("ccpl.path")
+local paintutils = require(_p.."ccpl.apis.bpu")
+
 if not term.isColor() then
     error("term doesn't support gui API", 2)
 end
