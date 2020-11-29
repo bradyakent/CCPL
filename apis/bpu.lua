@@ -5,6 +5,10 @@
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
+local function toBlit(color)
+    return string.format("%x", math.floor(math.log(color) / math.log(2)))
+end
+
 local function drawPixelInternal(xPos, yPos)
     term.setCursorPos(xPos, yPos)
     term.write(" ")
@@ -193,7 +197,7 @@ local function drawBox(startX, startY, endX, endY, nColour)
     else
         nColour = term.getBackgroundColour()
     end
-    local colourHex = colours.toBlit(nColour)
+    local colourHex = toBlit(nColour)
 
     if startX == endX and startY == endY then
         drawPixelInternal(startX, startY)
@@ -246,7 +250,7 @@ local function drawFilledBox(startX, startY, endX, endY, nColour)
     else
         nColour = term.getBackgroundColour()
     end
-    local colourHex = colours.toBlit(nColour)
+    local colourHex = toBlit(nColour)
 
     if startX == endX and startY == endY then
         drawPixelInternal(startX, startY)
