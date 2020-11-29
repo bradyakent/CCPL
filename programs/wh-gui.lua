@@ -33,6 +33,7 @@ listing.displayed = {}
 listing.list = {}
 listing.requested = {}
 listing.requested.n = 0
+listing:fill(colors.black)
 
 function listing:populate()
     local list = { table.unpack(storage.list(), listing.scrollOffset) }
@@ -42,6 +43,7 @@ function listing:populate()
         listing.displayed[#listing.displayed+1] = item
         listing.length = listing.length + 1
         if not listing:contains(1,listing.length + listing.y1 - 1) then break end
+        listing:draw(1, listing.length, colors.black, listing:width(), listing.length)
         local itemText = item.location..": "..item.name:sub(item.name:find(":")+1)
         if #itemText > listing:width() - 10 then
             itemText = itemText:sub(1,listing:width() - 13).."..."
@@ -143,15 +145,14 @@ storage.sync("info.wh")
 listing.list = storage.list()
 helper:write(1,1,"Click on an item to see its name", colors.yellow)
 while mainLoop do
-    storage.sync("info.wh")
-    listing.list = storage.list()
-    listing:fill(colors.black)
     listing:populate()
     local e, b, x, y = os.pullEvent()
     if e ~= "mouse_up" and e ~= "key_up" then helper:fill(colors.black) end
     if e == "mouse_click" then
         local clicked = gui.objAt(x, y)
         if clicked then clicked:onClick(x, y) end
+        storage.sync("info.wh")
+        listing.list = storage.list()
     elseif e == "mouse_scroll" then
         listing:onScroll(b)
     end
