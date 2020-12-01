@@ -10,7 +10,8 @@ contents:
 ]]
 
 local _p = settings.get("ccpl.path")
-local tex = require(_p.."ccpl.apis.tex")
+local tex
+if turtle then tex = require(_p.."ccpl.apis.tex") end
 
 local warehouse = {
     depth=0,
