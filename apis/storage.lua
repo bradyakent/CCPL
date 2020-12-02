@@ -155,12 +155,13 @@ local function get(itemTable)
 end
 
 local function put()
+    local full = {}
     for slot=1,16 do
         tex.select(slot)
         local stack = tex.getItemDetail()
         if stack then
             for i=1,(2*warehouse.depth*warehouse.height) do
-                if warehouse.contents[i] and warehouse.contents[i].name == stack.name then
+                if not full[i] and warehouse.contents[i] and warehouse.contents[i].name == stack.name then
                     turtleGoTo(i)
                     tex.drop()
                     warehouse.contents[i].amount = warehouse.contents[i].amount + (stack.count - tex.getItemCount())
@@ -168,6 +169,7 @@ local function put()
                     if stack.count == 0 then
                         break
                     end
+                    full[i] = true
                 end
             end
             if stack.count > 0 then
