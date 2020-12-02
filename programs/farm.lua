@@ -1,7 +1,5 @@
 -- implements basic farming API usage
-local _p = settings.get("ccpl.path")
-local farming = require(_p.."ccpl.apis.farming")
-local ux = require(_p.."ccpl.apis.ux")
+local farming, ux = require("/ccpl")("farming","ux")
 
 local usage = {
     {"create",{"x","y"}},

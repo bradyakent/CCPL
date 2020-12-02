@@ -154,25 +154,6 @@ local function parseURL(URL)
     return result
 end
 
-if settings.getDetails("ccpl.path").value == nil then
-    settings.define("ccpl.path",{
-        description="The parent directory of CCPL.",
-        default="/",
-        type="string"
-    })
-    settings.set("ccpl.path",installPath)
-    settings.save()
-else
-    if settings.get("ccpl.path") == installPath and askAboutOverwrites then
-        outputLog("Old CCPL found! Would you like to overwrite it? (y/n)",colors.red)
-        local userIn = read():lower()
-        if not (userIn == "yes" or userIn == "y") then
-            printError("Aborted.")
-            do return end
-        end
-    end
-end
-
 outputLog("Parsing URL...", colors.yellow)
 local info = parseURL(sourceURL..branch.."/")
 outputLog("URL parsed!", colors.lime)
@@ -204,7 +185,16 @@ if fs.exists("/startup/ccpl-startup.lua") then
     if not acceptOverwrites("/startup/ccpl-startup.lua") then do return end end
     fs.delete("/startup/ccpl-startup.lua")
 end
-fs.move(installPath.."ccpl/startup/ccpl-startup.lua","/startup/ccpl-startup.lua")
+local startupFileBase = fs.open(installPath.."ccpl/startup/ccpl-startup.lua","r")
+local startupString = startupFileBase.readAll()
+startupFileBase.close()
+
+local startupFile = fs.open("/startup/ccpl-startup.lua","a")
+startupFile.writeLine("local installPath = '"..installPath.."'")
+startupFile.write(startupString)
+startupFile.close()
+
+fs.delete(installPath.."ccpl/startup/ccpl-startup.lua")
 
 outputLog("\nFinished!",colors.lime)
 if debugLog then
