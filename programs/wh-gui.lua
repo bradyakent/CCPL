@@ -201,7 +201,7 @@ function helpButton:onClick()
     helpDisplay:erase()
     helpDisplay:fill(colors.gray)
     for line=1,#helpText do
-        helpDisplay:write(1, line, helpText[line], colors.green)
+        helpDisplay:write(1, line, helpText[line], colors.black)
     end
     screen:render()
     term.setCursorPos(1,screen.height+1)
@@ -229,7 +229,8 @@ while mainLoop do
         end
     elseif event[1] == "mouse_scroll" then
         listing:onScroll(event[2])
-    elseif event[1] ~= "key_up" and event[1] ~= "mouse_up" then
+    end
+    if event[1] and event[1] ~= "key_up" and event[1] ~= "mouse_up" then
         bottomText:erase()
     end
 
