@@ -1,6 +1,4 @@
-local _p = settings.get("ccpl.path")
-local storage = require(_p.."ccpl.apis.storage")
-local ux = require(_p.."ccpl.apis.ux")
+local storage, ux = require("ccpl")("storage","ux")
 
 local args = { ... }
 

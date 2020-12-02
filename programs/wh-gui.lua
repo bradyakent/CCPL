@@ -1,6 +1,4 @@
-local _p = settings.get("ccpl.path")
-local gui = require(_p.."ccpl.apis.gui")
-local storage = require(_p.."ccpl.apis.storage")
+local gui, storage = require("ccpl")("gui","storage")
 
 if not fs.exists("info.wh") then
     print("info.wh does not exist! \nRun \"warehouse new <depth> <height>\" to generate info.wh.")
