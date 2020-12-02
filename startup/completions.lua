@@ -1,5 +1,3 @@
-local args = {...}
-local CCPLPath = args[1]:sub(2)
 local complete = require("cc.shell.completion")
 
 local function fileIf(theShell, thisArg, prevArgs, text)
@@ -9,13 +7,13 @@ local function fileIf(theShell, thisArg, prevArgs, text)
 end
 
 -- programs/gist.lua
-shell.setCompletionFunction(CCPLPath.."ccpl/programs/gist.lua",complete.build(
+shell.setCompletionFunction("/ccpl/programs/gist.lua",complete.build(
     { complete.choice, {"install ", "update "} },
     { fileIf, "update " }
 ))
 
 --programs/farm.lua
-shell.setCompletionFunction(CCPLPath.."ccpl/programs/farm.lua",complete.build({ complete.choice, {"create ", "harvest "} }))
+shell.setCompletionFunction("/ccpl/programs/farm.lua",complete.build({ complete.choice, {"create ", "harvest "} }))
 
 --programs/3dprint.lua
 local function printCompletion(theShell, argument, prevArgs)
@@ -25,7 +23,7 @@ local function printCompletion(theShell, argument, prevArgs)
         return complete.file(theShell, argument)
     end
 end
-shell.setCompletionFunction(CCPLPath.."ccpl/programs/3dprint.lua",complete.build({ printCompletion, many=true }))
+shell.setCompletionFunction("/ccpl/programs/3dprint.lua",complete.build({ printCompletion, many=true }))
 
 -- programs/warehouse.lua
-shell.setCompletionFunction(CCPLPath.."ccpl/programs/warehouse.lua",complete.build({ complete.choice, {"new ", "list", "get ", "put "} }))
+shell.setCompletionFunction("/ccpl/programs/warehouse.lua",complete.build({ complete.choice, {"new ", "list", "get ", "put "} }))

@@ -32,11 +32,13 @@ listing.requested.n = 0
 listing.scrollOffset = 0
 
 local function displayClicked(object)
+    if not object.helpText then return end
     bottomText:erase()
     bottomText:write(1, 1, object.helpText, colors.yellow)
 end
 
 local function handleInput(object)
+    if not object.linkedLocation then return end
     bottomText:write(1, 1, "Press enter when finished", colors.yellow)
     object:erase()
     screen:render()

@@ -185,16 +185,8 @@ if fs.exists("/startup/ccpl-startup.lua") then
     if not acceptOverwrites("/startup/ccpl-startup.lua") then do return end end
     fs.delete("/startup/ccpl-startup.lua")
 end
-local startupFileBase = fs.open(installPath.."ccpl/startup/ccpl-startup.lua","r")
-local startupString = startupFileBase.readAll()
-startupFileBase.close()
 
-local startupFile = fs.open("/startup/ccpl-startup.lua","a")
-startupFile.writeLine("local installPath = '"..installPath.."'")
-startupFile.write(startupString)
-startupFile.close()
-
-fs.delete(installPath.."ccpl/startup/ccpl-startup.lua")
+fs.move(installPath.."ccpl/startup/ccpl-startup.lua","/startup/ccpl-startup.lua")
 
 outputLog("\nFinished!",colors.lime)
 if debugLog then
