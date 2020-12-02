@@ -160,6 +160,7 @@ local helpButton = gui.Object:new(screen, screen.width-6, 2, 7, 3)
 
 local function init()
     bottomText:write(1, 1, 'Click "Help!" for more information', colors.yellow)
+    
     closeButton:fill(colors.red)
     closeButton:write(2,1,"Close")
 
