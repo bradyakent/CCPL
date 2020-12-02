@@ -39,8 +39,10 @@ function Buffer:pushData(newData, line, xOffset)
     expect(2, line, "number")
     expect(3, xOffset, "number", "nil")
     if line < 1 then error("Arg 2 must be > 0", 2) end
-    if xOffset < 1 then error("Arg 3 must be > 0", 2) end
+    
     xOffset = xOffset or 1
+    if xOffset < 1 then error("Arg 3 must be > 0", 2) end
+    
     local oldLine = self[line]
     if xOffset == 1 and newData:len() == self[line]:len() then
         self[line] = newData

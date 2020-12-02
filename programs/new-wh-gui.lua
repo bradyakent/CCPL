@@ -59,6 +59,8 @@ end
 
 function listing:populate()
     for index, displayObject in ipairs(listing.objects) do
+        if not listing.list[index + listing.scrollOffset] then break end
+
         displayObject:erase()
         local item = listing.list[index + listing.scrollOffset]
         local itemText = item.location..": "..item.name:sub(item.name:find(":")+1)
