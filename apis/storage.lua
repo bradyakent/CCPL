@@ -47,8 +47,9 @@ local function requestGet(itemTable)
     local slotsUsed = 0
     for _, item in ipairs(itemTable) do
         local remainingAmount = item.amount
-        slotsUsed = math.ceil(item.amount/64)
-        for i=1,(2*warehouse.depth*warehouse.height) do
+        slotsUsed = slotsUsed + math.ceil(item.amount/64)
+        --go in reverse order so the turtle favors pulling from later indexes first
+        for i=(2*warehouse.depth*warehouse.height),1,-1 do
             if warehouse.contents[i] then
                 if warehouse.contents[i].name == item.name then
                     warehouse.requests[#warehouse.requests+1] = {
