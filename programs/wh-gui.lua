@@ -61,6 +61,7 @@ function listing:populate()
     for index, displayObject in ipairs(listing.objects) do
         displayObject:erase()
         local item = listing.list[index + listing.scrollOffset]
+        if not item then return end
         local itemText = item.location..": "..item.name:sub(item.name:find(":")+1)
         if #itemText > listing.width - 10 then
             itemText = itemText:sub(1,listing.width - 13).."..."
