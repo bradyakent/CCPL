@@ -128,6 +128,7 @@ local function turtleGoTo(location)
 end
 
 local function get(itemTable)
+    tex.select(1)
     if itemTable then
         local passed, failReason = requestGet(itemTable)
         if not passed then
