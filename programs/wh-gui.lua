@@ -159,17 +159,24 @@ end
 local helpButton = gui.Object:new(screen, screen.width-6, 2, 7, 3)
 
 local function init()
+    bottomText:write(1, 1, 'Click "Help!" for more information', colors.yellow)
     closeButton:fill(colors.red)
     closeButton:write(2,1,"Close")
+
     listingLabel:write(1, 1, "i   Block", colors.white)
     listingLabel:write(listingLabel.width-10, 1, "Stock Pull", colors.white)
+
     listing:draw(listing.width-4, 1, colors.gray, 4, listing.height)
+
     putButton:fill(colors.blue)
     putButton:write(3, 2, "Put")
+
     getButton:fill(colors.cyan)
     getButton:write(3, 2, "Get")
+
     helpButton:fill(colors.yellow)
     helpButton:write(2, 2,"Help!", colors.black)
+
     clearButton:fill(colors.lightGray)
     clearButton:write(2, 1, "Clear", colors.black)
     clearButton:write(2, 2, "Pulls", colors.black)
