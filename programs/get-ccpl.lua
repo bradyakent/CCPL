@@ -190,9 +190,11 @@ local startupString = startupFileBase.readAll()
 startupFileBase.close()
 
 local startupFile = fs.open("/startup/ccpl-startup.lua","a")
-startupFile.writeLine("local installPath = "..installPath)
+startupFile.writeLine("local installPath = '"..installPath.."'")
 startupFile.write(startupString)
 startupFile.close()
+
+fs.delete(installPath.."ccpl/startup/ccpl-startup.lua")
 
 outputLog("\nFinished!",colors.lime)
 if debugLog then
