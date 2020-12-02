@@ -189,6 +189,7 @@ local helpText = {
     'Press enter to continue                ',
 }
 function helpButton:onClick()
+    helpDisplay:erase()
     helpDisplay:fill(colors.gray)
     for line=1,#helpText do
         helpDisplay:write(1, line, helpText[line], colors.green)
