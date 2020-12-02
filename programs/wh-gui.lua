@@ -43,7 +43,9 @@ local function handleInput(object)
     object:erase()
     screen:render()
     term.setCursorPos(object.x,object.y)
-    listing.requested[object.linkedLocation] = tonumber(read()) or 0
+    local userInput = read()
+    if userInput:len() > 4 then userInput = 0 end
+    listing.requested[object.linkedLocation] = tonumber(userInput) or 0
     if (object.linkedLocation > listing.requested.n) then listing.requested.n = object.linkedLocation end
     bottomText:erase()
 end
