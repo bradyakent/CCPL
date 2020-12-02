@@ -1,5 +1,4 @@
-local _p = settings.get("ccpl.path")
-local tex = require(_p.."ccpl.apis.tex")
+local tex = require("ccpl")("tex")
 
 local Queue = { first=0, last=-1 }
 

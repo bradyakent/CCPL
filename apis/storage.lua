@@ -9,8 +9,7 @@ contents:
         find side: (index%2) and "right" or "left"
 ]]
 
-local _p = settings.get("ccpl.path")
-local tex = require(_p.."ccpl.apis.tex")
+local tex = require("ccpl")("tex")
 
 local warehouse = {
     depth=0,
