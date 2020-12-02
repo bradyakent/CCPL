@@ -1,6 +1,4 @@
-local _p = settings.get("ccpl.path")
-local storage = require(_p.."ccpl.apis.storage")
-local gui = require(_p.."ccpl.apis.screen")
+local storage, gui = require("/ccpl")("storage","screen")
 
 if not fs.exists("info.wh") then
     print("info.wh does not exist! \nRun \"warehouse new <depth> <height>\" to generate info.wh.")
@@ -59,8 +57,6 @@ end
 
 function listing:populate()
     for index, displayObject in ipairs(listing.objects) do
-        if not listing.list[index + listing.scrollOffset] then break end
-
         displayObject:erase()
         local item = listing.list[index + listing.scrollOffset]
         local itemText = item.location..": "..item.name:sub(item.name:find(":")+1)
@@ -175,19 +171,19 @@ local function init()
 end
 
 local helpText = {
-    "Warehouse GUI help                     ",
-    "=======================================",
-    "To put items into the warehouse:       ",
-    "1. Load the turtle with items          ",
-    "2. Click the \"Put\" button            ",
-    "                                       ",
-    "To get items from the warehouse:       ",
-    "1. Click the grey box next to the item ",
-    "   you want                            ",
-    "2. Type in how much you want           ",
-    "3. Click the \"Get\" button            ",
-    "                                       ",
-    "Press enter to continue                ",
+    'Warehouse GUI help                     ',
+    '=======================================',
+    'To put items into the warehouse:       ',
+    '1. Load the turtle with items          ',
+    '2. Click the "Put" button              ',
+    '                                       ',
+    'To get items from the warehouse:       ',
+    '1. Click the grey box next to the item ',
+    '   you want                            ',
+    '2. Type in how much you want           ',
+    '3. Click the "Get" button              ',
+    '                                       ',
+    'Press enter to continue                ',
 }
 function helpButton:onClick()
     helpDisplay:fill(colors.gray)

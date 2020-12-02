@@ -1,5 +1,5 @@
 -- implements basic tprint API usage
-local tex, tprint, ux, mobc = require("ccpl")("tex", "tprint", "ux", "mobc")
+local tex, tprint, ux, mobc = require("/ccpl")("tex", "tprint", "ux", "mobc")
 
 local args = { ... }
 

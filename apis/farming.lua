@@ -1,4 +1,4 @@
-local ux,tex = require("ccpl")("ux","tex")
+local ux,tex = require("/ccpl")("ux","tex")
 
 local plantableList = {
     "minecraft:wheat_seeds",

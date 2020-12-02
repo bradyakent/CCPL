@@ -1,4 +1,4 @@
-local tex, ux = require("ccpl")("tex","ux")
+local tex, ux = require("/ccpl")("tex","ux")
 
 local args = { ... }
 

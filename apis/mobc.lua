@@ -1,4 +1,4 @@
-local tex = require("ccpl")("tex")
+local tex = require("/ccpl")("tex")
 
 local Queue = { first=0, last=-1 }
 

@@ -1,4 +1,4 @@
-local storage, ux = require("ccpl")("storage","ux")
+local storage, ux = require("/ccpl")("storage","ux")
 
 local args = { ... }
 

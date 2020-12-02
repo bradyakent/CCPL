@@ -1,5 +1,5 @@
 -- implements basic farming API usage
-local farming, ux = require("ccpl")("farming","ux")
+local farming, ux = require("/ccpl")("farming","ux")
 
 local usage = {
     {"create",{"x","y"}},

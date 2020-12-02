@@ -1,4 +1,4 @@
-local ux = require("ccpl")("ux")
+local ux = require("/ccpl")("ux")
 
 local usage = {
     {"install",{"file-name","url"}},
