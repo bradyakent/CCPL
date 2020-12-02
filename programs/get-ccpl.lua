@@ -41,7 +41,7 @@ for _, arg in ipairs(args) do
         if arg:sub(arg:len()) ~= "/" then arg = arg.."/" end
         installPath = arg
         currentFlag = ""
-        printError("WARNING! A custom install path may lead to unintentional bugs when running programs that depend on CCPL.")
+        printError("WARNING! A custom install path will cause CCPL's internal programs to break.")
         print("Are you sure you want to continue? (y/n)")
         local userIn = read():lower()
         if not (userIn == "yes" or userIn == "y") then
@@ -181,7 +181,7 @@ if not fs.exists("/startup") then
 end
 
 if fs.exists("/startup/ccpl-startup.lua") then
-    outputLog("Warning: ccpl-startup.lua found! There may be incompatibilities if you continue.",colors.red)
+    outputLog("Warning: ccpl-startup.lua found! There may be incompatibilities if you don't overwrite it.",colors.red)
     if not acceptOverwrites("/startup/ccpl-startup.lua") then do return end end
     fs.delete("/startup/ccpl-startup.lua")
 end
