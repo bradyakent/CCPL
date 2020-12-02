@@ -1,4 +1,4 @@
-local storage, gui = require("/ccpl")("storage","screen")
+local storage, gui = require("/ccpl")("storage","gui")
 
 if not fs.exists("info.wh") then
     print("info.wh does not exist! \nRun \"warehouse new <depth> <height>\" to generate info.wh.")
