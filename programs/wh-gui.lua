@@ -21,6 +21,8 @@ end
 local search = {}
 local searchBar = gui.Object:new(screen, 1, screen.height, screen.width, 1)
 function searchBar:onClick()
+    searchBar:erase()
+    screen:render()
     term.setCursorPos(self.x,self.y)
     local userInput = read()
     local keys = {}
@@ -83,23 +85,31 @@ for line=1,listing.height do
 end
 
 function listing:populate()
+    local skips = 0
     for index, displayObject in ipairs(listing.objects) do
         displayObject:erase()
-        local item = listing.list[index + listing.scrollOffset]
-        if not item then return end
-        if not search.keys or search:match(item.name) then
-            local itemText = item.location..": "..item.name:sub(item.name:find(":")+1)
-            if #itemText > listing.width - 10 then
-                itemText = itemText:sub(1,listing.width - 13).."..."
-            end
-            displayObject.helpText = item.name:sub(item.name:find(":")+1)
-            displayObject:write(1, 1, itemText)
-            displayObject:write(displayObject.width-#tostring(item.amount), 1, tostring(item.amount))
+        local item
+        local printed = false
+        while not printed do
+            item = listing.list[skips + index + listing.scrollOffset]
+            if not item then return end
+            if not search.keys or search:match(item.name) then
+                local itemText = item.location..": "..item.name:sub(item.name:find(":")+1)
+                if #itemText > listing.width - 10 then
+                    itemText = itemText:sub(1,listing.width - 13).."..."
+                end
+                displayObject.helpText = item.name:sub(item.name:find(":")+1)
+                displayObject:write(1, 1, itemText)
+                displayObject:write(displayObject.width-#tostring(item.amount), 1, tostring(item.amount))
 
-            local input = listing.inputs[index]
-            input.linkedLocation = item.location
-            input:erase()
-            input:write(5-#tostring(listing.requested[item.location] or 0), 1, tostring(listing.requested[item.location] or 0))
+                local input = listing.inputs[index]
+                input.linkedLocation = item.location
+                input:erase()
+                input:write(5-#tostring(listing.requested[item.location] or 0), 1, tostring(listing.requested[item.location] or 0))
+                printed = true
+            else
+                skips = skips + 1
+            end
         end
     end
 end
