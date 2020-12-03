@@ -1,161 +1,390 @@
-local _p = settings.get("ccpl.path")
-local gui = require(_p.."ccpl.apis.gui")
-local storage = require(_p.."ccpl.apis.storage")
+local storage, gui = require("/ccpl")("storage","gui")
 
 if not fs.exists("info.wh") then
     print("info.wh does not exist! \nRun \"warehouse new <depth> <height>\" to generate info.wh.")
     do return end
 end
+storage.sync("info.wh")
 
-local width, height = term.getSize()
 local mainLoop = true
 
-term.setBackgroundColor(colors.black)
-term.clear()
+local screen = gui.Screen:new(term.getSize())
+screen:render()
 
-local exitButton = gui.Object:new(width-6,1,width,1,true)
-exitButton:fill(colors.red)
-exitButton:write(2,1,"Close",colors.white)
-function exitButton:onClick()
+local helpDisplay = gui.Object:new(screen, 1, 1, screen.width, screen.height)
+
+local closeButton = gui.Object:new(screen, screen.width-6, 1, 7, 1)
+function closeButton:onClick()
     mainLoop = false
 end
 
-local helper = gui.Object:new(1,height, width, height)
-
-local listingLabels = gui.Object:new(1,1,width-8,1)
-listingLabels:write(1, 1, "i    Block Name")
-listingLabels:write(listingLabels:width()-9, 1, "Stock Pull")
-
-local listing = gui.Object:new(1,2,width-8,height-1,true)
-listing.scrollOffset = 1
-listing.length = 1
-listing.displayed = {}
-listing.list = {}
-listing.requested = {}
-listing.requested.n = 0
-listing:fill(colors.black)
-
-function listing:populate()
-    local list = { table.unpack(storage.list(), listing.scrollOffset) }
-    listing.length = 0
-    listing.displayed = {}
+local searchBar = gui.Object:new(screen, 1, screen.height, screen.width, 1)
+local search = { keys={} }
+function search:filter(list)
+    if not self.keys[1] then return list end
+    local returnList = {}
     for _, item in ipairs(list) do
-        listing.displayed[#listing.displayed+1] = item
-        listing.length = listing.length + 1
-        if not listing:contains(1,listing.length + listing.y1 - 1) then break end
-        listing:draw(1, listing.length, colors.black, listing:width(), listing.length)
-        local itemText = item.location..": "..item.name:sub(item.name:find(":")+1)
-        if #itemText > listing:width() - 10 then
-            itemText = itemText:sub(1,listing:width() - 13).."..."
-        end
-        listing:write(1, listing.length, itemText, colors.white, colors.black)
-        listing:write(listing:width()-#tostring(item.amount)-4, listing.length, tostring(item.amount), colors.white, colors.black)
-        listing:draw(listing:width()-3, listing.length, colors.gray, listing:width(), listing.length)
-        if listing.requested[item.location] then
-            listing:write(listing:width()-#tostring(listing.requested[item.location])+1, listing.length, tostring(listing.requested[item.location]), colors.white, colors.gray)
-        else
-            listing:write(listing:width(), listing.length, tostring(0), colors.white, colors.gray)
+        local attachedKeys = {}
+        for _, key in ipairs(self.keys) do
+            attachedKeys[#attachedKeys+1] = key
+            if not key.attach then
+                local passed = true
+                for _, part in ipairs(attachedKeys) do
+                    if part.amount and item.amount < part.amount then
+                        passed = false
+                        break
+                    end
+                    if part.modName then
+                        if not item.name:find(part.text, 1, true) then
+                            passed = false
+                            break
+                        end
+                    else
+                        if not item.name:find(part.text, item.name:find(":")+1, true) then
+                            passed = false
+                            break
+                        end
+                    end
+                end
+                if passed then
+                    returnList[#returnList+1] = item
+                    break
+                end
+                attachedKeys = {}
+            end
         end
     end
+    return returnList
+end
+function search:generateKeys(userInput)
+    local keys = {}
+    for modName, text, attach, amount in userInput:gmatch("(@?)([%w_]+)(&?)(#?%d*)") do
+        keys[#keys+1] = {
+            text=text,
+            modName=(modName == "@"),
+            amount=(amount:sub(1,1) == "#" and tonumber(amount:sub(2)) or -1),
+            attach=(attach == "&")
+        }
+    end
+    self.keys = keys
 end
 
-function listing:onClick(x, y)
-    local innerX = listing:x(x)
-    local innerY = listing:y(y)
-    if innerX >= 1 and innerX <= listing:width() - 10 then
-        helper:write(1,1,listing.displayed[innerY].name:sub(listing.displayed[innerY].name:find(":")+1),colors.yellow,colors.black)
-    elseif innerX >= listing:width()-3 and innerX <= listing:width() then
-        if listing.displayed[innerY] then
-            helper:write(1,1,"Press enter when done...", colors.yellow, colors.black)
-            local userIn
-            listing:draw(listing:width()-3,innerY,colors.gray,listing:width(),innerY)
-            term.setCursorPos(listing:width()-3,y)
-            userIn = tonumber(read())
-            if not userIn then userIn = 0 end
-            helper:fill(colors.black)
-            listing.requested[listing.displayed[innerY].location] = tonumber(userIn)
-            if (listing.displayed[innerY].location > listing.requested.n) then listing.requested.n = listing.displayed[innerY].location end
+local listingLabel = gui.Object:new(screen, 1, 1, screen.width-6, 1)
+
+local listing = gui.Object:new(screen, 1, 2, screen.width-6, screen.height-2)
+listing:draw(listing.width-4, 1, colors.gray, 4, listing.height)
+listing.list = storage.list()
+listing.objects = {}
+listing.inputs = {}
+listing.requested = {}
+listing.requested.n = 0
+listing.scrollOffset = 0
+
+local function displayClicked(object)
+    if not object.helpText then return end
+    searchBar:erase()
+    searchBar:write(1, 1, object.helpText, colors.yellow)
+end
+
+local function handleInput(object)
+    if not object.linkedLocation then return end
+    searchBar:write(1, 1, "Press enter when finished", colors.yellow)
+    object:erase()
+    screen:render()
+    term.setCursorPos(object.x,object.y)
+    local userInput = read()
+    if userInput:len() > 4 then userInput = 0 end
+    listing.requested[object.linkedLocation] = tonumber(userInput) or 0
+    if (object.linkedLocation > listing.requested.n) then listing.requested.n = object.linkedLocation end
+    searchBar:erase()
+    searchBar:write(1, 1, "Click here to search...", colors.gray)
+end
+
+for line=1,listing.height do
+    local displayObject = gui.Object:new(screen, 1, line+listing.y-1, listing.width-5, 1)
+    displayObject.onClick = displayClicked
+    listing.objects[#listing.objects+1] = displayObject
+    local input = gui.Object:new(screen, listing.width-4, line+listing.y-1, 4, 1)
+    input.onClick = handleInput
+    listing.inputs[#listing.inputs+1] = input
+end
+
+function listing:populate()
+    for index, displayObject in ipairs(listing.objects) do
+        displayObject:erase()
+        displayObject.helpText = nil -- remove help text
+        listing.inputs[index].linkedLocation = nil -- remove linked location for input
+        local item = listing.list[index + listing.scrollOffset]
+        if item then
+            local itemText = item.location..": "..item.name:sub(item.name:find(":")+1)
+            if #itemText > listing.width - 10 then
+                itemText = itemText:sub(1,listing.width - 13).."..."
+            end
+            displayObject.helpText = item.name:sub(item.name:find(":")+1)
+            displayObject:write(1, 1, itemText)
+            displayObject:write(displayObject.width-#tostring(item.amount), 1, tostring(item.amount))
+
+            local input = listing.inputs[index]
+            input:fill(colors.gray)
+            input.linkedLocation = item.location
+            local stringToDisplay = "0"
+            if listing.requested[item.location] and listing.requested[item.location] > 0 then
+                stringToDisplay = tostring(listing.requested[item.location])
+            end
+            input:erase()
+            input:write(5-stringToDisplay:len(), 1, stringToDisplay)
+        else
+            listing.inputs[index]:fill(colors.black)
+            listing.inputs[index]:erase()
         end
     end
 end
 
 function listing:onScroll(direction)
     listing.scrollOffset = listing.scrollOffset + direction
-    if #listing.list - listing.scrollOffset < listing:height() then
-        listing.scrollOffset = #listing.list - listing:height() + 1
+    if #listing.list - listing.scrollOffset < listing.height then
+        listing.scrollOffset = #listing.list - listing.height
     end
-    if listing.scrollOffset < 1 then
-        listing.scrollOffset = 1
+    if listing.scrollOffset < 0 then
+        listing.scrollOffset = 0
     end
 end
 
-local clearButton = gui.Object:new(width-6,height-9,width,height-7,true)
-clearButton:fill(colors.blue)
-clearButton:write(2,2,"Clear",colors.white)
-function clearButton:onClick()
-    listing.requested = {}
-    listing.requested.n = 0
+local putButton = gui.Object:new(screen, screen.width-6, screen.height-8, 7, 3)
+function putButton:onClick()
+    storage.sync("info.wh")
+    searchBar:erase()
+    searchBar:write(1, 1, "Putting away items...", colors.yellow)
+    screen:render()
+    local passed, failReason
+    if turtle then
+        passed, failReason = storage.put()
+    else
+        passed = true
+    end
+    storage.update("info.wh")
+    if not passed then
+        if failReason == "Warehouse full" then
+            searchBar:erase()
+            searchBar:write(1, 1, "Warning: Warehouse full", colors.red)
+        end
+    else
+        searchBar:erase()
+        searchBar:write(1, 1, "Done!", colors.green)
+    end
+    listing.list = storage.list()
 end
 
-local getButton = gui.Object:new(width-6,height-6,width,height-4,true)
-getButton:fill(colors.cyan)
-getButton:write(3,2,"Get",colors.white)
+local getButton = gui.Object:new(screen, screen.width-6, screen.height-5, 7, 3)
 function getButton:onClick()
-    helper:write(1,1,"Getting items...", colors.yellow, colors.black)
+    storage.sync("info.wh")
+    searchBar:erase()
+    searchBar:write(1, 1, "Getting items...", colors.yellow)
+    screen:render()
     local itemTable = {}
     for i=1,listing.requested.n do
         if listing.requested[i] then
             itemTable[#itemTable+1] = { name=storage.queryLocation(i).name, amount=listing.requested[i] }
         end
     end
-    local passed, failReason = storage.get(itemTable)
+    local passed, failReason
+    if turtle then
+        passed, failReason = storage.get(itemTable)
+    else
+        passed = true
+    end
     if not passed then
         if failReason == "Not enough items" then
-            helper:write(1,1,"Not enough of the requested items.", colors.red, colors.black)
+            searchBar:erase()
+            searchBar:write(1, 1, "Not enough of the requested items.", colors.red)
         else
-            helper:write(1,1,"The turtle can't hold that many items.", colors.red, colors.black)
+            searchBar:erase()
+            searchBar:write(1, 1, "The turtle can't hold that many items.", colors.red)
         end
     else
-        helper:fill(colors.black)
-        helper:write(1,1,"Done!", colors.green, colors.black)
+        searchBar:erase()
+        searchBar:write(1, 1, "Done!", colors.green)
         storage.update("info.wh")
         listing.requested = {}
         listing.requested.n = 0
     end
+    listing.list = storage.list()
 end
 
-local putButton = gui.Object:new(width-6,height-3,width,height-1,true)
-putButton:fill(colors.blue)
-putButton:write(3,2,"Put",colors.white)
-function putButton:onClick()
-    helper:write(1,1,"Putting away items...", colors.yellow, colors.black)
-    local passed, failReason = storage.put()
-    storage.update("info.wh")
-    if not passed then
-        if failReason == "Warehouse full" then
-            helper:write(1,1,"Warning: Warehouse full", colors.red, colors.black)
-        end
-    else
-        helper:fill(colors.black)
-        helper:write(1,1,"Done!", colors.green, colors.black)
-    end
+local clearButton = gui.Object:new(screen, screen.width-6, screen.height-2, 7, 2)
+function clearButton:onClick()
+    listing.requested = {}
+    listing.requested.n = 0
 end
 
-storage.sync("info.wh")
-listing.list = storage.list()
-helper:write(1,1,"Click on an item to see its name", colors.yellow)
-while mainLoop do
+local helpButton = gui.Object:new(screen, screen.width-6, 2, 7, 3)
+
+local function init()
+
+    closeButton:fill(colors.red)
+    closeButton:write(2,1,"Close")
+
+    listingLabel:write(1, 1, "i   Block", colors.white)
+    listingLabel:write(listingLabel.width-10, 1, "Stock Pull", colors.white)
+
+    listing:erase()
+    listing:draw(listing.width-4, 1, colors.gray, 4, listing.height)
+
+    putButton:fill(colors.blue)
+    putButton:write(3, 2, "Put")
+
+    getButton:fill(colors.cyan)
+    getButton:write(3, 2, "Get")
+
+    helpButton:fill(colors.yellow)
+    helpButton:write(2, 2,"Help!", colors.black)
+
+    clearButton:fill(colors.lightGray)
+    clearButton:write(2, 1, "Clear", colors.black)
+    clearButton:write(2, 2, "Pulls", colors.black)
+end
+
+function searchBar:onClick(_, _, prepend)
+    local userInput = prepend or ""
+    search.keys = {}
+    listing.list = search:filter(storage.list())
+    listing.scrollOffset = 0
+    local cursorX, cursorY = userInput:len()+1, 1
+
     listing:populate()
-    local e, b, x, y = os.pullEvent()
-    if e ~= "mouse_up" and e ~= "key_up" then helper:fill(colors.black) end
-    if e == "mouse_click" then
-        local clicked = gui.objAt(x, y)
-        if clicked then clicked:onClick(x, y) end
-        storage.sync("info.wh")
-        listing.list = storage.list()
-    elseif e == "mouse_scroll" then
-        listing:onScroll(b)
+    searchBar:erase()
+    searchBar:write(1,1,userInput,colors.white)
+    screen:render()
+    term.setCursorPos(cursorX + self.x - 1, cursorY + self.y - 1)
+    term.setCursorBlink(true)
+
+    local inputLoop = true
+    local event = {}
+    while inputLoop do
+        -- Handle events
+        event = { os.pullEvent() }
+        if event[1] == "char" then
+            searchBar:write(cursorX,cursorY,event[2],colors.white)
+            userInput = (cursorX + 1 < self.width - 1) and userInput..event[2] or userInput
+            cursorX = math.min(self.width-1, cursorX + 1)
+        elseif event[1] == "key" then
+            if event[2] == keys.backspace then
+                cursorX = math.max(1, cursorX - 1)
+                searchBar:write(cursorX,cursorY," ",colors.white)
+                userInput = userInput:sub(1,-2)
+            elseif event[2] == keys.enter then
+                inputLoop = false
+                print(textutils.serialize(search:filter(storage.list())))
+            end
+        elseif event[1] == "mouse_click" then
+            if not searchBar:contains(event[3],event[4]) then
+                inputLoop = false
+            end
+            os.queueEvent(table.unpack(event))
+        end
+
+        -- Display updates
+        search:generateKeys(userInput)
+        listing.list = search:filter(storage.list())
+        listing:populate()
+        screen:render()
+        term.setCursorPos(cursorX + self.x - 1, cursorY + self.y - 1)
     end
+    term.setCursorBlink(false)
+end
+
+local helpText = {
+    {
+        'Warehouse GUI help (page 1/2)          ',
+        '=======================================',
+        'To put items into the warehouse:       ',
+        '1. Load the turtle with items          ',
+        '2. Click the "Put" button              ',
+        '                                       ',
+        'To get items from the warehouse:       ',
+        '1. Click the grey box next to the item ',
+        '   you want                            ',
+        '2. Type in how much you want           ',
+        '3. Click the "Get" button              ',
+        '                                       ',
+        'Arrows: Navigation    Enter: Close Help',
+    },
+    {
+        'Warehouse GUI help (page 2/2)          ',
+        '=======================================',
+        'With the search bar, you can type a    ',
+        'list of "keys" you want to display,    ',
+        'separated by spaces.                   ',
+        '                                       ',
+        'Special characters:                    ',
+        '@ - Looks for a mod name.              ',
+        '& - Item names have to match all keys  ',
+        '    attached by &s.                    ',
+        '# - In form "key#num", "key" must have ',
+        '    at least "num" items available.    ',
+        'Arrows: Navigation    Enter: Close Help',
+    }
+}
+function helpButton:onClick()
+    local displayHelp = true
+    local page = 1
+    local event = {}
+    while displayHelp do
+        helpDisplay:erase()
+        helpDisplay:fill(colors.black)
+        for line=1,#helpText[page] do
+            helpDisplay:write(1, line, helpText[page][line], (line == #helpText[page]) and (colors.yellow) or (colors.white))
+        end
+        screen:render()
+        term.setCursorPos(1,screen.height+1)
+
+        event = { os.pullEvent() }
+        if event[1] == "key" then
+            if event[2] == keys.enter then
+                displayHelp = false
+            elseif event[2] == keys.right then
+                page = math.min(page + 1, #helpText)
+            elseif event[2] == keys.left then
+                page = math.max(page - 1, 1)
+            end
+        end
+    end
+    helpDisplay:fill(colors.black)
+    helpDisplay:fill(colors.white,true)
+    helpDisplay:erase()
+    init()
+end
+
+searchBar:write(1, 1, 'Click "Help!" for more information', colors.yellow)
+init()
+local event = {} -- 1 will be the event type, the following will be the return values
+while mainLoop do
+    if event[1] == "mouse_click" then
+        local x = event[3]
+        local y = event[4]
+        for i, object in ipairs(gui.list) do
+            if object:contains(x, y) then
+                if object.onClick then
+                    object:onClick(x, y)
+                else
+                    searchBar:erase()
+                end
+            end
+        end
+    elseif event[1] == "mouse_scroll" then
+        listing:onScroll(event[2])
+        searchBar:erase()
+        searchBar:write(1, 1, "Click here to search...", colors.gray)
+    elseif event[1] == "char" then
+        searchBar:onClick(nil, nil, event[2])
+    elseif event[1] and event[1] ~= "key_up" and event[1] ~= "mouse_up" then
+        searchBar:erase()
+        searchBar:write(1, 1, "Click here to search...", colors.gray)
+    end
+
+    listing:populate()
+    screen:render()
+    event = { os.pullEvent() }
 end
 
 term.setBackgroundColor(colors.black)

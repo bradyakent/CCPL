@@ -48,20 +48,33 @@ You only need this stuff if you're going to be programming with CCPL.
 There are custom flags that you may use with the `get-ccpl.lua` program:
 
 | Flag             | Usage                                                         |
-|------------------|---------------------------------------------------------------|
+| ---------------- | ------------------------------------------------------------- |
 | `-b <branch>`    | Download CCPL from `<branch>`                                 |
 | `-f`             | Force overwrites (does not stop custom path warning)          |
-| `-i <path>`      | Install CCPL at `<path>`, may break badly written programs    |
+| `-i <path>`      | Install CCPL at `<path>`; will break built-in programs.       |
 | `-l [path/file]` | Dumps debug output to a log file. File defaults to `/log.txt` |
 | `-s`             | Steps through debug output, in case you're into that          |
 
 ## Before using the APIs
 
-Since there is no way to add custom paths to `require()`'s list of paths, and I have an option to install CCPL in a custom path, I needed a way to reference my APIs no matter where they are, even though `require()` would need an absolute path. 
-This is the snippet to do that:
+You may find that you require more than one API at a time. Instead of requiring each API one at a time, you can actually write something like this:
 ```lua
-local _p = settings.get("ccpl.path")
-local {api-name-here} = require(_p.."ccpl.apis.{api-name-here}")
+local api1, api2 = require("/ccpl")("api1", "api2")
+```
+You can do this with as many APIs as you need, all in one line. If you want to get really succinct with it, you could do something like:
+`local a = { require("/ccpl")("api1", "api2") }`, then reference them via that table as needed.
+You can require the APIs the normal way as well, if you prefer:
+```lua
+local api1 = require("/ccpl.apis.api1")
+local api2 = require("/ccpl.apis.api2")
 ```
 
-Essentially, I have a custom setting that saves the location that CCPL is installed. As long as you append that path before `ccpl.apis`, your program will be able to use the API, even if CCPL is in a custom path.
+If you use my APIs in your own programs, be sure to give the absolute path to CCPL (or the API if you're using the standard `require()` syntax):
+```lua
+-- CCPL specific syntax
+local api1, api2 = require("/your/path/here/ccpl")("api1", "api2")
+
+-- standard require() syntax
+local api3 = require("/your/path/here/ccpl.apis.api3")
+local api4 = require("/your/path/here/ccpl.apis.api4")
+```

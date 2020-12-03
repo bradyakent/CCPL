@@ -1,3 +1,5 @@
+if not turtle then return nil end
+
 local function forward(distance, dig)
     if distance == nil then
         distance = 1

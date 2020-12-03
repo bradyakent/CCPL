@@ -9,8 +9,7 @@ contents:
         find side: (index%2) and "right" or "left"
 ]]
 
-local _p = settings.get("ccpl.path")
-local tex = require(_p.."ccpl.apis.tex")
+local tex = require("/ccpl")("tex")
 
 local warehouse = {
     depth=0,
@@ -48,8 +47,9 @@ local function requestGet(itemTable)
     local slotsUsed = 0
     for _, item in ipairs(itemTable) do
         local remainingAmount = item.amount
-        slotsUsed = math.ceil(item.amount/64)
-        for i=1,(2*warehouse.depth*warehouse.height) do
+        slotsUsed = slotsUsed + math.ceil(item.amount/64)
+        --go in reverse order so the turtle favors pulling from later indexes first
+        for i=(2*warehouse.depth*warehouse.height),1,-1 do
             if warehouse.contents[i] then
                 if warehouse.contents[i].name == item.name then
                     warehouse.requests[#warehouse.requests+1] = {
@@ -128,6 +128,7 @@ local function turtleGoTo(location)
 end
 
 local function get(itemTable)
+    tex.select(1)
     if itemTable then
         local passed, failReason = requestGet(itemTable)
         if not passed then
@@ -154,12 +155,13 @@ local function get(itemTable)
 end
 
 local function put()
+    local full = {}
     for slot=1,16 do
         tex.select(slot)
         local stack = tex.getItemDetail()
         if stack then
             for i=1,(2*warehouse.depth*warehouse.height) do
-                if warehouse.contents[i] and warehouse.contents[i].name == stack.name then
+                if not full[i] and warehouse.contents[i] and warehouse.contents[i].name == stack.name then
                     turtleGoTo(i)
                     tex.drop()
                     warehouse.contents[i].amount = warehouse.contents[i].amount + (stack.count - tex.getItemCount())
@@ -167,6 +169,7 @@ local function put()
                     if stack.count == 0 then
                         break
                     end
+                    full[i] = true
                 end
             end
             if stack.count > 0 then

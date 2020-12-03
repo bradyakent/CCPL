@@ -1,5 +1,4 @@
-local _p = settings.get("ccpl.path")
-local ux = require(_p.."ccpl.apis.ux")
+local ux = require("/ccpl")("ux")
 
 local usage = {
     {"install",{"file-name","url"}},
