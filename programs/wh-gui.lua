@@ -257,6 +257,7 @@ while mainLoop do
         listing:onScroll(event[2])
     end
     if event[1] and event[1] ~= "key_up" and event[1] ~= "mouse_up" then
+        searchBar:erase()
         searchBar:write(1, 1, "Click here to search...", colors.gray)
     end
 
