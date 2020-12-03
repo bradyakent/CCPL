@@ -18,7 +18,30 @@ function closeButton:onClick()
     mainLoop = false
 end
 
-local bottomText = gui.Object:new(screen, 1, screen.height, screen.width, 1)
+local search = {}
+local searchBar = gui.Object:new(screen, 1, screen.height, screen.width, 1)
+function searchBar:onClick()
+    term.setCursorPos(self.x,self.y)
+    local userInput = read()
+    local keys = {}
+    for key in userInput:gmatch("@?[%w_]+") do
+		keys[#keys+1] = key
+	end
+	for key in userInput:gmatch("@?[%w[^_]]+") do
+		keys[#keys+1] = key
+	end
+    search.keys = keys
+end
+function search:match(itemName)
+    for _, key in ipairs(self.keys) do
+		if key:sub(1,1) == "@" then
+			if itemName:find(key:sub(2), 1, true) then return true end
+        else
+			if itemName:find(key, itemName:find(":"), true) then return true end
+		end
+    end
+    return false
+end
 
 local listingLabel = gui.Object:new(screen, 1, 1, screen.width-6, 1)
 
@@ -33,13 +56,13 @@ listing.scrollOffset = 0
 
 local function displayClicked(object)
     if not object.helpText then return end
-    bottomText:erase()
-    bottomText:write(1, 1, object.helpText, colors.yellow)
+    searchBar:erase()
+    searchBar:write(1, 1, object.helpText, colors.yellow)
 end
 
 local function handleInput(object)
     if not object.linkedLocation then return end
-    bottomText:write(1, 1, "Press enter when finished", colors.yellow)
+    searchBar:write(1, 1, "Press enter when finished", colors.yellow)
     object:erase()
     screen:render()
     term.setCursorPos(object.x,object.y)
@@ -47,7 +70,7 @@ local function handleInput(object)
     if userInput:len() > 4 then userInput = 0 end
     listing.requested[object.linkedLocation] = tonumber(userInput) or 0
     if (object.linkedLocation > listing.requested.n) then listing.requested.n = object.linkedLocation end
-    bottomText:erase()
+    searchBar:erase()
 end
 
 for line=1,listing.height do
@@ -64,18 +87,20 @@ function listing:populate()
         displayObject:erase()
         local item = listing.list[index + listing.scrollOffset]
         if not item then return end
-        local itemText = item.location..": "..item.name:sub(item.name:find(":")+1)
-        if #itemText > listing.width - 10 then
-            itemText = itemText:sub(1,listing.width - 13).."..."
-        end
-        displayObject.helpText = item.name:sub(item.name:find(":")+1)
-        displayObject:write(1, 1, itemText)
-        displayObject:write(displayObject.width-#tostring(item.amount), 1, tostring(item.amount))
+        if not search.keys or search:match(item.name) then
+            local itemText = item.location..": "..item.name:sub(item.name:find(":")+1)
+            if #itemText > listing.width - 10 then
+                itemText = itemText:sub(1,listing.width - 13).."..."
+            end
+            displayObject.helpText = item.name:sub(item.name:find(":")+1)
+            displayObject:write(1, 1, itemText)
+            displayObject:write(displayObject.width-#tostring(item.amount), 1, tostring(item.amount))
 
-        local input = listing.inputs[index]
-        input.linkedLocation = item.location
-        input:erase()
-        input:write(5-#tostring(listing.requested[item.location] or 0), 1, tostring(listing.requested[item.location] or 0))
+            local input = listing.inputs[index]
+            input.linkedLocation = item.location
+            input:erase()
+            input:write(5-#tostring(listing.requested[item.location] or 0), 1, tostring(listing.requested[item.location] or 0))
+        end
     end
 end
 
@@ -92,8 +117,8 @@ end
 local putButton = gui.Object:new(screen, screen.width-6, screen.height-8, 7, 3)
 function putButton:onClick()
     storage.sync("info.wh")
-    bottomText:erase()
-    bottomText:write(1, 1, "Putting away items...", colors.yellow)
+    searchBar:erase()
+    searchBar:write(1, 1, "Putting away items...", colors.yellow)
     screen:render()
     local passed, failReason
     if turtle then
@@ -104,12 +129,12 @@ function putButton:onClick()
     storage.update("info.wh")
     if not passed then
         if failReason == "Warehouse full" then
-            bottomText:erase()
-            bottomText:write(1, 1, "Warning: Warehouse full", colors.red)
+            searchBar:erase()
+            searchBar:write(1, 1, "Warning: Warehouse full", colors.red)
         end
     else
-        bottomText:erase()
-        bottomText:write(1, 1, "Done!", colors.green)
+        searchBar:erase()
+        searchBar:write(1, 1, "Done!", colors.green)
     end
     listing.list = storage.list()
 end
@@ -117,8 +142,8 @@ end
 local getButton = gui.Object:new(screen, screen.width-6, screen.height-5, 7, 3)
 function getButton:onClick()
     storage.sync("info.wh")
-    bottomText:erase()
-    bottomText:write(1, 1, "Getting items...", colors.yellow)
+    searchBar:erase()
+    searchBar:write(1, 1, "Getting items...", colors.yellow)
     screen:render()
     local itemTable = {}
     for i=1,listing.requested.n do
@@ -134,15 +159,15 @@ function getButton:onClick()
     end
     if not passed then
         if failReason == "Not enough items" then
-            bottomText:erase()
-            bottomText:write(1, 1, "Not enough of the requested items.", colors.red)
+            searchBar:erase()
+            searchBar:write(1, 1, "Not enough of the requested items.", colors.red)
         else
-            bottomText:erase()
-            bottomText:write(1, 1, "The turtle can't hold that many items.", colors.red)
+            searchBar:erase()
+            searchBar:write(1, 1, "The turtle can't hold that many items.", colors.red)
         end
     else
-        bottomText:erase()
-        bottomText:write(1, 1, "Done!", colors.green)
+        searchBar:erase()
+        searchBar:write(1, 1, "Done!", colors.green)
         storage.update("info.wh")
         listing.requested = {}
         listing.requested.n = 0
@@ -159,8 +184,8 @@ end
 local helpButton = gui.Object:new(screen, screen.width-6, 2, 7, 3)
 
 local function init()
-    bottomText:write(1, 1, 'Click "Help!" for more information', colors.yellow)
-    
+    searchBar:write(1, 1, 'Click "Help!" for more information', colors.yellow)
+
     closeButton:fill(colors.red)
     closeButton:write(2,1,"Close")
 
@@ -224,7 +249,7 @@ while mainLoop do
                 if object.onClick then
                     object:onClick(x, y)
                 else
-                    bottomText:erase()
+                    searchBar:erase()
                 end
             end
         end
@@ -232,7 +257,7 @@ while mainLoop do
         listing:onScroll(event[2])
     end
     if event[1] and event[1] ~= "key_up" and event[1] ~= "mouse_up" then
-        bottomText:erase()
+        searchBar:write(1, 1, "Click here to search...", colors.gray)
     end
 
     listing:populate()
