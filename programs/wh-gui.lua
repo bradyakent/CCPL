@@ -73,6 +73,7 @@ local function handleInput(object)
     listing.requested[object.linkedLocation] = tonumber(userInput) or 0
     if (object.linkedLocation > listing.requested.n) then listing.requested.n = object.linkedLocation end
     searchBar:erase()
+    init()
 end
 
 for line=1,listing.height do
@@ -194,7 +195,6 @@ end
 local helpButton = gui.Object:new(screen, screen.width-6, 2, 7, 3)
 
 local function init()
-    searchBar:write(1, 1, 'Click "Help!" for more information', colors.yellow)
 
     closeButton:fill(colors.red)
     closeButton:write(2,1,"Close")
@@ -248,6 +248,7 @@ function helpButton:onClick()
     init()
 end
 
+searchBar:write(1, 1, 'Click "Help!" for more information', colors.yellow)
 init()
 local event = {} -- 1 will be the event type, the following will be the return values
 while mainLoop do
