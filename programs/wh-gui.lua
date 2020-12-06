@@ -274,7 +274,6 @@ function searchBar:onClick(_, _, prepend)
                 userInput = userInput:sub(1,-2)
             elseif event[2] == keys.enter then
                 inputLoop = false
-                print(textutils.serialize(search:filter(storage.list())))
             end
         elseif event[1] == "mouse_click" then
             if not searchBar:contains(event[3],event[4]) then
