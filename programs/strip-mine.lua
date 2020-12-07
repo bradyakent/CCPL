@@ -3,7 +3,7 @@ local usage = {
     {"number"}
 }
 local distance = tonumber(arg[1])
-local fillIn = (args[2] == "true")
+local fillIn = (arg[2] == "true")
 
 
 if not distance then ux.displayUsage("tunnel",usage) return end
