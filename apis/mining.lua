@@ -1,55 +1,29 @@
 local tex = require("/ccpl")("tex")
 
-local pos = { x=1, y=1, z=1 }
-local dir = { x=0, z=1 }
 local checked = {}
+local mined = {}
 
-local function forward()
-    pos.x = pos.x + dir.x
-    pos.z = pos.z + dir.z
-    tex.forward(1, true)
-end
-
-local function back()
-    pos.x = pos.x - dir.x
-    pos.z = pos.z - dir.z
-    tex.back()
-end
-
-local function up()
-    pos.y = pos.y + 1
-    tex.up(1, true)
-end
-
-local function down()
-    pos.y = pos.y - 1
-    tex.down(1, true)
-end
-
-local function left()
-    dir.x, dir.z = -dir.z, dir.x
-    tex.left()
-end
-
-local function right()
-    dir.x, dir.z = dir.z, -dir.x
-    tex.right()
-end
-
-local function hasBeenChecked(direction)
+local function alreadyQueued(dig, direction)
+    local currPos = tex.getPosition()
+    local currDir = tex.getDirection()
     local index
     if direction == "forward" then
-        index = textutils.serialise({ x=pos.x+dir.x, y=pos.y, z=pos.z+dir.z })
+        index = textutils.serialise({ x=currPos.x+currDir.x, y=currPos.y, z=currPos.z+currDir.z })
     elseif direction == "up" then
-        index = textutils.serialise({ x=pos.x, y=pos.y+1, z=pos.z })
+        index = textutils.serialise({ x=currPos.x, y=currPos.y+1, z=currPos.z })
     elseif direction == "down" then
-        index = textutils.serialise({ x=pos.x, y=pos.y-1, z=pos.z })
+        index = textutils.serialise({ x=currPos.x, y=currPos.y-1, z=currPos.z })
     elseif direction == "left" then
-        index = textutils.serialise({ x=pos.x-dir.z, y=pos.y, z=pos.z+dir.x })
+        index = textutils.serialise({ x=currPos.x-currDir.z, y=currPos.y, z=currPos.z+currDir.x })
     elseif direction == "right" then
-        index = textutils.serialise({ x=pos.x+dir.z, y=pos.y, z=pos.z-dir.x })
+        index = textutils.serialise({ x=currPos.x+currDir.z, y=currPos.y, z=currPos.z-currDir.x })
     end
-    if checked[index] then return true end
+    if dig then
+        if mined[index] then return true end
+        mined[index] = true
+    else
+        if checked[index] then return true end
+    end
     checked[index] = true
     return false
 end
@@ -72,59 +46,59 @@ local function matchesFilter(filter, table)
 end
 
 local function checkAdj(filter, dig)
-    local checkLeft = hasBeenChecked("left") == false
-    local checkForward = hasBeenChecked("forward") == false
-    local checkRight = hasBeenChecked("right") == false
-    local checkUp = hasBeenChecked("up") == false
-    local checkDown = hasBeenChecked("down") == false
+    local checkLeft = alreadyQueued(dig,"left") == false
+    local checkForward = alreadyQueued(dig,"forward") == false
+    local checkRight = alreadyQueued(dig,"right") == false
+    local checkUp = alreadyQueued(dig,"up") == false
+    local checkDown = alreadyQueued(dig,"down") == false
     if checkForward then
         local block, blockInfo = tex.inspect()
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    forward()
+                    tex.forward()
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)))
-                    back()
+                    tex.back()
                 end
             end
         end
     end
     if checkLeft then
-        left()
+        tex.left()
         local block, blockInfo = tex.inspect()
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    forward()
+                    tex.forward()
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)))
-                    back()
+                    tex.back()
                 end
             end
         end
-        right()
+        tex.right()
     end
     if checkRight then
-        right()
+        tex.right()
         local block, blockInfo = tex.inspect()
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    forward()
+                    tex.forward()
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)))
-                    back()
+                    tex.back()
                 end
             end
         end
-        left()
+        tex.left()
     end
     if checkUp then
         local block, blockInfo = tex.inspectUp()
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    up()
+                    tex.up()
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)))
-                    down()
+                    tex.down()
                 end
             end
         end
@@ -134,9 +108,9 @@ local function checkAdj(filter, dig)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    down()
+                    tex.down()
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)))
-                    up()
+                    tex.up()
                 end
             end
         end
@@ -144,9 +118,8 @@ local function checkAdj(filter, dig)
 end
 
 local function collectVein(filter)
-    pos = { x=1, y=1, z=1 }
-    dir = { x=0, z=1 }
     checked = {}
+    mined = {}
     checkAdj(filter)
 end
 
