@@ -83,6 +83,72 @@ elseif arg[2] == "torch" then
     end
 end
 
+handlers.full = function()
+    local homePos = { x=1, y=1, z=1 }
+    local returnPos = tex.getPosition()
+    local returnDir = tex.getDirection()
+    if returnPos.z < homePos.z then
+        while tex.getDirection().z ~= 1 do
+            tex.left()
+        end
+        tex.forward(math.abs(returnPos.z - homePos.z), true)
+    end
+    if returnPos.x > homePos.x then
+        while tex.getDirection().x ~= 1 do
+            tex.left()
+        end
+        tex.forward(math.abs(returnPos.x - homePos.x), true)
+    elseif returnPos.x < homePos.x then
+        while tex.getDirection().x ~= -1 do
+            tex.left()
+        end
+        tex.forward(math.abs(returnPos.x - homePos.x), true)
+    end
+    if returnPos.y > homePos.y then
+        tex.down(math.abs(returnPos.y - homePos.y), true)
+    elseif returnPos.y < homePos.y then
+        tex.up(math.abs(returnPos.y - homePos.y), true)
+    end
+    if returnPos.z > homePos.z then
+        while tex.getDirection().z ~= -1 do
+            tex.left()
+        end
+        tex.forward(math.abs(returnPos.z - homePos.z), true)
+    end
+    while tex.getDirection().z ~= -1 do
+        tex.left()
+    end
+    tex.dropAll()
+    while tex.getDirection().z ~= 1 do
+        tex.left()
+    end
+    if returnPos.z > homePos.z then
+        while tex.getDirection().z ~= 1 do
+            tex.left()
+        end
+        tex.forward(math.abs(returnPos.z - homePos.z), true)
+    end
+    if returnPos.y < homePos.y then
+        tex.down(math.abs(returnPos.y - homePos.y), true)
+    elseif returnPos.y > homePos.y then
+        tex.up(math.abs(returnPos.y - homePos.y), true)
+    end
+    if returnPos.x > homePos.x then
+        while tex.getDirection().x ~= -1 do
+            tex.left()
+        end
+        tex.forward(math.abs(returnPos.x - homePos.x), true)
+    elseif returnPos.x < homePos.x then
+        while tex.getDirection().x ~= 1 do
+            tex.left()
+        end
+        tex.forward(math.abs(returnPos.x - homePos.x), true)
+    end
+    while tex.getDirection().x ~= returnDir.x and tex.getDirection().z ~= returnDir.z do
+        tex.left()
+    end
+end
+
 for i=1,distance do
     tex.forward(1, true)
     if not tex.detectDown() then
