@@ -43,5 +43,6 @@ for i=1,distance do
     if i%8 == 7 then
         tex.back()
         while not tex.placeUp() do tex.select(tex.getCurrentSlot()%16+1) end
+        tex.forward()
     end
 end
