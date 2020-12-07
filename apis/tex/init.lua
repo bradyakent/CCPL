@@ -1,1 +1,1 @@
-return require("tex")
+return require("/ccpl")("tex.main")
