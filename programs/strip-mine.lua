@@ -3,6 +3,7 @@ local usage = {
     {"number"}
 }
 local distance = tonumber(arg[1])
+local fillIn = (args[2] == "true")
 
 
 if not distance then ux.displayUsage("tunnel",usage) return end
@@ -15,9 +16,11 @@ while not slotsFilled do
     if reqTorches == 0 then
         break
     end
-    slots[#slots+1] = { name="Torches", amount=math.min(reqTorches,64) }
+    slots[#slots+1] = { name="Torches", amount="At least "..tostring(math.min(reqTorches,64)) }
     reqTorches = reqTorches-math.min(reqTorches,64)
 end
+slots[#slots+1] = { name="Flooring", amount="Any" }
+local flooring = #slots
 
 ux.displaySlots(slots)
 
@@ -29,14 +32,19 @@ local filter = {
 
 for i=1,distance do
     tex.forward(1, true)
+    if not tex.detectDown() then
+        tex.select(flooring)
+        tex.placeDown()
+        tex.select(1)
+    end
     mining.collectVein(filter)
     while turtle.detectUp() do tex.digUp() end
     if i%4 == 0 then
         tex.up()
         tex.left()
-        mining.extract(filter, 5)
+        mining.extract(filter, 5, fillIn)
         tex.turnAround()
-        mining.extract(filter, 5)
+        mining.extract(filter, 5, fillIn)
         tex.left()
         tex.down()
     end
