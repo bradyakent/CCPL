@@ -133,10 +133,7 @@ local function extract(filter, distance)
     end
 end
 
-local filter = {
-    tags={
-        ["forge:ores"] = true
-    }
+return {
+    collectVein=collectVein,
+    extract=extract
 }
-
-extract(filter, 16)
