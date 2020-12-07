@@ -1,5 +1,5 @@
 if not turtle then return nil end
-local LPS = require("lps")
+local LPS = require("/ccpl")("tex.lps")
 
 local function forward(distance, dig)
     if distance == nil then
