@@ -38,14 +38,14 @@ local fillBlocks = {
 
 local fillIn = nil
 if arg[2] == "true" then
-    fillIn = function()
+    fillIn = function(placeFunction)
         local prevSlot = tex.getSelectedSlot()
         local fillSlot
         for _, name in ipairs(fillBlocks) do
             fillSlot = tex.findStack(name)
             if fillSlot then
                 tex.select(fillSlot)
-                tex.place()
+                placeFunction()
                 tex.select(prevSlot)
                 break
             end

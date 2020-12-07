@@ -60,7 +60,7 @@ local function checkAdj(filter, dig, fillIn)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
                     tex.back()
                     if fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
-                        fillIn()
+                        fillIn(tex.place)
                     end
                 end
             end
@@ -76,7 +76,7 @@ local function checkAdj(filter, dig, fillIn)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
                     tex.back()
                     if fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
-                        fillIn()
+                        fillIn(tex.place)
                     end
                 end
             end
@@ -93,7 +93,7 @@ local function checkAdj(filter, dig, fillIn)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
                     tex.back()
                     if fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
-                        fillIn()
+                        fillIn(tex.place)
                     end
                 end
             end
@@ -109,7 +109,7 @@ local function checkAdj(filter, dig, fillIn)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
                     tex.down()
                     if fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
-                        fillIn()
+                        fillIn(tex.placeUp)
                     end
                 end
             end
@@ -124,7 +124,7 @@ local function checkAdj(filter, dig, fillIn)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
                     tex.up()
                     if fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
-                        fillIn()
+                        fillIn(tex.placeDown)
                     end
                 end
             end
