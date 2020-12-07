@@ -56,7 +56,7 @@ local function checkAdj(filter, dig)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    tex.forward()
+                    tex.forward(1, true)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)))
                     tex.back()
                 end
@@ -69,7 +69,7 @@ local function checkAdj(filter, dig)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    tex.forward()
+                    tex.forward(1, true)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)))
                     tex.back()
                 end
@@ -83,7 +83,7 @@ local function checkAdj(filter, dig)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    tex.forward()
+                    tex.forward(1, true)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)))
                     tex.back()
                 end
@@ -96,7 +96,7 @@ local function checkAdj(filter, dig)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    tex.up()
+                    tex.up(1, true)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)))
                     tex.down()
                 end
@@ -108,7 +108,7 @@ local function checkAdj(filter, dig)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    tex.down()
+                    tex.down(1, true)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)))
                     tex.up()
                 end
