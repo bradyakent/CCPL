@@ -93,12 +93,12 @@ handlers.full = function()
         end
         tex.forward(math.abs(returnPos.z - homePos.z), true)
     end
-    if returnPos.x > homePos.x then
+    if returnPos.x < homePos.x then
         while tex.getDirection().x ~= 1 do
             tex.left()
         end
         tex.forward(math.abs(returnPos.x - homePos.x), true)
-    elseif returnPos.x < homePos.x then
+    elseif returnPos.x > homePos.x then
         while tex.getDirection().x ~= -1 do
             tex.left()
         end
@@ -144,12 +144,12 @@ handlers.full = function()
     elseif returnPos.y > homePos.y then
         tex.up(math.abs(returnPos.y - homePos.y), true)
     end
-    if returnPos.x > homePos.x then
+    if returnPos.x < homePos.x then
         while tex.getDirection().x ~= -1 do
             tex.left()
         end
         tex.forward(math.abs(returnPos.x - homePos.x), true)
-    elseif returnPos.x < homePos.x then
+    elseif returnPos.x > homePos.x then
         while tex.getDirection().x ~= 1 do
             tex.left()
         end

@@ -67,7 +67,7 @@ end
 
 local function isFull()
     for i=1,16 do
-        if tex.getItemCount() == 0 then return false end
+        if tex.getItemCount(i) == 0 then return false end
     end
     return true
 end
