@@ -3,7 +3,6 @@ local usage = {
     {"number"}
 }
 local distance = tonumber(arg[1])
-local fillIn = (arg[2] == "true")
 
 
 if not distance then ux.displayUsage("tunnel",usage) return end
@@ -29,6 +28,30 @@ local filter = {
         ["forge:ores"] = true
     }
 }
+local fillBlocks = {
+    "minecraft:cobblestone",
+    "minecraft:diorite",
+    "minecraft:granite",
+    "minecraft:andesite",
+    "minecraft:dirt"
+}
+
+local fillIn = nil
+if arg[2] == "true" then
+    fillIn = function()
+        local prevSlot = tex.getSelectedSlot()
+        local fillSlot
+        for _, name in ipairs(fillBlocks) do
+            fillSlot = tex.findStack(name)
+            if fillSlot then
+                tex.select(fillSlot)
+                tex.place()
+                tex.select(prevSlot)
+                break
+            end
+        end
+    end
+end
 
 for i=1,distance do
     tex.forward(1, true)

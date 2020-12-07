@@ -60,10 +60,7 @@ local function checkAdj(filter, dig, fillIn)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
                     tex.back()
                     if fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
-                        local prevSlot = tex.getSelectedSlot()
-                        tex.select(tex.findStack("minecraft:cobblestone"))
-                        tex.place()
-                        tex.select(prevSlot)
+                        fillIn()
                     end
                 end
             end
@@ -79,10 +76,7 @@ local function checkAdj(filter, dig, fillIn)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
                     tex.back()
                     if fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
-                        local prevSlot = tex.getSelectedSlot()
-                        tex.select(tex.findStack("minecraft:cobblestone"))
-                        tex.place()
-                        tex.select(prevSlot)
+                        fillIn()
                     end
                 end
             end
@@ -99,10 +93,7 @@ local function checkAdj(filter, dig, fillIn)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
                     tex.back()
                     if fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
-                        local prevSlot = tex.getSelectedSlot()
-                        tex.select(tex.findStack("minecraft:cobblestone"))
-                        tex.place()
-                        tex.select(prevSlot)
+                        fillIn()
                     end
                 end
             end
@@ -118,10 +109,7 @@ local function checkAdj(filter, dig, fillIn)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
                     tex.down()
                     if fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
-                        local prevSlot = tex.getSelectedSlot()
-                        tex.select(tex.findStack("minecraft:cobblestone"))
-                        tex.placeUp()
-                        tex.select(prevSlot)
+                        fillIn()
                     end
                 end
             end
@@ -136,10 +124,7 @@ local function checkAdj(filter, dig, fillIn)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
                     tex.up()
                     if fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
-                        local prevSlot = tex.getSelectedSlot()
-                        tex.select(tex.findStack("minecraft:cobblestone"))
-                        tex.placeDown()
-                        tex.select(prevSlot)
+                        fillIn()
                     end
                 end
             end
