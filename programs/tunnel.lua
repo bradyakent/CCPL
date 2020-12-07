@@ -1,4 +1,4 @@
-local tex, ux = require("/ccpl")("tex","ux")
+local tex, ux, mining = require("/ccpl")("tex","ux","mining")
 local usage = {
     {"number"}
 }
@@ -21,17 +21,22 @@ end
 
 ux.displaySlots(slots)
 
+local filter = {
+    tags = {
+        ["forge:ores"] = true
+    }
+}
+
 for i=1,distance do
     tex.forward(1, true)
+    mining.collectVein(filter)
     while turtle.detectUp() do tex.digUp() end
     if i%4 == 1 then
         tex.up()
         tex.left()
-        tex.forward(5, true)
-        tex.back(5)
+        mining.extract(filter, 5)
         tex.turnAround()
-        tex.forward(5, true)
-        tex.back(5)
+        mining.extract(filter, 5)
         tex.left()
         tex.down()
     end
