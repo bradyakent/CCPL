@@ -57,7 +57,7 @@ local function checkAdj(filter, dig, fillIn)
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
                     tex.forward(1, true)
-                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)))
+                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
                     tex.back()
                     if fillIn and (block and matchesFilter(filter, blockInfo)) then
                         local prevSlot = tex.getSelectedSlot()
@@ -76,7 +76,7 @@ local function checkAdj(filter, dig, fillIn)
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
                     tex.forward(1, true)
-                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)))
+                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
                     tex.back()
                     if fillIn and (block and matchesFilter(filter, blockInfo)) then
                         local prevSlot = tex.getSelectedSlot()
@@ -96,7 +96,7 @@ local function checkAdj(filter, dig, fillIn)
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
                     tex.forward(1, true)
-                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)))
+                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
                     tex.back()
                     if fillIn and (block and matchesFilter(filter, blockInfo)) then
                         local prevSlot = tex.getSelectedSlot()
@@ -115,7 +115,7 @@ local function checkAdj(filter, dig, fillIn)
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
                     tex.up(1, true)
-                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)))
+                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
                     tex.down()
                     if fillIn and (block and matchesFilter(filter, blockInfo)) then
                         local prevSlot = tex.getSelectedSlot()
@@ -133,7 +133,7 @@ local function checkAdj(filter, dig, fillIn)
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
                     tex.down(1, true)
-                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)))
+                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
                     tex.up()
                     if fillIn and (block and matchesFilter(filter, blockInfo)) then
                         local prevSlot = tex.getSelectedSlot()
