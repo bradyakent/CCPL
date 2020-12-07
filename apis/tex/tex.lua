@@ -1,4 +1,5 @@
 if not turtle then return nil end
+local LPS = require("lps")
 
 local function forward(distance, dig)
     if distance == nil then
@@ -16,6 +17,8 @@ local function forward(distance, dig)
         local res, reason = turtle.forward()
         if not res then
             return res, reason
+        else
+            LPS.forward()
         end
     end
     return true
@@ -29,6 +32,8 @@ local function back(distance)
         local res, reason = turtle.back()
         if not res then
             return res, reason
+        else
+            LPS.back()
         end
     end
     return true
@@ -47,6 +52,8 @@ local function up(distance, dig)
         local res, reason = turtle.up()
         if not res then
             return res, reason
+        else
+            LPS.up()
         end
     end
     return true
@@ -65,20 +72,26 @@ local function down(distance, dig)
         local res, reason = turtle.down()
         if not res then
             return res, reason
+        else
+            LPS.down()
         end
     end
     return true
 end
 
 local function left()
+    LPS.left()
     return turtle.turnLeft()
 end
 
 local function right()
+    LPS.right()
     return turtle.turnRight()
 end
 
 local function turnAround()
+    LPS.left()
+    LPS.left()
     if turtle.turnLeft() and turtle.turnLeft() then
         return true
     end
@@ -204,7 +217,10 @@ local tex = {
     dropAll = dropAll,
     dropAllDown = dropAllDown,
     dropAllUp = dropAllUp,
-    vPath = vPath
+    vPath = vPath,
+    getPosition = LPS.getPosition,
+    getDirection = LPS.getDirection,
+    newBounds = LPS.newBounds
 }
 
 for f, v in pairs(turtle) do
