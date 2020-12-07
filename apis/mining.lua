@@ -73,6 +73,10 @@ local function isFull()
 end
 
 local function checkAdj(filter, dig, handlers)
+    if isFull() then
+        consolidate()
+        if isFull() and handlers.full then handlers.full() end
+    end
     local checkLeft = alreadyQueued(dig,"left") == false
     local checkForward = alreadyQueued(dig,"forward") == false
     local checkRight = alreadyQueued(dig,"right") == false
@@ -83,10 +87,6 @@ local function checkAdj(filter, dig, handlers)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    if isFull() then
-                        consolidate()
-                        if isFull() and handlers.full then handlers.full() end
-                    end
                     tex.forward(1, true)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
                     tex.back()
@@ -103,10 +103,6 @@ local function checkAdj(filter, dig, handlers)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    if isFull() then
-                        consolidate()
-                        if isFull() and handlers.full then handlers.full() end
-                    end
                     tex.forward(1, true)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
                     tex.back()
@@ -124,10 +120,6 @@ local function checkAdj(filter, dig, handlers)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    if isFull() then
-                        consolidate()
-                        if isFull() and handlers.full then handlers.full() end
-                    end
                     tex.forward(1, true)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
                     tex.back()
@@ -144,10 +136,6 @@ local function checkAdj(filter, dig, handlers)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    if isFull() then
-                        consolidate()
-                        if isFull() and handlers.full then handlers.full() end
-                    end
                     tex.up(1, true)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
                     tex.down()
@@ -163,10 +151,6 @@ local function checkAdj(filter, dig, handlers)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    if isFull() then
-                        consolidate()
-                        if isFull() and handlers.full then handlers.full() end
-                    end
                     tex.down(1, true)
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
                     tex.up()
