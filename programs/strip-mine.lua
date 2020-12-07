@@ -31,7 +31,7 @@ for i=1,distance do
     tex.forward(1, true)
     mining.collectVein(filter)
     while turtle.detectUp() do tex.digUp() end
-    if i%4 == 1 then
+    if i%4 == 0 then
         tex.up()
         tex.left()
         mining.extract(filter, 5)
