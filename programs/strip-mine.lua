@@ -28,26 +28,56 @@ local filter = {
         ["forge:ores"] = true
     }
 }
-local fillBlocks = {
-    "minecraft:cobblestone",
-    "minecraft:diorite",
-    "minecraft:granite",
-    "minecraft:andesite",
-    "minecraft:dirt"
-}
+local fillBlocks
 
-local fillIn = nil
+local fillIn = function()
+    return nil
+end
 if arg[2] == "true" then
-    fillIn = function(placeFunction)
-        local prevSlot = tex.getSelectedSlot()
-        local fillSlot
-        for _, name in ipairs(fillBlocks) do
-            fillSlot = tex.findStack(name)
-            if fillSlot then
-                tex.select(fillSlot)
-                placeFunction()
-                tex.select(prevSlot)
-                break
+    fillBlocks = {
+        "minecraft:cobblestone",
+        "minecraft:diorite",
+        "minecraft:granite",
+        "minecraft:andesite",
+        "minecraft:dirt"
+    }
+    fillIn = function()
+        return function(placeFunction)
+            local prevSlot = tex.getSelectedSlot()
+            local fillSlot
+            for _, name in ipairs(fillBlocks) do
+                fillSlot = tex.findStack(name)
+                if fillSlot then
+                    tex.select(fillSlot)
+                    placeFunction()
+                    tex.select(prevSlot)
+                    break
+                end
+            end
+        end
+    end
+elseif arg[2] == "torch" then
+    fillBlocks = {
+        "minecraft:torch"
+    }
+    fillIn = function(density)
+        local placeAttempts = 0
+        return function(placeFunction)
+            if placeAttempts == density then
+                local prevSlot = tex.getSelectedSlot()
+                local fillSlot
+                for _, name in ipairs(fillBlocks) do
+                    fillSlot = tex.findStack(name)
+                    if fillSlot then
+                        tex.select(fillSlot)
+                        placeFunction()
+                        tex.select(prevSlot)
+                        break
+                    end
+                end
+                placeAttempts = 0
+            else
+                placeAttempts = placeAttempts + 1
             end
         end
     end
@@ -60,14 +90,14 @@ for i=1,distance do
         tex.placeDown()
         tex.select(1)
     end
-    mining.collectVein(filter, fillIn)
+    mining.collectVein(filter, fillIn(7))
     while turtle.detectUp() do tex.digUp() end
     if i%4 == 0 then
         tex.up()
         tex.left()
-        mining.extract(filter, 5, fillIn)
+        mining.extract(filter, 5, fillIn(7))
         tex.turnAround()
-        mining.extract(filter, 5, fillIn)
+        mining.extract(filter, 5, fillIn(7))
         tex.left()
         tex.down()
     end
