@@ -67,9 +67,9 @@ end
 
 local function isFull()
     for i=1,16 do
-        if tex.getItemCount() > 0 then return true end
+        if tex.getItemCount() == 0 then return false end
     end
-    return false
+    return true
 end
 
 local function checkAdj(filter, dig, handlers)
