@@ -37,7 +37,7 @@ for i=1,distance do
         tex.placeDown()
         tex.select(1)
     end
-    mining.collectVein(filter)
+    mining.collectVein(filter, fillIn)
     while turtle.detectUp() do tex.digUp() end
     if i%4 == 0 then
         tex.up()
