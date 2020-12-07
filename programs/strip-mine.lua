@@ -118,7 +118,18 @@ handlers.full = function()
     while tex.getDirection().z ~= -1 do
         tex.left()
     end
-    tex.dropAll()
+    for slot=1,16 do
+        local shouldDrop = true
+        for _, block in ipairs(fillBlocks) do
+            if tex.getItemDetail(slot).name == block or tex.getItemDetail(slot).name == "minecraft:torch" then
+                shouldDrop = false
+            end
+        end
+        if shouldDrop then
+            tex.select(slot)
+            tex.drop()
+        end
+    end
     while tex.getDirection().z ~= 1 do
         tex.left()
     end
