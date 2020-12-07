@@ -45,7 +45,34 @@ local function matchesFilter(filter, table)
     return true
 end
 
-local function checkAdj(filter, dig, fillIn)
+local function consolidate()
+    local selectedSlot = tex.getSelectedSlot()
+    local emptyItemStack = false
+    for i=1,16 do
+        for j=i+1,16 do
+            if tex.getItemDetail(j) then
+                if not tex.getItemDetail(i) or tex.getItemDetail(j).name == tex.getItemDetail(i).name then
+                    tex.select(j)
+                    tex.transferTo(i)
+                    if not tex.getItemDetail(j) then
+                        emptyItemStack = true
+                    end
+                end
+            end
+        end
+    end
+    tex.select(selectedSlot)
+    return emptyItemStack
+end
+
+local function isFull()
+    for i=1,16 do
+        if tex.getItemCount() > 0 then return true end
+    end
+    return false
+end
+
+local function checkAdj(filter, dig, handlers)
     local checkLeft = alreadyQueued(dig,"left") == false
     local checkForward = alreadyQueued(dig,"forward") == false
     local checkRight = alreadyQueued(dig,"right") == false
@@ -56,11 +83,15 @@ local function checkAdj(filter, dig, fillIn)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
+                    if isFull() then
+                        consolidate()
+                        if isFull() and handlers.full then handlers.full() end
+                    end
                     tex.forward(1, true)
-                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
+                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
                     tex.back()
-                    if fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
-                        fillIn(tex.place)
+                    if handlers.fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
+                        handlers.fillIn(tex.place)
                     end
                 end
             end
@@ -72,11 +103,15 @@ local function checkAdj(filter, dig, fillIn)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
+                    if isFull() then
+                        consolidate()
+                        if isFull() and handlers.full then handlers.full() end
+                    end
                     tex.forward(1, true)
-                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
+                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
                     tex.back()
-                    if fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
-                        fillIn(tex.place)
+                    if handlers.fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
+                        handlers.fillIn(tex.place)
                     end
                 end
             end
@@ -89,11 +124,15 @@ local function checkAdj(filter, dig, fillIn)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
+                    if isFull() then
+                        consolidate()
+                        if isFull() and handlers.full then handlers.full() end
+                    end
                     tex.forward(1, true)
-                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
+                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
                     tex.back()
-                    if fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
-                        fillIn(tex.place)
+                    if handlers.fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
+                        handlers.fillIn(tex.place)
                     end
                 end
             end
@@ -105,11 +144,15 @@ local function checkAdj(filter, dig, fillIn)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
+                    if isFull() then
+                        consolidate()
+                        if isFull() and handlers.full then handlers.full() end
+                    end
                     tex.up(1, true)
-                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
+                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
                     tex.down()
-                    if fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
-                        fillIn(tex.placeUp)
+                    if handlers.fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
+                        handlers.fillIn(tex.placeUp)
                     end
                 end
             end
@@ -120,11 +163,15 @@ local function checkAdj(filter, dig, fillIn)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
+                    if isFull() then
+                        consolidate()
+                        if isFull() and handlers.full then handlers.full() end
+                    end
                     tex.down(1, true)
-                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), fillIn)
+                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
                     tex.up()
-                    if fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
-                        fillIn(tex.placeDown)
+                    if handlers.fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
+                        handlers.fillIn(tex.placeDown)
                     end
                 end
             end
@@ -132,16 +179,16 @@ local function checkAdj(filter, dig, fillIn)
     end
 end
 
-local function collectVein(filter, fillIn)
+local function collectVein(filter, handlers)
     checked = {}
     mined = {}
-    checkAdj(filter, false, fillIn)
+    checkAdj(filter, false, handlers)
 end
 
-local function extract(filter, distance, fillIn)
+local function extract(filter, distance, handlers)
     for _=1,distance do
         tex.forward(1, true)
-        collectVein(filter, fillIn)
+        collectVein(filter, handlers)
     end
     for _=1,distance do
         tex.back()

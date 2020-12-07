@@ -30,9 +30,9 @@ local filter = {
 }
 local fillBlocks
 
-local fillIn = function()
-    return nil
-end
+local handlers = {}
+local fillIn = nil
+
 if arg[2] == "true" then
     fillBlocks = {
         "minecraft:cobblestone",
@@ -90,14 +90,15 @@ for i=1,distance do
         tex.placeDown()
         tex.select(1)
     end
-    mining.collectVein(filter, fillIn(14))
+    handlers.fillIn = fillIn(14)
+    mining.collectVein(filter, handlers)
     while turtle.detectUp() do tex.digUp() end
     if i%4 == 0 then
         tex.up()
         tex.left()
-        mining.extract(filter, 5, fillIn(14))
+        mining.extract(filter, 5, handlers)
         tex.turnAround()
-        mining.extract(filter, 5, fillIn(14))
+        mining.extract(filter, 5, handlers)
         tex.left()
         tex.down()
     end
