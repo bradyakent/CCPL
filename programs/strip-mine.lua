@@ -90,20 +90,25 @@ for i=1,distance do
         tex.placeDown()
         tex.select(1)
     end
-    mining.collectVein(filter, fillIn(7))
+    mining.collectVein(filter, fillIn(14))
     while turtle.detectUp() do tex.digUp() end
     if i%4 == 0 then
         tex.up()
         tex.left()
-        mining.extract(filter, 5, fillIn(7))
+        mining.extract(filter, 5, fillIn(14))
         tex.turnAround()
-        mining.extract(filter, 5, fillIn(7))
+        mining.extract(filter, 5, fillIn(14))
         tex.left()
         tex.down()
     end
     if i%8 == 7 then
         tex.back()
-        while not tex.placeUp() do tex.select(tex.getCurrentSlot()%16+1) end
+        if tex.findStack("minecraft:torch") then
+            local prevSlot = tex.getSelectedSlot()
+            tex.select(tex.findStack("minecraft:torch"))
+            tex.placeUp()
+            tex.select(prevSlot)
+        end
         tex.forward()
     end
 end
