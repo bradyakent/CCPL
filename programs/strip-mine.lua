@@ -83,41 +83,50 @@ elseif arg[2] == "torch" then
     end
 end
 
-handlers.full = function()
-    local homePos = { x=1, y=1, z=1 }
-    local returnPos = tex.getPosition()
-    local returnDir = tex.getDirection()
-    if returnPos.z < homePos.z then
+local function goTo(pos, dir)
+    local distanceX = math.abs(pos.x - tex.getPosition().x)
+    local distanceY = math.abs(pos.y - tex.getPosition().y)
+    local distanceZ = math.abs(pos.z - tex.getPosition().z)
+    local directionX = (pos.x > tex.getPosition().x) and 1 or -1
+    local directionY = (pos.y > tex.getPosition().y) and 1 or -1
+    local directionZ = (pos.z > tex.getPosition().z) and 1 or -1
+    if directionZ == 1 then
         while tex.getDirection().z ~= 1 do
             tex.left()
         end
-        tex.forward(math.abs(returnPos.z - homePos.z), true)
+        tex.forward(distanceZ, true)
     end
-    if returnPos.x < homePos.x then
+    if directionX == 1 then
         while tex.getDirection().x ~= 1 do
             tex.left()
         end
-        tex.forward(math.abs(returnPos.x - homePos.x), true)
-    elseif returnPos.x > homePos.x then
+        tex.forward(distanceX, true)
+    else
         while tex.getDirection().x ~= -1 do
             tex.left()
         end
-        tex.forward(math.abs(returnPos.x - homePos.x), true)
+        tex.forward(distanceX, true)
     end
-    if returnPos.y > homePos.y then
-        tex.down(math.abs(returnPos.y - homePos.y), true)
-    elseif returnPos.y < homePos.y then
-        tex.up(math.abs(returnPos.y - homePos.y), true)
+    if directionY == 1 then
+        tex.up(distanceY, true)
+    else
+        tex.down(distanceY, true)
     end
-    if returnPos.z > homePos.z then
+    if directionZ == -1 then
         while tex.getDirection().z ~= -1 do
             tex.left()
         end
-        tex.forward(math.abs(returnPos.z - homePos.z), true)
+        tex.forward(distanceZ, true)
     end
-    while tex.getDirection().z ~= -1 do
+    while tex.getDirection().x ~= dir.x and tex.getDirection().z ~= dir.z do
         tex.left()
     end
+end
+
+handlers.full = function()
+    local returnPos = tex.getPosition()
+    local returnDir = tex.getDirection()
+    goTo({ x=1, y=1, z=1 }, { x=0, z=-1 }) -- origin, facing the chest
     for slot=1,16 do
         local shouldDrop = true
         for _, block in ipairs(fillBlocks) do
@@ -130,34 +139,7 @@ handlers.full = function()
             tex.drop()
         end
     end
-    while tex.getDirection().z ~= 1 do
-        tex.left()
-    end
-    if returnPos.z > homePos.z then
-        while tex.getDirection().z ~= 1 do
-            tex.left()
-        end
-        tex.forward(math.abs(returnPos.z - homePos.z), true)
-    end
-    if returnPos.y < homePos.y then
-        tex.down(math.abs(returnPos.y - homePos.y), true)
-    elseif returnPos.y > homePos.y then
-        tex.up(math.abs(returnPos.y - homePos.y), true)
-    end
-    if returnPos.x < homePos.x then
-        while tex.getDirection().x ~= -1 do
-            tex.left()
-        end
-        tex.forward(math.abs(returnPos.x - homePos.x), true)
-    elseif returnPos.x > homePos.x then
-        while tex.getDirection().x ~= 1 do
-            tex.left()
-        end
-        tex.forward(math.abs(returnPos.x - homePos.x), true)
-    end
-    while tex.getDirection().x ~= returnDir.x and tex.getDirection().z ~= returnDir.z do
-        tex.left()
-    end
+    goTo(returnPos, returnDir)
 end
 
 for i=1,distance do
