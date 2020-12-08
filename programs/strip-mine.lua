@@ -96,20 +96,14 @@ local function goTo(pos, dir)
         end
         tex.forward(distanceZ, true)
     end
-    if directionX == 1 then
-        while tex.getDirection().x ~= 1 do
-            tex.left()
-        end
-        tex.forward(distanceX, true)
-    else
-        while tex.getDirection().x ~= -1 do
-            tex.left()
-        end
-        tex.forward(distanceX, true)
-    end
     if directionY == 1 then
         tex.up(distanceY, true)
-    else
+    end
+    while tex.getDirection().x ~= directionX do
+        tex.left()
+    end
+    tex.forward(distanceX, true)
+    if directionY == -1 then
         tex.down(distanceY, true)
     end
     if directionZ == -1 then
