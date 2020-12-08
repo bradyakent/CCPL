@@ -112,7 +112,7 @@ local function goTo(pos, dir)
         end
         tex.forward(distanceZ, true)
     end
-    while tex.getDirection().x ~= dir.x and tex.getDirection().z ~= dir.z do
+    while not (tex.getDirection().x == dir.x and tex.getDirection().z == dir.z) do
         tex.left()
     end
 end
