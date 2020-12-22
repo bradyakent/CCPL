@@ -204,14 +204,14 @@ local function queryLocation(location)
 end
 
 local function list()
-    local list = {}
+    local returnList = {}
     for location=1,2*warehouse.depth*warehouse.height do
         local item = warehouse.contents[location]
         if item then
-            list[#list+1] = { name=item.name, amount=item.amount, location=location }
+            returnList[#returnList+1] = { name=item.name, amount=item.amount, location=location }
         end
     end
-    return list
+    return returnList
 end
 
 return {
