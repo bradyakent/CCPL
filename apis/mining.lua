@@ -79,14 +79,14 @@ local function isFull()
     return true
 end
 
-local function checkAdj(filter, dig, handlers)
+local function checkAdj(filter, dig, handlers, noTurn)
     if isFull() then
         consolidate()
         if isFull() and handlers.full then handlers.full() end
     end
-    local checkLeft = alreadyQueued(dig,"left",handlers.inBounds) == false
+    local checkLeft = (noTurn or alreadyQueued(dig,"left",handlers.inBounds)) == false
     local checkForward = alreadyQueued(dig,"forward",handlers.inBounds) == false
-    local checkRight = alreadyQueued(dig,"right",handlers.inBounds) == false
+    local checkRight = (noTurn or alreadyQueued(dig,"right",handlers.inBounds)) == false
     local checkUp = alreadyQueued(dig,"up",handlers.inBounds) == false
     local checkDown = alreadyQueued(dig,"down",handlers.inBounds) == false
     if checkForward then
@@ -170,10 +170,10 @@ local function checkAdj(filter, dig, handlers)
     end
 end
 
-local function collectVein(filter, handlers)
+local function collectVein(filter, handlers, noTurn)
     checked = {}
     mined = {}
-    checkAdj(filter, false, handlers)
+    checkAdj(filter, false, handlers, noTurn)
 end
 
 local function extract(filter, distance, handlers)
@@ -196,11 +196,11 @@ local function amtOfNewBlocks(pos, table, lookAhead, handlers)
             local endingZ = pos.z + (lookAhead - math.abs(x - pos.x) - math.abs(y - pos.y))
             for z=startingZ,endingZ do
                 local thisPos = { x=x, y=y, z=z }
-                --local posValue = math.abs(lookAhead + 1 - (math.abs(x - pos.x) + math.abs(y - pos.y) + math.abs(z - pos.z)))
+                local posValue = math.abs(lookAhead + 1 - (math.abs(x - pos.x) + math.abs(y - pos.y) + math.abs(z - pos.z)))^3
                 if not handlers.inBounds(thisPos) then
-                    result = result + 0.1
+                    result = result + 0
                 elseif not table[textutils.serialize(thisPos)] then
-                    result = result + 1
+                    result = result + posValue
                 end
             end
         end
@@ -208,9 +208,18 @@ local function amtOfNewBlocks(pos, table, lookAhead, handlers)
     return result
 end
 
+local function pushToChecked(table, position)
+    table[textutils.serialize(position)] = true
+    table[textutils.serialize({ x=position.x+1, y=position.y, z=position.z })] = true
+    table[textutils.serialize({ x=position.x-1, y=position.y, z=position.z })] = true
+    table[textutils.serialize({ x=position.x, y=position.y+1, z=position.z })] = true
+    table[textutils.serialize({ x=position.x, y=position.y-1, z=position.z })] = true
+    table[textutils.serialize({ x=position.x, y=position.y, z=position.z+1 })] = true
+    table[textutils.serialize({ x=position.x, y=position.y, z=position.z-1 })] = true
+end
+
 local function chaos(filter, amount, lookAhead, handlers)
-    local chaosMined = {}
-    local minedTotal = 0
+    local chaosChecked = {}
     local fillInHandler = handlers.fillIn
     handlers.fillIn = function(placeFunction) -- Overload the fillIn handler so chaosMined keeps track of vein-mined blocks as well
         local currPos = tex.getPosition()
@@ -218,17 +227,21 @@ local function chaos(filter, amount, lookAhead, handlers)
             local currDir = tex.getDirection()
             currPos.x = currPos.x + currDir.x
             currPos.z = currPos.z + currDir.z
-            chaosMined[textutils.serialize(currPos)] = true
+            pushToChecked(chaosChecked, currPos)
         elseif placeFunction == tex.placeUp then
             currPos.y = currPos.y + 1
-            chaosMined[textutils.serialize(currPos)] = true
+            pushToChecked(chaosChecked, currPos)
         elseif placeFunction == tex.placeDown then
             currPos.y = currPos.y - 1
-            chaosMined[textutils.serialize(currPos)] = true
+            pushToChecked(chaosChecked, currPos)
         end
         if fillInHandler then fillInHandler(placeFunction) end
     end
-    for _=1,amount do
+    local forwardWeight, verticalWeight = 1, 1
+    if handlers.weighting then
+        forwardWeight, verticalWeight = handlers.weighting()
+    end
+    for i=1,amount do
         local currPos = tex.getPosition()
         local currDir = tex.getDirection()
         local forward, left, right, up, down
@@ -236,30 +249,29 @@ local function chaos(filter, amount, lookAhead, handlers)
             x=currPos.x+currDir.x, y=currPos.y, z=currPos.z+currDir.z,
             command= function() tex.forward(1, true) end
         }
-        forward.preference = amtOfNewBlocks(forward, chaosMined, lookAhead, handlers)
+        forward.preference = amtOfNewBlocks(forward, chaosChecked, lookAhead, handlers) * forwardWeight
         left = {
             x=currPos.x-currDir.z, y=currPos.y, z=currPos.z+currDir.x,
             command=function() tex.left() tex.forward(1, true) end
         }
-        left.preference = amtOfNewBlocks(left, chaosMined, lookAhead, handlers)
+        left.preference = amtOfNewBlocks(left, chaosChecked, lookAhead, handlers)
         right = {
             x=currPos.x+currDir.z, y=currPos.y, z=currPos.z-currDir.x,
             command=function() tex.right() tex.forward(1, true) end
         }
-        right.preference = amtOfNewBlocks(right, chaosMined, lookAhead, handlers)
+        right.preference = amtOfNewBlocks(right, chaosChecked, lookAhead, handlers)
         up = {
             x=currPos.x, y=currPos.y+1, z=currPos.z,
             command=function() tex.up(1, true) end
         }
-        up.preference = amtOfNewBlocks(up, chaosMined, lookAhead, handlers)
+        up.preference = amtOfNewBlocks(up, chaosChecked, lookAhead, handlers) * verticalWeight
         down = {
             x=currPos.x, y=currPos.y-1, z=currPos.z,
             command=function() tex.down(1, true) end
         }
-        down.preference = amtOfNewBlocks(down, chaosMined, lookAhead, handlers)
+        down.preference = amtOfNewBlocks(down, chaosChecked, lookAhead, handlers) * verticalWeight
         local sorted = { forward, left, right, up, down }
-        io.open("output.txt","a"):write(tostring(forward.preference.." "..left.preference.." "..right.preference.." "..up.preference.." "..down.preference).."\n"):close()
-
+        
         table.sort(sorted, function(pos1, pos2)
             return pos1.preference > pos2.preference
         end)
@@ -269,54 +281,19 @@ local function chaos(filter, amount, lookAhead, handlers)
                 break
             end
         end
-        minedTotal = minedTotal + 1
-        collectVein(filter, handlers)
-        chaosMined[textutils.serialize(currPos)] = true
+        if not chaosChecked[textutils.serialize(tex.getPosition())] then
+            collectVein(filter, handlers, (i % 2 == 0))
+        end
+        pushToChecked(chaosChecked, currPos)
     end
     if handlers.done then handlers.done() end
 end
 
-local function collectVein2(filter, handlers)
-    if isFull() then
-        consolidate()
-        if isFull() and handlers.full then handlers.full() end
-    end
-    local listOfStuff = {}
-    local startingPos = tex.getPosition()
-    local startingDir = tex.getDirection()
-    local _, inspectResults = tex.inspect()
-    local forward = {
-        x=startingPos.x+startingDir.x,
-        y=startingPos.y,
-        z=startingPos.z+startingDir.z,
-        ore=matchesFilter(filter, inspectResults)
-    }
-    _, inspectResults = tex.inspectUp()
-    local up = {
-        x=startingPos.x,
-        y=startingPos.y+1,
-        z=startingPos.z,
-        ore=matchesFilter(filter, inspectResults)
-    }
-    local down = { x=startingPos.x, y=startingPos.y-1, z=startingPos.z }
-    local left = { x=startingPos.x-startingDir.z, y=startingPos.y, z=startingPos.z+startingDir.x }
-    local right = { x=startingPos.x+startingDir.z, y=startingPos.y, z=startingPos.z-startingDir.x }
-    listOfStuff[#listOfStuff+1] = 
-    local collectedVein = false
-    while not collectedVein do
-        for _, block in pairs(startingPosition) do
-            
-        end
-    end
-end
-
-local function layerGetOre(filter, height, currentLayer)
+local function layerGetOre(filter, height)
     local block, blockInfo
-    if currentLayer*3 <= height then
-        block, blockInfo = tex.inspectUp()
-        if block and matchesFilter(filter, blockInfo) then
-            tex.digUp()
-        end
+    block, blockInfo = tex.inspectUp()
+    if block and matchesFilter(filter, blockInfo) then
+        tex.digUp()
     end
     block, blockInfo = tex.inspectDown()
     if block and matchesFilter(filter, blockInfo) then
@@ -326,9 +303,9 @@ end
 
 local function layers(filter, width, length, height, handlers)
     tex.up(1, true)
-    local numOfLayers = math.floor((height+1)/3)
+    local numOfLayers = math.ceil(height/3)
     local currentLayer = 1
-    local blocksMined = 0
+    local lastLayerOffset = ((height-1)%3)-2
     for instruction in tex.vPath(width, numOfLayers, length) do
         if isFull() then
             consolidate()
@@ -336,7 +313,11 @@ local function layers(filter, width, length, height, handlers)
         end
         if instruction == "up" then
             currentLayer = currentLayer + 1
-            tex.up(3, true)
+            if currentLayer == numOfLayers then
+                tex.up(3 + lastLayerOffset, true)
+            else
+                tex.up(3, true)
+            end
         elseif instruction == "left" then
             tex.left()
             tex.forward(1, true)
@@ -349,8 +330,7 @@ local function layers(filter, width, length, height, handlers)
             tex.turnAround()
             tex.forward(1, true)
         end
-        blocksMined = blocksMined + 1
-        layerGetOre(filter, height, currentLayer)
+        layerGetOre(filter, height)
     end
     if handlers.done then handlers.done() end
 end

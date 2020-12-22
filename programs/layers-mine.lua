@@ -1,4 +1,17 @@
-local tex, mining = require("/ccpl")("tex","mining")
+local tex, mining, ux = require("/ccpl")("tex","mining","ux")
+
+local usage = {
+    {"length",{"width",{"height"}}}
+}
+
+local args = { ... }
+local length = tonumber(args[1])
+local width = tonumber(args[2])
+local height = tonumber(args[3])
+if not (length and width and height) then
+    ux.displayUsage("layers-mine", usage)
+    return
+end
 
 local filter = {
     tags = {
@@ -64,7 +77,7 @@ handlers.done = function()
 end
 
 local start = os.clock()
-mining.layers(filter, 16, 16, 12, handlers)
+mining.layers(filter, length, width, height, handlers)
 local stop = os.clock()
 local timeTaken = stop - start
 print("Time taken:", string.format("%.1fs",timeTaken))

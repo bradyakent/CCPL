@@ -1,14 +1,14 @@
 local tex, mining, ux = require("/ccpl")("tex","mining","ux")
 
 local usage = {
-    {"length",{"width",{"height",{"density",nil,true}}}}
+    {"length",{"width",{"height",{"density",{"weighting",nil,true},true}}}}
 }
 
 local args = { ... }
 local length = tonumber(args[1])
 local width = tonumber(args[2])
 local height = tonumber(args[3])
-local density = args[4] and tonumber(args[4]) or 0.1
+local density = args[4] and tonumber(args[4]) or 0.125
 if not (length and width and height and density) then
     ux.displayUsage("chaos-mine", usage)
     return
@@ -129,6 +129,12 @@ handlers.done = function()
     goTo({ x=1, y=1, z=1 }, { x=0, z=-1 })
     tex.dropAll()
     tex.turnAround()
+end
+if args[5] then
+    local weight = tonumber(args[5])
+    handlers.weighting = function()
+        return 1+(weight*2), 1+weight
+    end
 end
 
 handlers.fillIn = fillIn(18)
