@@ -92,7 +92,6 @@ local function pack()
         turn1()
         tex.forward()
         turn2()
-        tex.down()
         for i=1,9 do
             tex.select(i)
             tex.placeDown()
@@ -102,7 +101,6 @@ local function pack()
         for i=1,8 do
             tex.back()
         end
-        tex.up()
         turn1()
         tex.back()
         turn2()
@@ -111,12 +109,12 @@ local function pack()
     tex.right()
     tex.forward(2)
     for i=1,6 do
+        tex.back()
         tex.left()
         digRow((i%2 == 1), math.floor((i-1)/2))
         tex.right()
         tex.forward()
         packBins()
-        if i < 6 then tex.back() end
     end
     tex.dig()
     tex.back(2)
