@@ -46,10 +46,7 @@ local function unpack()
             if i < 9 then tex.forward(1, true) end
         end
         tex.select(1)
-        for i=1,8 do
-            tex.back()
-        end
-        tex.back()
+        tex.back(9)
         turn1()
         tex.back()
         turn2()
@@ -92,15 +89,9 @@ local function pack()
         turn1()
         tex.forward()
         turn2()
-        for i=1,9 do
-            tex.select(i)
-            tex.placeDown()
-            if i < 9 then tex.forward() end
-        end
         tex.select(1)
-        for i=1,8 do
-            tex.back()
-        end
+        tex.forward(9, true)
+        tex.back(9)
         turn1()
         tex.back()
         turn2()
