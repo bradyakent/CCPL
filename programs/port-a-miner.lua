@@ -74,7 +74,7 @@ local function pack()
     local function packBins()
         for i=1,9 do
             tex.select(i)
-            tex.dropDown()
+            tex.drop()
         end
         tex.select(1)
     end
