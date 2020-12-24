@@ -183,13 +183,13 @@ end
 handlers.full = function()
     local returnPos = tex.getPosition()
     local returnDir = tex.getDirection()
-    goTo({ x=1, y=1, z=1 }, { x=1, z=0 }) -- origin
+    goTo({ x=1, y=1, z=1 }, { x=0, z=1 }) -- origin
     store()
     goTo(returnPos, returnDir)
 end
 
 handlers.done = function()
-    goTo({ x=1, y=1, z=1 }, { x=1, z=0 }) -- origin
+    goTo({ x=1, y=1, z=1 }, { x=0, z=1 }) -- origin
     store()
     pack()
 end
