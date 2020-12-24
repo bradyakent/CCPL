@@ -36,9 +36,9 @@ local function unpack()
         end
         tex.up(offset)
         turn1()
-        tex.forward()
+        tex.forward(1, true)
         turn2()
-        tex.forward()
+        tex.forward(1, true)
         for i=1,9 do
             tex.select(i)
             tex.digDown()
@@ -56,8 +56,8 @@ local function unpack()
         tex.down(offset)
     end
     tex.right()
-    tex.forward()
-    tex.forward()
+    tex.forward(2, true)
+    tex.dig()
     tex.place()
     for i=1,6 do
         getBins()
@@ -119,8 +119,7 @@ local function pack()
         if i < 6 then tex.back() end
     end
     tex.dig()
-    tex.back()
-    tex.back()
+    tex.back(2)
     tex.left()
 end
 
