@@ -69,7 +69,7 @@ local function unpack()
         tex.right()
         tex.forward()
     end
-    tex.back()
+    tex.back(2)
     tex.left()
 end
 
@@ -109,7 +109,7 @@ local function pack()
         tex.down(offset)
     end
     tex.right()
-    tex.forward()
+    tex.forward(2)
     for i=1,6 do
         tex.left()
         digRow((i%2 == 1), math.floor((i-1)/2))
