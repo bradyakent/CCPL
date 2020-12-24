@@ -20,19 +20,6 @@ else
     storage.update("port-a-miner.wh")
 end
 
-local filter = {
-    tags = {
-        ["forge:ores"] = true
-    }
-}
-local _, blockInfo = tex.inspectDown()
-while blockInfo and blockInfo.name ~= "minecraft:bedrock" do
-    tex.digDown()
-    tex.down()
-    _, blockInfo = tex.inspectDown()
-end
-tex.up(4, true)
-
 local function unpack()
     local function getBins()
         tex.select(1)
@@ -114,6 +101,25 @@ local function pack()
     end
 end
 
+local filter = {
+    tags = {
+        ["forge:ores"] = true
+    }
+}
+
+tex.right()
+tex.forward()
+tex.left()
+unpack()
+
+local _, blockInfo = tex.inspectDown()
+while blockInfo and blockInfo.name ~= "minecraft:bedrock" do
+    tex.digDown()
+    tex.down()
+    _, blockInfo = tex.inspectDown()
+end
+tex.up(4, true)
+
 local handlers = {}
 
 local function goTo(pos, dir)
@@ -158,14 +164,24 @@ handlers.full = function()
     tex.forward()
     tex.left()
     storage.put()
-    tex.dropAll()
+    storage.update("port-a-miner.wh")
+    tex.right()
+    tex.back()
+    tex.left()
     goTo(returnPos, returnDir)
 end
 
 handlers.done = function()
-    goTo({ x=1, y=1, z=1 }, { x=0, z=-1 })
-    tex.dropAll()
-    tex.turnAround()
+    goTo({ x=1, y=1, z=1 }, { x=1, z=0 }) -- origin
+    tex.right()
+    tex.forward()
+    tex.left()
+    storage.put()
+    storage.update("port-a-miner.wh")
+    pack()
+    tex.right()
+    tex.back()
+    tex.left()
 end
 
 local start = os.clock()
