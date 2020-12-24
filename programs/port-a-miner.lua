@@ -30,9 +30,9 @@ local function unpack()
     local function placeRow(left, offset)
         local turn1, turn2
         if left then
-            turn1, turn2 = tex.left(), tex.right()
+            turn1, turn2 = tex.left, tex.right
         else
-            turn1, turn2 = tex.right(), tex.left()
+            turn1, turn2 = tex.right, tex.left
         end
         tex.up(offset)
         turn1()
@@ -80,9 +80,9 @@ local function pack()
     local function digRow(left, offset)
         local turn1, turn2
         if left then
-            turn1, turn2 = tex.left(), tex.right()
+            turn1, turn2 = tex.left, tex.right
         else
-            turn1, turn2 = tex.right(), tex.left()
+            turn1, turn2 = tex.right, tex.left
         end
         tex.up(offset)
         turn1()
