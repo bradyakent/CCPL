@@ -41,8 +41,9 @@ local function unpack()
         tex.forward()
         for i=1,9 do
             tex.select(i)
+            tex.digDown()
             tex.placeDown()
-            if i < 9 then tex.forward() end
+            if i < 9 then tex.forward(1, true) end
         end
         tex.select(1)
         for i=1,8 do
