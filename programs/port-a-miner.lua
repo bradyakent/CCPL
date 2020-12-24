@@ -24,7 +24,7 @@ local function unpack()
     local function getBins()
         tex.select(1)
         for i=1,9 do
-            tex.suckDown()
+            tex.suck()
         end
     end
     local function placeRow(left, offset)
@@ -54,10 +54,19 @@ local function unpack()
         turn2()
         tex.down(offset)
     end
+    tex.right()
+    tex.forward()
+    tex.place()
     for i=1,6 do
         getBins()
+        tex.left()
+        tex.up()
         placeRow((i%2 == 1), math.floor((i-1)/2))
+        tex.down()
+        tex.right()
     end
+    tex.back()
+    tex.left()
 end
 
 local function pack()
@@ -95,10 +104,28 @@ local function pack()
         turn2()
         tex.down(offset)
     end
+    tex.right()
+    tex.forward()
     for i=1,6 do
+        tex.left()
         digRow((i%2 == 1), math.floor((i-1)/2))
+        tex.right()
         packBins()
     end
+    tex.dig()
+    tex.back()
+    tex.left()
+end
+
+local function store()
+    tex.right()
+    tex.forward()
+    tex.left()
+    storage.put()
+    storage.update()
+    tex.right()
+    tex.back()
+    tex.left()
 end
 
 local filter = {
@@ -107,9 +134,6 @@ local filter = {
     }
 }
 
-tex.right()
-tex.forward()
-tex.left()
 unpack()
 
 local _, blockInfo = tex.inspectDown()
@@ -160,28 +184,14 @@ handlers.full = function()
     local returnPos = tex.getPosition()
     local returnDir = tex.getDirection()
     goTo({ x=1, y=1, z=1 }, { x=1, z=0 }) -- origin
-    tex.right()
-    tex.forward()
-    tex.left()
-    storage.put()
-    storage.update("port-a-miner.wh")
-    tex.right()
-    tex.back()
-    tex.left()
+    store()
     goTo(returnPos, returnDir)
 end
 
 handlers.done = function()
     goTo({ x=1, y=1, z=1 }, { x=1, z=0 }) -- origin
-    tex.right()
-    tex.forward()
-    tex.left()
-    storage.put()
-    storage.update("port-a-miner.wh")
+    store()
     pack()
-    tex.right()
-    tex.back()
-    tex.left()
 end
 
 local start = os.clock()
