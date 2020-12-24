@@ -57,14 +57,17 @@ local function unpack()
     end
     tex.right()
     tex.forward()
+    tex.forward()
     tex.place()
     for i=1,6 do
         getBins()
+        tex.back()
         tex.left()
         tex.up()
         placeRow((i%2 == 1), math.floor((i-1)/2))
         tex.down()
         tex.right()
+        tex.forward()
     end
     tex.back()
     tex.left()
@@ -111,9 +114,12 @@ local function pack()
         tex.left()
         digRow((i%2 == 1), math.floor((i-1)/2))
         tex.right()
+        tex.forward()
         packBins()
+        if i < 6 then tex.back() end
     end
     tex.dig()
+    tex.back()
     tex.back()
     tex.left()
 end
