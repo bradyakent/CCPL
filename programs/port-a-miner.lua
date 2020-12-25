@@ -1,15 +1,16 @@
 local tex, mining, ux, storage = require("/ccpl")("tex","mining","ux","storage")
 
 local usage = {
-    {"length",{"width",{"height"}}}
+    {"length",{"width",{"height",{"offset",nil,true}}}}
 }
 
 local args = { ... }
 local length = tonumber(args[1])
 local width = tonumber(args[2])
 local height = tonumber(args[3])
+local offset = tonumber(args[4]) or 4
 if not (length and width and height) then
-    ux.displayUsage("layers-mine", usage)
+    ux.displayUsage("port-a-miner", usage)
     return
 end
 
@@ -138,7 +139,7 @@ while blockInfo and blockInfo.name ~= "minecraft:bedrock" do
     tex.down()
     _, blockInfo = tex.inspectDown()
 end
-tex.up(4, true)
+tex.up(offset, true)
 
 local handlers = {}
 
