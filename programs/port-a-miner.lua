@@ -1,12 +1,12 @@
 local tex, mining, ux, storage = require("/ccpl")("tex","mining","ux","storage")
 
 local usage = {
-    {"length",{"width",{"height",{"offset",nil,true}}}}
+    {"width",{"length",{"height",{"offset",nil,true}}}}
 }
 
 local args = { ... }
-local length = tonumber(args[1])
-local width = tonumber(args[2])
+local width = tonumber(args[1])
+local length = tonumber(args[2])
 local height = tonumber(args[3])
 local offset = tonumber(args[4]) or 4
 if not (length and width and height) then
@@ -192,7 +192,7 @@ handlers.done = function()
 end
 
 local start = os.clock()
-mining.layers(filter, length, width, height, handlers)
+mining.layers(filter, width, length, height, handlers)
 local stop = os.clock()
 local timeTaken = stop - start
 print("Time taken:", string.format("%.1fs",timeTaken))
