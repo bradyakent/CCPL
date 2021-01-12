@@ -207,15 +207,16 @@ local function audit()
             turtleGoTo(i)
             local chest = peripheral.wrap("front")
             warehouse.contents[i] = {}
-            warehouse.contents[i].name = chest.getItemDetail(1).name
-            warehouse.contents[i].amount = 0
-            for slot=1,chest.size() do
-                warehouse.contents[i].amount = warehouse.contents[i].amount + chest.getItemDetail(slot).count
-            end
+            if chest.getItemDetail(1) then
+                warehouse.contents[i].name = chest.getItemDetail(1).name
+                warehouse.contents[i].amount = 0
+                for slot=1,chest.size() do
+                    if not chest.getItemDetail(slot) then break end
+                    warehouse.contents[i].amount = warehouse.contents[i].amount + chest.getItemDetail(slot).count
+                end
         end
     end
     turtleGoTo(0)
-    
 end
 
 local function queryLocation(location)
