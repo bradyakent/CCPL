@@ -201,18 +201,16 @@ end
 
 local function audit()
     local i = 0
-    for row=1,warehouse.height do
-        for column=1,warehouse.depth do
+    for currentSpace=1,2*warehouse.depth*warehouse.height do
             i = i + 1
             turtleGoTo(i)
             local chest = peripheral.wrap("front")
-            warehouse.contents[i] = {}
             if chest.getItemDetail(1) then
+                warehouse.contents[i] = {}
                 warehouse.contents[i].name = chest.getItemDetail(1).name
                 warehouse.contents[i].amount = 0
-                for slot=1,chest.size() do
-                    if not chest.getItemDetail(slot) then break end
-                    warehouse.contents[i].amount = warehouse.contents[i].amount + chest.getItemDetail(slot).count
+                for key, val in pairs(chest.list()) do
+                    warehouse.contents[i].amount = warehouse.contents[i].amount + val.count
                 end
         end
     end
