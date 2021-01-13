@@ -200,21 +200,29 @@ local function put()
 end
 
 local function audit()
-    local i = 0
-    for currentSpace=1,2*warehouse.depth*warehouse.height do
-            i = i + 1
-            turtleGoTo(i)
-            local chest = peripheral.wrap("front")
-            if chest.getItemDetail(1) then
-                warehouse.contents[i] = {}
-                warehouse.contents[i].name = chest.getItemDetail(1).name
-                warehouse.contents[i].amount = 0
-                for key, val in pairs(chest.list()) do
+    local faults = {}
+    for i=1,2*warehouse.depth*warehouse.height do
+        turtleGoTo(i)
+        local chest = peripheral.wrap("front")
+        for key, val in pairs(chest.list()) do
+            if not warehouse.contents[i].name then
+                warehouse.contents[i].name = val.name
+            else
+                if warehouse.contents[i].name == val.name then
                     warehouse.contents[i].amount = warehouse.contents[i].amount + val.count
+                else
+                    faults[#faults+1] = i
                 end
+            end
         end
     end
     turtleGoTo(0)
+
+    if #faults > 0 then
+        return false, faults
+    else
+        return true
+    end
 end
 
 local function queryLocation(location)
