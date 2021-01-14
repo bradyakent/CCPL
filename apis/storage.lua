@@ -206,8 +206,10 @@ local function audit()
         local chest = peripheral.wrap("front")
         for key, val in pairs(chest.list()) do
             if not warehouse.contents[i] then
-                warehouse.contents[i].name = val.name
-                warehouse.contents[i].amount = val.count
+                warehouse.contents[i] = {
+                    name = val.name,
+                    amount = val.count
+                }
             else
                 if warehouse.contents[i].name == val.name then
                     warehouse.contents[i].amount = warehouse.contents[i].amount + val.count
@@ -216,6 +218,7 @@ local function audit()
                 end
             end
         end
+        textutils.serialize(warehouse.contents[i])
     end
     turtleGoTo(0)
 
