@@ -31,12 +31,13 @@ local function sync(fileName)
     warehouse.depth = tonumber(file.readLine())
     warehouse.height = tonumber(file.readLine())
     for i=1, 2*warehouse.depth*warehouse.height do
-        local item = {
-            name = file.readLine(),
-            amount = tonumber(file.readLine())
-        }
-        if item then
-            warehouse.contents[i] = item
+        local name = file.readLine()
+        local amtStr = file.readLine()
+        if name ~= "" then
+            warehouse.contents[i] = {
+                name = name,
+                amount = tostring(amtStr)
+            }
         end
     end
     warehouse.requests.put = (file.readLine() == "true")
