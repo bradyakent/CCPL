@@ -30,7 +30,7 @@ local function sync(fileName)
     local file = fs.open(fileName,"r")
     warehouse.depth = tonumber(file.readLine())
     warehouse.height = tonumber(file.readLine())
-    for i=2,warehouse.depth,warehouse.height do
+    for i=1, 2*warehouse.depth*warehouse.height do
         local item = {
             name = file.readLine(),
             amount = tonumber(file.readLine())
@@ -46,7 +46,7 @@ local function update(fileName)
     local file = fs.open(fileName,"w")
     file.writeLine(tostring(warehouse.depth))
     file.writeLine(tostring(warehouse.height))
-    for i=2, warehouse.depth, warehouse.height do
+    for i=1, 2*warehouse.depth*warehouse.height do
         if warehouse.contents[i] then
             file.writeLine(warehouse.contents[i].name)
             file.writeLine(tostring(warehouse.contents[i].amount))
