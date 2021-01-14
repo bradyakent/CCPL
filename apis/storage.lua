@@ -39,6 +39,14 @@ local function sync(fileName)
             warehouse.contents[i] = item
         end
     end
+    warehouse.requests.put = (file.readLine() == "true")
+    for i=1,#warehouse.requests do
+        warehouse.requests[i] = {
+            name = file.readLine(),
+            location = tonumber(file.readLine()),
+            amount = tonumber(file.readLine())
+        }
+    end
     file.close()
 end
 
@@ -51,6 +59,12 @@ local function update(fileName)
             file.writeLine(warehouse.contents[i].name)
             file.writeLine(tostring(warehouse.contents[i].amount))
         end
+    end
+    file.writeLine(tostring(warehouse.requests.put))
+    for i=1,#warehouse.requests do
+        file.writeLine(tostring(warehouse.requests[i].name))
+        file.writeLine(tostring(warehouse.requests[i].location))
+        file.writeLine(tostring(warehouse.requests[i].amount))
     end
     file.close()
 end
