@@ -28,13 +28,30 @@ local pos = {
 
 local function sync(fileName)
     local file = fs.open(fileName,"r")
-    warehouse = textutils.unserialize(file.readAll())
+    warehouse.depth = tonumber(file.readLine())
+    warehouse.height = tonumber(file.readLine())
+    for i=2,warehouse.depth,warehouse.height do
+        local item = {
+            name = file.readLine(),
+            amount = tonumber(file.readLine())
+        }
+        if item then
+            warehouse.contents[i] = item
+        end
+    end
     file.close()
 end
 
 local function update(fileName)
     local file = fs.open(fileName,"w")
-    file.write(textutils.serialize(warehouse))
+    file.writeLine(tostring(warehouse.depth))
+    file.writeLine(tostring(warehouse.height))
+    for i=2, warehouse.depth, warehouse.height do
+        if warehouse.contents[i] then
+            file.writeLine(warehouse.contents[i].name)
+            file.writeLine(tostring(warehouse.contents[i].amount))
+        end
+    end
     file.close()
 end
 
@@ -218,7 +235,7 @@ local function audit()
                 end
             end
         end
-        textutils.serialize(warehouse.contents[i])
+        print(textutils.serialize(warehouse.contents[i]))
     end
     turtleGoTo(0)
 
