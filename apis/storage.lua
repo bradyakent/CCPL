@@ -59,6 +59,8 @@ local function update(fileName)
         if warehouse.contents[i] then
             file.writeLine(warehouse.contents[i].name)
             file.writeLine(tostring(warehouse.contents[i].amount))
+        else
+            file.write("\n\n")
         end
     end
     file.writeLine(tostring(warehouse.requests.put))
