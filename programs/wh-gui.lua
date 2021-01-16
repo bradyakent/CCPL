@@ -30,7 +30,7 @@ function search:filter(list)
             if not key.attach then
                 local passed = true
                 for _, part in ipairs(attachedKeys) do
-                    if part.amount and item.amount < part.amount then
+                    if item.amount < part.amount then
                         passed = false
                         break
                     end
