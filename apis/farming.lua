@@ -51,7 +51,7 @@ local function farm(x, y)
             end
         end
     end
-    if y%2 == 1 then
+    if x%2 == 1 then
         tex.turnAround()
         tex.forward(y-1)
     end
@@ -144,14 +144,14 @@ local function createFarm(x, y)
     --return to chest corner
     tex.up()
 
-    if plotsY%2 == 1 then
+    if plotsX%2 == 1 then
         tex.turnAround()
-        tex.forward(9*(plotsX-1))
+        tex.forward(9*(plotsY-1))
     end
-    tex.forward(offsetX)
+    tex.forward(offsetY)
     tex.turnLeft()
 
-    tex.forward((9*(plotsY-1))+offsetY)
+    tex.forward((9*(plotsX-1))+offsetX)
     tex.turnAround()
 
     --till land
@@ -174,7 +174,7 @@ local function createFarm(x, y)
             end
         end
     end
-    if y%2 == 1 then
+    if x%2 == 1 then
         tex.turnAround()
         tex.forward(y-1)
     end
