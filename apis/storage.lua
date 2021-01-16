@@ -36,7 +36,7 @@ local function sync(fileName)
         if name ~= "" then
             warehouse.contents[i] = {
                 name = name,
-                amount = tostring(amtStr)
+                amount = tonumber(amtStr)
             }
         end
     end
