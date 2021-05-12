@@ -18,9 +18,10 @@ local function playSound(name, soundName, length, volume)
     sleep(length)
 end
 
-local function init(name)
+local function init(name, defaultInst)
     local obj = {}
     obj.play = function(pitches, length, volume, instrument)
+        instrument = instrument or defaultInst
         play(name, pitches, length, volume, instrument)
     end
     obj.playSound = function(soundName, length, volume)
