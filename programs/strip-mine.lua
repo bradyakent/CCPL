@@ -34,7 +34,7 @@ local handlers = {}
 local fillIn = nil
 
 if peripheral.find("speaker") then
-    ojingles.init(peripheral.find("speaker")[1].getName())
+    ojingles.init(peripheral.getName(peripheral.find("speaker")))
     handlers.dig = function(blockName)
         if string.find(blockName,"coal",1,true) then
             ojingles.coal()
@@ -48,8 +48,8 @@ if peripheral.find("speaker") then
             ojingles.lapis()
         elseif string.find(blockName,"diamond",1,true) then
             ojingles.diamond()
-        else
-            ojingles.bad()
+        --else
+            --ojingles.bad()
         end
     end
 end
