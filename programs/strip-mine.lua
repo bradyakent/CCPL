@@ -34,7 +34,8 @@ local handlers = {}
 local fillIn = nil
 
 if peripheral.find("speaker") then
-    ojingles.init(peripheral.find("speaker")[1])
+    local speakers = peripheral.find("speaker")
+    ojingles.init(speakers[1])
     handlers.dig = function(blockName)
         if string.find(blockName,"coal",1,true) then
             ojingles.coal()
