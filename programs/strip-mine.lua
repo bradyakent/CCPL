@@ -81,6 +81,10 @@ elseif arg[2] == "torch" then
             end
         end
     end
+else
+    fillIn = function()
+        return function() end
+    end
 end
 
 local function goTo(pos, dir)
