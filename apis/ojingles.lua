@@ -8,50 +8,50 @@ local function init(name, instrument)
 end
 
 local function coal()
-    s.play(9,0.25)
-    s.play(13,0)
+    s.play(9,0.25,3)
+    s.play(13,0,3)
 end
 
 local function iron()
-    s.play(11,0.25)
-    s.play(18,0.25)
-    s.play(15,0.25)
-    s.play(11,0)
+    s.play(11,0.25,3)
+    s.play(18,0.25,3)
+    s.play(15,0.25,3)
+    s.play(11,0,3)
 end
 
 local function gold()
-    s.play(8,0.25)
-    s.play(15,0.25)
-    s.play(15,0.25)
-    s.play(19,0)
+    s.play(8,0.25,3)
+    s.play(15,0.25,3)
+    s.play(15,0.25,3)
+    s.play(19,0,3)
 end
 
 local function redstone()
-    s.play(9,0.25)
-    s.play(16,0)
+    s.play(9,0.25,3)
+    s.play(16,0,3)
 end
 
 local function lapis()
-    s.play({8,14},0.5)
-    s.play({8,15},0.25)
-    s.play({8,20},0)
+    s.play({8,14},0.5,3)
+    s.play({8,15},0.25,3)
+    s.play({8,20},0,3)
 end
 
 local function diamond()
-    s.play({17,22},0.5)
-    s.play(14,0.25)
-    s.play({10,17},0.25)
-    s.play(10,0.5)
-    s.play({10,14},0.25)
-    s.play(17,0.25)
-    s.play({13,21},0.25)
-    s.play({10,22},0.5)
-    s.play({10,17,22},0)
+    s.play({17,22},0.5,3)
+    s.play(14,0.25,3)
+    s.play({10,17},0.25,3)
+    s.play(10,0.5,3)
+    s.play({10,14},0.25,3)
+    s.play(17,0.25,3)
+    s.play({13,21},0.25,3)
+    s.play({10,22},0.5,3)
+    s.play({10,17,22},0,3)
 end
 
 local function bad()
-    s.play(6,0.5)
-    s.play(0,0)
+    s.play(6,0.5,3)
+    s.play(0,0,3)
 end
 
 return {
