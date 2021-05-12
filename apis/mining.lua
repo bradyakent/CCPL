@@ -94,7 +94,11 @@ local function checkAdj(filter, dig, handlers, noTurn)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    tex.forward(1, true)
+                    if handlers.dig then
+                        parallel.waitForAll(function() handlers.dig(blockInfo.name) end, function() tex.forward(1, true) end)
+                    else
+                        tex.forward(1,true)
+                    end
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
                     tex.back()
                     if handlers.fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
@@ -110,7 +114,11 @@ local function checkAdj(filter, dig, handlers, noTurn)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    tex.forward(1, true)
+                    if handlers.dig then
+                        parallel.waitForAll(function() handlers.dig(blockInfo.name) end, function() tex.forward(1, true) end)
+                    else
+                        tex.forward(1,true)
+                    end
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
                     tex.back()
                     if handlers.fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
@@ -127,7 +135,11 @@ local function checkAdj(filter, dig, handlers, noTurn)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    tex.forward(1, true)
+                    if handlers.dig then
+                        parallel.waitForAll(function() handlers.dig(blockInfo.name) end, function() tex.forward(1, true) end)
+                    else
+                        tex.forward(1,true)
+                    end
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
                     tex.back()
                     if handlers.fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
@@ -143,7 +155,11 @@ local function checkAdj(filter, dig, handlers, noTurn)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    tex.up(1, true)
+                    if handlers.dig then
+                        parallel.waitForAll(function() handlers.dig(blockInfo.name) end, function() tex.up(1, true) end)
+                    else
+                        tex.up(1,true)
+                    end
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
                     tex.down()
                     if handlers.fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
@@ -158,7 +174,11 @@ local function checkAdj(filter, dig, handlers, noTurn)
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
                 if dig or (block and matchesFilter(filter, blockInfo)) then
-                    tex.down(1, true)
+                    if handlers.dig then
+                        parallel.waitForAll(function() handlers.dig(blockInfo.name) end, function() tex.down(1, true) end)
+                    else
+                        tex.down(1,true)
+                    end
                     checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
                     tex.up()
                     if handlers.fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
