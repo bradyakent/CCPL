@@ -1,5 +1,5 @@
 -- Generalized jingles for different types of ores
-local sound = require("ccpl")("sound")
+local sound = require("/ccpl")("sound")
 local s = nil
 
 local function init(name, instrument)
