@@ -1,4 +1,4 @@
-local tex, ux, mining = require("/ccpl")("tex","ux","mining")
+local tex, ux, mining, ojingles = require("/ccpl")("tex","ux","mining","ojingles")
 local usage = {
     {"number"}
 }
@@ -32,6 +32,27 @@ local fillBlocks
 
 local handlers = {}
 local fillIn = nil
+
+if peripheral.find("speaker") then
+    ojingles.init(peripheral.find("speaker")[1])
+    handlers.dig = function(blockName)
+        if string.find(blockName,"coal",1,true) then
+            ojingles.coal()
+        elseif string.find(blockName,"iron",1,true) or string.find(blockName,"copper",1,true) then
+            ojingles.iron()
+        elseif string.find(blockName,"gold",1,true) then
+            ojingles.gold()
+        elseif string.find(blockName,"redstone",1,true) then
+            ojingles.redstone()
+        elseif string.find(blockName,"lapis",1,true) then
+            ojingles.lapis()
+        elseif string.find(blockName,"diamond",1,true) then
+            ojingles.diamond()
+        else
+            ojingles.bad()
+        end
+    end
+end
 
 if arg[2] == "true" then
     fillBlocks = {
