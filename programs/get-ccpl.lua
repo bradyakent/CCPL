@@ -26,7 +26,7 @@ local downloadTest = false
 local installPath = "/"
 local logPath = "/log.txt"
 local branch = "stable"
-local sourceURL = "https://github.com/BradyFromDiscord/CCPL/tree/"
+local sourceURL = "https://github.com/inq-cloud/CCPL/tree/"
 for _, arg in ipairs(args) do
     --check currentFlag
     if currentFlag == "-b" then
