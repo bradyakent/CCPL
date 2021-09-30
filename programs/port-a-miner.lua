@@ -125,12 +125,6 @@ local function store()
     tex.left()
 end
 
-local filter = {
-    tags = {
-        ["forge:ores"] = true
-    }
-}
-
 unpack()
 
 local _, blockInfo = tex.inspectDown()
@@ -192,7 +186,7 @@ handlers.done = function()
 end
 
 local start = os.clock()
-mining.layers(filter, width, length, height, handlers)
+mining.layers(width, length, height, handlers)
 local stop = os.clock()
 local timeTaken = stop - start
 print("Time taken:", string.format("%.1fs",timeTaken))
