@@ -34,22 +34,11 @@ local function alreadyQueued(dig, direction, inBounds)
     return false
 end
 
-local function matchesFilter(filter, table)
-    if type(filter) ~= type(table) then return false end
-    if type(filter) ~= "table" and filter ~= table then return false end
-    for key, filterField in pairs(filter) do
-        local value2 = table[key]
-		if type(filterField) ~= "table" then
-			if filterField ~= value2 then
-				return false
-			end
-        else
-            if not matchesFilter(filterField, value2) then
-                return false
-            end
-        end
+local function matchesFilter(table)
+    if string.sub(table.name, -3, -1) == "ore" then
+        return true
     end
-    return true
+    return false
 end
 
 local function consolidate()
@@ -79,7 +68,7 @@ local function isFull()
     return true
 end
 
-local function checkAdj(filter, dig, handlers, noTurn)
+local function checkAdj(dig, handlers, noTurn)
     if isFull() then
         consolidate()
         if isFull() and handlers.full then handlers.full() end
@@ -93,15 +82,15 @@ local function checkAdj(filter, dig, handlers, noTurn)
         local block, blockInfo = tex.inspect()
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
-                if dig or (block and matchesFilter(filter, blockInfo)) then
+                if dig or (block and matchesFilter(blockInfo)) then
                     if handlers.dig then
                         parallel.waitForAll(function() handlers.dig(blockInfo.name) end, function() tex.forward(1, true) end)
                     else
                         tex.forward(1,true)
                     end
-                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
+                    checkAdj((block and matchesFilter(blockInfo)), handlers)
                     tex.back()
-                    if handlers.fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
+                    if handlers.fillIn and (dig or (block and matchesFilter(blockInfo))) then
                         handlers.fillIn(tex.place)
                     end
                 end
@@ -113,15 +102,15 @@ local function checkAdj(filter, dig, handlers, noTurn)
         local block, blockInfo = tex.inspect()
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
-                if dig or (block and matchesFilter(filter, blockInfo)) then
+                if dig or (block and matchesFilter(blockInfo)) then
                     if handlers.dig then
                         parallel.waitForAll(function() handlers.dig(blockInfo.name) end, function() tex.forward(1, true) end)
                     else
                         tex.forward(1,true)
                     end
-                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
+                    checkAdj((block and matchesFilter(blockInfo)), handlers)
                     tex.back()
-                    if handlers.fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
+                    if handlers.fillIn and (dig or (block and matchesFilter(blockInfo))) then
                         handlers.fillIn(tex.place)
                     end
                 end
@@ -134,15 +123,15 @@ local function checkAdj(filter, dig, handlers, noTurn)
         local block, blockInfo = tex.inspect()
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
-                if dig or (block and matchesFilter(filter, blockInfo)) then
+                if dig or (block and matchesFilter(blockInfo)) then
                     if handlers.dig then
                         parallel.waitForAll(function() handlers.dig(blockInfo.name) end, function() tex.forward(1, true) end)
                     else
                         tex.forward(1,true)
                     end
-                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
+                    checkAdj((block and matchesFilter(blockInfo)), handlers)
                     tex.back()
-                    if handlers.fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
+                    if handlers.fillIn and (dig or (block and matchesFilter(blockInfo))) then
                         handlers.fillIn(tex.place)
                     end
                 end
@@ -154,15 +143,15 @@ local function checkAdj(filter, dig, handlers, noTurn)
         local block, blockInfo = tex.inspectUp()
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
-                if dig or (block and matchesFilter(filter, blockInfo)) then
+                if dig or (block and matchesFilter(blockInfo)) then
                     if handlers.dig then
                         parallel.waitForAll(function() handlers.dig(blockInfo.name) end, function() tex.up(1, true) end)
                     else
                         tex.up(1,true)
                     end
-                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
+                    checkAdj((block and matchesFilter(blockInfo)), handlers)
                     tex.down()
-                    if handlers.fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
+                    if handlers.fillIn and (dig or (block and matchesFilter(blockInfo))) then
                         handlers.fillIn(tex.placeUp)
                     end
                 end
@@ -173,15 +162,15 @@ local function checkAdj(filter, dig, handlers, noTurn)
         local block, blockInfo = tex.inspectDown()
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
-                if dig or (block and matchesFilter(filter, blockInfo)) then
+                if dig or (block and matchesFilter(blockInfo)) then
                     if handlers.dig then
                         parallel.waitForAll(function() handlers.dig(blockInfo.name) end, function() tex.down(1, true) end)
                     else
                         tex.down(1,true)
                     end
-                    checkAdj(filter, (block and matchesFilter(filter, blockInfo)), handlers)
+                    checkAdj((block and matchesFilter(blockInfo)), handlers)
                     tex.up()
-                    if handlers.fillIn and (dig or (block and matchesFilter(filter, blockInfo))) then
+                    if handlers.fillIn and (dig or (block and matchesFilter(blockInfo))) then
                         handlers.fillIn(tex.placeDown)
                     end
                 end
@@ -190,16 +179,16 @@ local function checkAdj(filter, dig, handlers, noTurn)
     end
 end
 
-local function collectVein(filter, handlers, noTurn)
+local function collectVein(handlers, noTurn)
     checked = {}
     mined = {}
-    checkAdj(filter, false, handlers, noTurn)
+    checkAdj(false, handlers, noTurn)
 end
 
-local function extract(filter, distance, handlers)
+local function extract(distance, handlers)
     for _=1,distance do
         tex.forward(1, true)
-        collectVein(filter, handlers)
+        collectVein(handlers)
     end
     for _=1,distance do
         tex.back()
@@ -238,7 +227,7 @@ local function pushToChecked(table, position)
     table[textutils.serialize({ x=position.x, y=position.y, z=position.z-1 })] = true
 end
 
-local function chaos(filter, amount, lookAhead, handlers)
+local function chaos(amount, lookAhead, handlers)
     local chaosChecked = {}
     local fillInHandler = handlers.fillIn
     handlers.fillIn = function(placeFunction) -- Overload the fillIn handler so chaosMined keeps track of vein-mined blocks as well
@@ -302,26 +291,26 @@ local function chaos(filter, amount, lookAhead, handlers)
             end
         end
         if not chaosChecked[textutils.serialize(tex.getPosition())] then
-            collectVein(filter, handlers, (i % 2 == 0))
+            collectVein(handlers, (i % 2 == 0))
         end
         pushToChecked(chaosChecked, currPos)
     end
     if handlers.done then handlers.done() end
 end
 
-local function layerGetOre(filter, height)
+local function layerGetOre(height)
     local block, blockInfo
     block, blockInfo = tex.inspectUp()
-    if block and matchesFilter(filter, blockInfo) then
+    if block and matchesFilter(blockInfo) then
         tex.digUp()
     end
     block, blockInfo = tex.inspectDown()
-    if block and matchesFilter(filter, blockInfo) then
+    if block and matchesFilter(blockInfo) then
         tex.digDown()
     end
 end
 
-local function layers(filter, width, length, height, handlers)
+local function layers(width, length, height, handlers)
     tex.up(1, true)
     local numOfLayers = math.ceil(height/3)
     local currentLayer = 1
@@ -350,7 +339,7 @@ local function layers(filter, width, length, height, handlers)
             tex.turnAround()
             tex.forward(1, true)
         end
-        layerGetOre(filter, height)
+        layerGetOre(height)
     end
     if handlers.done then handlers.done() end
 end

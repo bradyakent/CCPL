@@ -23,11 +23,6 @@ local flooring = #slots
 
 ux.displaySlots(slots)
 
-local filter = {
-    tags = {
-        ["forge:ores"] = true
-    }
-}
 local fillBlocks
 
 local handlers = {}
@@ -169,14 +164,14 @@ for i=1,distance do
         tex.select(1)
     end
     handlers.fillIn = fillIn(14)
-    mining.collectVein(filter, handlers)
+    mining.collectVein(handlers)
     while turtle.detectUp() do tex.digUp() end
     if i%4 == 0 then
         tex.up()
         tex.left()
-        mining.extract(filter, 5, handlers)
+        mining.extract(5, handlers)
         tex.turnAround()
-        mining.extract(filter, 5, handlers)
+        mining.extract(5, handlers)
         tex.left()
         tex.down()
     end

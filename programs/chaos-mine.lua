@@ -16,11 +16,6 @@ end
 
 local pathLength = math.floor(density*length*width*height)
 
-local filter = {
-    tags = {
-        ["forge:ores"] = true
-    }
-}
 local fillBlocks
 local _, blockInfo = tex.inspectDown()
 while blockInfo and blockInfo.name ~= "minecraft:bedrock" do
@@ -139,7 +134,7 @@ end
 
 handlers.fillIn = fillIn(18)
 local start = os.clock()
-mining.chaos(filter, pathLength, 5, handlers)
+mining.chaos(pathLength, 5, handlers)
 local stop = os.clock()
 local timeTaken = stop - start
 print("Time taken:", string.format("%.1fs",timeTaken))
