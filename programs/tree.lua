@@ -29,11 +29,11 @@ local function tree(high)
     end
 end
 
-tex.up()
-tree(heightToggle)
+local heightToggle = false
 heightToggle = not heightToggle
 
-local heightToggle = false
+tex.up()
+tree(heightToggle)
 for x = 1, width do
     for z = 1, length-1 do
         tree(heightToggle)
@@ -43,7 +43,7 @@ for x = 1, width do
             heightToggle = true
         end
     end
-    if(x ~= width) then
+    if(x < width) then
         if(x % 2 == 1) then
             tex.turnRight()
             tree(heightToggle)
@@ -68,4 +68,5 @@ end
 
 while currentHeight > 0 do
     tex.down(1, true)
+    currentHeight = currentHeight - 1
 end
