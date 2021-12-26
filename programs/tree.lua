@@ -10,7 +10,7 @@ local function tree(high)
     tex.forward(1, true)
     if(not high) then
         local exists, blockBelow = tex.inspectDown()
-        if(exists and blockBelow.tags["#minecraft:saplings"]) then
+        if(exists and not blockBelow.tags["minecraft:saplings"]) then
             tex.digDown()
             while tex.detectUp() do
                 tex.up(1, true)
@@ -23,13 +23,15 @@ local function tree(high)
             currentHeight = currentHeight - 1
         end
         local exists, blockBelow = tex.inspectDown()
-        if(exists and blockBelow.tags["#minecraft:saplings"]) then
+        if(exists and not blockBelow.tags["minecraft:saplings"]) then
             tex.digDown()
         end
     end
 end
 
 tex.up()
+tree(heightToggle)
+heightToggle = not heightToggle
 
 local heightToggle = false
 for x = 1, width do
