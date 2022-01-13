@@ -1,391 +1,553 @@
 local storage, gui = require("/ccpl")("storage","gui")
 
+--#### Setup ##################################
+
+-- Load warehouse info, if it exists.
 if not fs.exists("info.wh") then
-    print("info.wh does not exist! \nRun \"warehouse new <depth> <height>\" to generate info.wh.")
-    do return end
+	print("info.wh does not exist! \nRun \"warehouse new <depth> <height>\" to generate info.wh.")
+	do return end
 end
 storage.sync("info.wh")
 
+-- Global loop bool; program stops when set to false.
 local mainLoop = true
 
+-- Make new screen, render it immediately. (new screens are always blank)
 local screen = gui.Screen:new(term.getSize())
 screen:render()
 
+--#### Screen Object Definitions #########################################################
+-- Most of the objects displayed on `screen` will be defined here.
+--
+-- NOTE: Some objects will have some methods defined in a later section (see "Other Functions and Methods")
+-- because they rely on having other objects already declared or defined.
+
+--## Help Display:
+
+-- The help display is a full screen, paged display that shows help text for using this program.
 local helpDisplay = gui.Object:new(screen, 1, 1, screen.width, screen.height)
 
+--## Close Button:
+
+-- The close button will stop the program when clicked.
 local closeButton = gui.Object:new(screen, screen.width-6, 1, 7, 1)
 function closeButton:onClick()
-    mainLoop = false
+	mainLoop = false
 end
 
+--## Search Bar:
+
+-- The search bar allows the user to filter the list produced by `storage.list()` and displayed by `listing`.
+-- It also will display information about what the program is doing, such as
+-- getting or putting items, waiting for input, etc.
 local searchBar = gui.Object:new(screen, 1, screen.height, screen.width, 1)
+
+-- The search object is for general search functions.
+-- The `searchBar` object will be reserved specifically for display functions.
 local search = { keys={} }
+
+-- `filter` takes in a list of items (see `listing.list`),
+-- then filters it using `search.keys` (see `search:generateKeys()`).
 function search:filter(list)
-    if not self.keys[1] then return list end
-    local returnList = {}
-    for _, item in ipairs(list) do
-        local attachedKeys = {}
-        for _, key in ipairs(self.keys) do
-            attachedKeys[#attachedKeys+1] = key
-            if not key.attach then
-                local passed = true
-                for _, part in ipairs(attachedKeys) do
-                    if item.amount < part.amount then
-                        passed = false
-                        break
-                    end
-                    if part.modName then
-                        if not item.name:find(part.text, 1, true) then
-                            passed = false
-                            break
-                        end
-                    else
-                        if not item.name:find(part.text, item.name:find(":")+1, true) then
-                            passed = false
-                            break
-                        end
-                    end
-                end
-                if passed then
-                    returnList[#returnList+1] = item
-                    break
-                end
-                attachedKeys = {}
-            end
-        end
-    end
-    return returnList
-end
-function search:generateKeys(userInput)
-    local keys = {}
-    for modName, text, attach, amount in userInput:gmatch("(@?)([%w_]+)(&?)(#?%d*)") do
-        keys[#keys+1] = {
-            text=text,
-            modName=(modName == "@"),
-            amount=(amount:sub(1,1) == "#" and tonumber(amount:sub(2)) or -1),
-            attach=(attach == "&")
-        }
-    end
-    self.keys = keys
+	if not self.keys[1] then return list end
+	local returnList = {}
+	for _, item in ipairs(list) do
+		local attachedKeys = {}
+		for _, key in ipairs(self.keys) do
+			attachedKeys[#attachedKeys+1] = key
+			if not key.attach then
+				local passed = true
+				for _, part in ipairs(attachedKeys) do
+					if item.amount < part.amount then
+						passed = false
+						break
+					end
+					if part.modName then
+						if not item.name:find(part.text, 1, true) then
+							passed = false
+							break
+						end
+					else
+						if not item.name:find(part.text, item.name:find(":")+1, true) then
+							passed = false
+							break
+						end
+					end
+				end
+				if passed then
+					returnList[#returnList+1] = item
+					break
+				end
+				attachedKeys = {}
+			end
+		end
+	end
+	return returnList
 end
 
+-- `generateKeys` takes a string of user input, generates filter keys from that string,
+-- then sets `search.keys` to the generated list.
+function search:generateKeys(userInput)
+	local keys = {}
+	for modName, text, attach, amount in userInput:gmatch("(@?)([%w_]+)(&?)(#?%d*)") do
+		keys[#keys+1] = {
+			text=text,
+			modName=(modName == "@"),
+			amount=(amount:sub(1,1) == "#" and tonumber(amount:sub(2)) or -1),
+			attach=(attach == "&")
+		}
+	end
+	self.keys = keys
+end
+
+--## Listing:
+
+-- The `listingLabel` displays a label above `listing` which describes the columns of `listing`.
 local listingLabel = gui.Object:new(screen, 1, 1, screen.width-6, 1)
 
-local listing = gui.Object:new(screen, 1, 2, screen.width-6, screen.height-2)
-listing:draw(listing.width-4, 1, colors.gray, 4, listing.height)
-listing.list = storage.list()
-listing.objects = {}
-listing.inputs = {}
-listing.requested = {}
-listing.requested.n = 0
-listing.scrollOffset = 0
+-- The listing displays the list generated by `storage.list()` and filtered by `search:filter()`.
+-- It is made up of `displayObject`s and `input`s, which are used to request items.
+local listing = gui.Object:new(screen, 1, 2, screen.width-6, screen.height-2)	-- Create `listing`.
+listing:draw(listing.width-4, 1, colors.gray, 4, listing.height)				-- Draw a gray background where pull requests are entered in.
 
-local function displayClicked(object)
-    if not object.helpText then return end
-    searchBar:erase()
-    searchBar:write(1, 1, object.helpText, colors.yellow)
+listing.list = storage.list()	-- Initiate `listing.list` using `storage.list()`.
+listing.objects = {}			-- Stores the `displayObject`s used to display the `listing`.
+listing.inputs = {}				-- Stores the `input`s used by the user to enter requests.
+listing.requested = {}			-- Stores item requests made by the user.
+listing.requested.n = 0			-- Stores the index of the last item in `listing.requested`.
+listing.scrollOffset = 0		-- Stores the current scroll offset (see `listing:populate()`).
+
+-- The function to run if a `displayObject` is clicked.
+local function displayClicked(object) -- `object` will be the `displayObject` that was clicked on.
+	if not object.helpText then return end
+	searchBar:erase()
+	searchBar:write(1, 1, object.helpText, colors.yellow)
 end
 
-local function handleInput(object)
-    if not object.linkedLocation then return end
-    searchBar:write(1, 1, "Press enter when finished", colors.yellow)
-    object:erase()
-    screen:render()
-    term.setCursorPos(object.x,object.y)
-    local userInput = read()
-    if userInput:len() > 4 then userInput = 0 end
-    listing.requested[object.linkedLocation] = tonumber(userInput) or 0
-    if (object.linkedLocation > listing.requested.n) then listing.requested.n = object.linkedLocation end
-    searchBar:erase()
-    searchBar:write(1, 1, "Click here to search...", colors.gray)
+-- The function to run if an `input` is clicked.
+local function handleInput(object) -- `object` will be the `input` that was clicked on.
+	if not object.linkedLocation then return end
+	searchBar:write(1, 1, "Press enter when finished", colors.yellow)
+	object:erase()
+	screen:render()
+	term.setCursorPos(object.x,object.y)
+	local userInput = read()
+	if userInput:len() > 4 then userInput = 0 end
+	listing.requested[object.linkedLocation] = tonumber(userInput) or 0
+	if (object.linkedLocation > listing.requested.n) then listing.requested.n = object.linkedLocation end
+	searchBar:erase()
+	searchBar:write(1, 1, "Click here to search...", colors.gray)
 end
 
+-- Create the `displayObject`s and `input`s used for the `listing`.
+-- These are stored in `listing.objects` and `listing.inputs`, respectively.
 for line=1,listing.height do
-    local displayObject = gui.Object:new(screen, 1, line+listing.y-1, listing.width-5, 1)
-    displayObject.onClick = displayClicked
-    listing.objects[#listing.objects+1] = displayObject
-    local input = gui.Object:new(screen, listing.width-4, line+listing.y-1, 4, 1)
-    input.onClick = handleInput
-    listing.inputs[#listing.inputs+1] = input
+	local displayObject = gui.Object:new(screen, 1, line+listing.y-1, listing.width-5, 1)	-- Make this line's `displayObject`.
+	displayObject.onClick = displayClicked													-- Set its `.onClick` to the `displayClicked()` function.
+	listing.objects[#listing.objects+1] = displayObject										-- Add to `listing.objects`.
+
+	local input = gui.Object:new(screen, listing.width-4, line+listing.y-1, 4, 1)	-- Make this line's `input`.
+	input.onClick = handleInput														-- Set its `.onClick` to the `handleInput()` function.
+	listing.inputs[#listing.inputs+1] = input										-- Add it to `listing.inputs`.
 end
 
+-- This function actually draws the `listing` to the `screen`.
 function listing:populate()
-    for index, displayObject in ipairs(listing.objects) do
-        displayObject:erase()
-        displayObject.helpText = nil -- remove help text
-        listing.inputs[index].linkedLocation = nil -- remove linked location for input
-        local item = listing.list[index + listing.scrollOffset]
-        if item then
-            local itemText = item.location..": "..item.name:sub(item.name:find(":")+1)
-            if #itemText > listing.width - 10 then
-                itemText = itemText:sub(1,listing.width - 13).."..."
-            end
-            displayObject.helpText = item.name:sub(item.name:find(":")+1)
-            displayObject:write(1, 1, itemText)
-            displayObject:write(displayObject.width-#tostring(item.amount), 1, tostring(item.amount))
+	for lineNumber, displayObject in ipairs(listing.objects) do
+		-- Erase this line, and remove the `.helpText` and `.linkedLocation` for this line.
+		displayObject:erase()
+		displayObject.helpText = nil
+		listing.inputs[lineNumber].linkedLocation = nil
 
-            local input = listing.inputs[index]
-            input:fill(colors.gray)
-            input.linkedLocation = item.location
-            local stringToDisplay = "0"
-            if listing.requested[item.location] and listing.requested[item.location] > 0 then
-                stringToDisplay = tostring(listing.requested[item.location])
-            end
-            input:erase()
-            input:write(5-stringToDisplay:len(), 1, stringToDisplay)
-        else
-            listing.inputs[index]:fill(colors.black)
-            listing.inputs[index]:erase()
-        end
-    end
+		-- Grab the item to display using the current `lineNumber` and `listing.scrollOffset`.
+		local item = listing.list[lineNumber + listing.scrollOffset]
+		
+		-- If there is an `item` to display...
+		if item then
+			-- Make text for the `displayObject` to display.
+			local itemText = item.location..": "..item.name:sub(item.name:find(":")+1)
+			if #itemText > listing.width - 10 then
+				itemText = itemText:sub(1,listing.width - 13).."..."
+			end
+
+			displayObject.helpText = item.name:sub(item.name:find(":")+1) -- Set the `.helpText` for this `item`.
+
+			-- Display the `itemText` as well as the `item.amount`.
+			displayObject:write(1, 1, itemText)
+			displayObject:write(displayObject.width-#tostring(item.amount), 1, tostring(item.amount))
+
+			local input = listing.inputs[lineNumber]	-- Get the `input` for this line.
+			input:fill(colors.gray)						-- Color the background gray.
+			input.linkedLocation = item.location		-- link this `input` to the displayed `item`s `.location`.
+			
+			-- Make a string for the `input` to display.
+			local stringToDisplay = "0"
+			if listing.requested[item.location] and listing.requested[item.location] > 0 then
+				stringToDisplay = tostring(listing.requested[item.location])
+			end
+
+			-- Write the `stringToDisplay`.
+			input:erase()
+			input:write(5-stringToDisplay:len(), 1, stringToDisplay)
+
+		-- If there is no `item` to display, make this line's `input` black, and erase any text.
+		else
+			listing.inputs[lineNumber]:fill(colors.black)
+			listing.inputs[lineNumber]:erase()
+		end
+	end
 end
 
+-- onScroll adjusts the `listing.scrollOffset` when the user scrolls.
 function listing:onScroll(direction)
-    listing.scrollOffset = listing.scrollOffset + direction
-    if #listing.list - listing.scrollOffset < listing.height then
-        listing.scrollOffset = #listing.list - listing.height
-    end
-    if listing.scrollOffset < 0 then
-        listing.scrollOffset = 0
-    end
+	listing.scrollOffset = listing.scrollOffset + direction			-- Scroll in the direction of `direction`. (+1 if downwards, -1 if upwards.)
+	if #listing.list - listing.scrollOffset < listing.height then	-- If we've reached the bottom of `listing.list`...
+		listing.scrollOffset = #listing.list - listing.height		-- Change `scrollOffset` so the last item in `listing.list` is at the bottom of `listing`.
+	end
+	if listing.scrollOffset < 0 then	-- If we're already at the top of the list...
+		listing.scrollOffset = 0		-- Set `scrollOffset` to 0.
+	end
 end
 
+--## Put Button:
+
+-- The put button, when clicked, puts away any items in the turtle's inventory.
 local putButton = gui.Object:new(screen, screen.width-6, screen.height-8, 7, 3)
+
+-- onClick locks the GUI and makes the turtle put away any items in its inventory.
 function putButton:onClick()
-    storage.sync("info.wh")
-    searchBar:erase()
-    searchBar:write(1, 1, "Putting away items...", colors.yellow)
-    screen:render()
-    local passed, failReason
-    if turtle then
-        passed, failReason = storage.put()
-    else
-        passed = true
-    end
-    storage.update("info.wh")
-    if not passed then
-        if failReason == "Warehouse full" then
-            searchBar:erase()
-            searchBar:write(1, 1, "Warning: Warehouse full", colors.red)
-        end
-    else
-        searchBar:erase()
-        searchBar:write(1, 1, "Done!", colors.green)
-    end
-    listing.list = storage.list()
+	storage.sync("info.wh")
+
+	-- Write some help text to the `searchBar`, then immediately render the `screen`.
+	searchBar:erase()
+	searchBar:write(1, 1, "Putting away items...", colors.yellow)
+	screen:render()
+
+	-- If the current system is not a turtle, bypass the `storage.put()` function.
+	local passed, failReason
+	if turtle then
+		passed, failReason = storage.put()
+	else
+		passed = true
+	end
+
+	storage.update("info.wh") -- Write the current storage information to the save file.
+
+	-- If the turtle fails to put something away, display the `failReason` in the `searchBar`.
+	if not passed then
+		if failReason then
+			local warningText = "Warning: "..failReason
+			searchBar:erase()
+			searchBar:write(1, 1, warningText, colors.red)
+		end
+	else -- Otherwise, write a success string to the `searchBar`
+		searchBar:erase()
+		searchBar:write(1, 1, "Done!", colors.green)
+	end
+
+	listing.list = storage.list() -- Update `listing.list`.
 end
 
+--## Get Button:
+
+-- The get button, when clicked, collects the requested items listed in `listing.requested`.
 local getButton = gui.Object:new(screen, screen.width-6, screen.height-5, 7, 3)
+
+-- onClick locks the GUI and makes the turtle get the `listing.requested` items for the user.
 function getButton:onClick()
-    storage.sync("info.wh")
-    searchBar:erase()
-    searchBar:write(1, 1, "Getting items...", colors.yellow)
-    screen:render()
-    local itemTable = {}
-    for i=1,listing.requested.n do
-        if listing.requested[i] then
-            itemTable[#itemTable+1] = { name=storage.queryLocation(i).name, amount=listing.requested[i] }
-        end
-    end
-    local passed, failReason
-    if turtle then
-        passed, failReason = storage.get(itemTable)
-    else
-        passed = true
-    end
-    if not passed then
-        if failReason == "Not enough items" then
-            searchBar:erase()
-            searchBar:write(1, 1, "Not enough of the requested items.", colors.red)
-        else
-            searchBar:erase()
-            searchBar:write(1, 1, "The turtle can't hold that many items.", colors.red)
-        end
-    else
-        searchBar:erase()
-        searchBar:write(1, 1, "Done!", colors.green)
-        storage.update("info.wh")
-        listing.requested = {}
-        listing.requested.n = 0
-    end
-    listing.list = storage.list()
+	storage.sync("info.wh")
+
+	-- Write some help text to the `searchBar` and immediately render the `screen`.
+	searchBar:erase()
+	searchBar:write(1, 1, "Getting items...", colors.yellow)
+	screen:render()
+
+	-- Take the `listing.requested` table and turn it into a correctly formatted request table for `storage.get()`
+	local itemTable = {}
+	for i=1,listing.requested.n do
+		-- If there is an actual request at this index...
+		if listing.requested[i] then
+			-- Add the request to the `itemTable`
+			itemTable[#itemTable+1] = { name=storage.queryLocation(i).name, amount=listing.requested[i] }
+		end
+	end
+
+	-- If the current system is not a turtle, bypass the `storage.get()` function.
+	local passed, failReason
+	if turtle then
+		passed, failReason = storage.get(itemTable)
+	else
+		passed = true
+	end
+
+	failReason = string.lower(failReason);
+
+	-- If the turtle failed at getting any of the items...
+	if not passed then
+		-- If there weren't enough items, show the "Not enough items" warning.
+		if failReason == "not enough items" then
+			searchBar:erase()
+			searchBar:write(1, 1, "Not enough of the requested items.", colors.red)
+		-- Otherwise show the "Not enough space" warning.
+		else
+			searchBar:erase()
+			searchBar:write(1, 1, "The turtle can't hold that many items.", colors.red)
+		end
+	else -- Otherwise...
+		-- Write a success string to the `searchBar`.
+		searchBar:erase()
+		searchBar:write(1, 1, "Done!", colors.green)
+
+		storage.update("info.wh") -- Update the save file.
+
+		-- Clear all the requests.
+		listing.requested = {}
+		listing.requested.n = 0
+	end
+
+	listing.list = storage.list() -- Update `listing.list`.
 end
 
+--## Clear Button:
+
+-- The clear button will clear all requests when clicked.
 local clearButton = gui.Object:new(screen, screen.width-6, screen.height-2, 7, 2)
 function clearButton:onClick()
-    listing.requested = {}
-    listing.requested.n = 0
+	listing.requested = {}
+	listing.requested.n = 0
 end
 
+--## Help Button:
+
+-- The help button will display the `helpDisplay` when clicked.
 local helpButton = gui.Object:new(screen, screen.width-6, 2, 7, 3)
 
+--#### Other Functions and Methods #######################################
+-- Functions that rely on GUI objects already being declared or defined are written below.
+
+-- init draws all parts of the screen that should show up when the program is run.
 local function init()
 
-    closeButton:fill(colors.red)
-    closeButton:write(2,1,"Close")
+	-- Draw the `closeButton`.
+	closeButton:fill(colors.red)
+	closeButton:write(2,1,"Close")
 
-    listingLabel:write(1, 1, "i   Block", colors.white)
-    listingLabel:write(listingLabel.width-10, 1, "Stock Pull", colors.white)
+	-- Draw the `listingLabel`.
+	listingLabel:write(1, 1, "i   Block", colors.white)
+	listingLabel:write(listingLabel.width-10, 1, "Stock Pull", colors.white)
 
-    listing:erase()
-    listing:draw(listing.width-4, 1, colors.gray, 4, listing.height)
+	-- Draw the `listing`. This does not draw any item information; `listing:populate()` does that.
+	listing:erase()
+	listing:draw(listing.width-4, 1, colors.gray, 4, listing.height)
 
-    putButton:fill(colors.blue)
-    putButton:write(3, 2, "Put")
+	-- Draw the `putButton`.
+	putButton:fill(colors.blue)
+	putButton:write(3, 2, "Put")
 
-    getButton:fill(colors.cyan)
-    getButton:write(3, 2, "Get")
+	-- Draw the `getButton`.
+	getButton:fill(colors.cyan)
+	getButton:write(3, 2, "Get")
 
-    helpButton:fill(colors.yellow)
-    helpButton:write(2, 2,"Help!", colors.black)
+	-- Draw the `helpButton`.
+	helpButton:fill(colors.yellow)
+	helpButton:write(2, 2,"Help!", colors.black)
 
-    clearButton:fill(colors.lightGray)
-    clearButton:write(2, 1, "Clear", colors.black)
-    clearButton:write(2, 2, "Pulls", colors.black)
+	-- Draw the `clearButton`.
+	clearButton:fill(colors.lightGray)
+	clearButton:write(2, 1, "Clear", colors.black)
+	clearButton:write(2, 2, "Pulls", colors.black)
 end
 
+-- onClick handles user input in the case when the user clicks the `searchBar`, or if the user starts typing (i.e. to search for something).
+-- It also locks the rest of the GUI.
 function searchBar:onClick(_, _, prepend)
-    local userInput = prepend or ""
-    search.keys = {}
-    listing.list = search:filter(storage.list())
-    listing.scrollOffset = 0
-    local cursorX, cursorY = userInput:len()+1, 1
+	-- Set up variables:
+	local userInput = prepend or "" 				-- `userInput` is set to the key that the user pressed, if they pressed a key to start searching.
+	search.keys = {}								-- `search.keys` is cleared.
+	listing.list = search:filter(storage.list())	-- `listing.list` is reset.
+	listing.scrollOffset = 0						-- `listing.scrollOffset` is reset.
+	local cursorX, cursorY = userInput:len()+1, 1	-- Stores the current cursor position.
 
-    listing:populate()
-    searchBar:erase()
-    searchBar:write(1,1,userInput,colors.white)
-    screen:render()
-    term.setCursorPos(cursorX + self.x - 1, cursorY + self.y - 1)
-    term.setCursorBlink(true)
+	-- re-render `screen` with the current `listing` and current `userInput` in the `searchBar`.
+	listing:populate()
+	searchBar:erase()
+	searchBar:write(1,1,userInput,colors.white)
+	screen:render()
 
-    local inputLoop = true
-    local event = {}
-    while inputLoop do
-        -- Handle events
-        event = { os.pullEvent() }
-        if event[1] == "char" then
-            searchBar:write(cursorX,cursorY,event[2],colors.white)
-            userInput = (cursorX + 1 < self.width - 1) and userInput..event[2] or userInput
-            cursorX = math.min(self.width-1, cursorX + 1)
-        elseif event[1] == "key" then
-            if event[2] == keys.backspace then
-                cursorX = math.max(1, cursorX - 1)
-                searchBar:write(cursorX,cursorY," ",colors.white)
-                userInput = userInput:sub(1,-2)
-            elseif event[2] == keys.enter then
-                inputLoop = false
-            end
-        elseif event[1] == "mouse_click" then
-            if not searchBar:contains(event[3],event[4]) then
-                inputLoop = false
-            end
-            os.queueEvent(table.unpack(event))
-        end
+	-- Move cursor to the `searchBar`.
+	term.setCursorPos(cursorX + self.x - 1, cursorY + self.y - 1)
+	term.setCursorBlink(true)
 
-        -- Display updates
-        search:generateKeys(userInput)
-        listing.list = search:filter(storage.list())
-        listing:populate()
-        screen:render()
-        term.setCursorPos(cursorX + self.x - 1, cursorY + self.y - 1)
-    end
-    term.setCursorBlink(false)
+	-- If `inputLoop` is set to `false`, the loop will exit.
+	local inputLoop = true
+	local event = {}
+	while inputLoop do
+		event = { os.pullEvent() } -- Catch the next event.
+
+		-- If the user types a character, write it in the `searchBar` and update `userInput`.
+		if event[1] == "char" then
+			searchBar:write(cursorX,cursorY,event[2],colors.white)
+			userInput = (cursorX + 1 < self.width - 1) and userInput..event[2] or userInput -- the `..` here concatenates the current `userInput` and the new character.
+			cursorX = math.min(self.width-1, cursorX + 1)
+
+		-- Handle backspaces and enters.
+		elseif event[1] == "key" then
+			if event[2] == keys.backspace then
+				cursorX = math.max(1, cursorX - 1)
+				searchBar:write(cursorX,cursorY," ",colors.white)
+				userInput = userInput:sub(1,-2)
+			elseif event[2] == keys.enter then
+				inputLoop = false -- Exit the loop when the user presses nter.
+			end
+
+		-- If the user clicks somewhere...
+		elseif event[1] == "mouse_click" then
+			-- If they click outside the `searchBar`, exit the loop.
+			if not searchBar:contains(event[3],event[4]) then
+				inputLoop = false
+			end
+
+			-- requeue the event so it can be handled later.
+			os.queueEvent(table.unpack(event))
+		end
+
+		-- Update the `listing` based on `userInput`, rerender the `screen`, and move the cursor to its new position.
+		search:generateKeys(userInput)
+		listing.list = search:filter(storage.list())
+		listing:populate()
+		screen:render()
+		term.setCursorPos(cursorX + self.x - 1, cursorY + self.y - 1)
+	end
+
+	-- Turn off cursor blinking once the user is done searching.
+	term.setCursorBlink(false)
 end
 
+-- helpText is displayed by the `helpDisplay` when the `helpButton` is clicked.
 local helpText = {
-    {
-        'Warehouse GUI help (page 1/2)          ',
-        '=======================================',
-        'To put items into the warehouse:       ',
-        '1. Load the turtle with items          ',
-        '2. Click the "Put" button              ',
-        '                                       ',
-        'To get items from the warehouse:       ',
-        '1. Click the grey box next to the item ',
-        '   you want                            ',
-        '2. Type in how much you want           ',
-        '3. Click the "Get" button              ',
-        '                                       ',
-        'Arrows: Navigation    Enter: Close Help',
-    },
-    {
-        'Warehouse GUI help (page 2/2)          ',
-        '=======================================',
-        'With the search bar, you can type a    ',
-        'list of "keys" you want to display,    ',
-        'separated by spaces.                   ',
-        '                                       ',
-        'Special characters:                    ',
-        '@ - Looks for a mod name.              ',
-        '& - Item names have to match all keys  ',
-        '    attached by &s.                    ',
-        '# - In form "key#num", "key" must have ',
-        '    at least "num" items available.    ',
-        'Arrows: Navigation    Enter: Close Help',
-    }
+	{
+		'Warehouse GUI help (page 1/2)          ',
+		'=======================================',
+		'To put items into the warehouse:       ',
+		'1. Load the turtle with items          ',
+		'2. Click the "Put" button              ',
+		'                                       ',
+		'To get items from the warehouse:       ',
+		'1. Click the grey box next to the item ',
+		'   you want                            ',
+		'2. Type in how much you want           ',
+		'3. Click the "Get" button              ',
+		'                                       ',
+		'Arrows: Navigation    Enter: Close Help',
+	},
+	{
+		'Warehouse GUI help (page 2/2)          ',
+		'=======================================',
+		'With the search bar, you can type a    ',
+		'list of "keys" you want to display,    ',
+		'separated by spaces.                   ',
+		'                                       ',
+		'Special characters:                    ',
+		'@ - Looks for a mod name.              ',
+		'& - Item names have to match all keys  ',
+		'    attached by &s.                    ',
+		'# - In form "key#num", "key" must have ',
+		'    at least "num" items available.    ',
+		'Arrows: Navigation    Enter: Close Help',
+	}
 }
+
+-- onClick displays the `helpText` on `helpDisplay` and also handles user input while in the help menu.
 function helpButton:onClick()
-    local displayHelp = true
-    local page = 1
-    local event = {}
-    while displayHelp do
-        helpDisplay:erase()
-        helpDisplay:fill(colors.black)
-        for line=1,#helpText[page] do
-            helpDisplay:write(1, line, helpText[page][line], (line == #helpText[page]) and (colors.yellow) or (colors.white))
-        end
-        screen:render()
-        term.setCursorPos(1,screen.height+1)
+	-- Set variables:
+	local displayHelp = true	-- If `displayHelp` is set to `false`, the help menu hides and then displays the normal screen.
+	local page = 1				-- Stores the current page.
+	local event = {}
 
-        event = { os.pullEvent() }
-        if event[1] == "key" then
-            if event[2] == keys.enter then
-                displayHelp = false
-            elseif event[2] == keys.right then
-                page = math.min(page + 1, #helpText)
-            elseif event[2] == keys.left then
-                page = math.max(page - 1, 1)
-            end
-        end
-    end
-    helpDisplay:fill(colors.black)
-    helpDisplay:fill(colors.white,true)
-    helpDisplay:erase()
-    init()
+	while displayHelp do
+		-- Erase the `helpDisplay` and fill the background with black.
+		helpDisplay:erase()
+		helpDisplay:fill(colors.black)
+
+		-- Write each line of `helpText` to the `helpDisplay`.
+		-- The last line is written in yellow, every other line is written in white.
+		for line=1,#helpText[page] do
+			helpDisplay:write(1, line, helpText[page][line], (line == #helpText[page]) and (colors.yellow) or (colors.white))
+		end
+
+		-- Render the `screen`
+		screen:render()
+		term.setCursorPos(1,screen.height+1)
+
+		-- Catch the next event, then handle any keypresses.
+		event = { os.pullEvent() }
+		if event[1] == "key" then
+			if event[2] == keys.enter then
+				displayHelp = false
+			elseif event[2] == keys.right then
+				page = math.min(page + 1, #helpText)
+			elseif event[2] == keys.left then
+				page = math.max(page - 1, 1)
+			end
+		end
+	end
+
+	-- Fill the entire `screen` with black, and set the text color for the entire screen to white
+	helpDisplay:fill(colors.black)
+	helpDisplay:fill(colors.white,true)
+
+	helpDisplay:erase() -- Erase any text on the `screen`.
+
+	init() -- Draw the GUI as though it just initialized.
 end
 
+--#### Main Program ################################################################
+
+-- Write some help text to the `searchBar` when the program starts
 searchBar:write(1, 1, 'Click "Help!" for more information', colors.yellow)
-init()
-local event = {} -- 1 will be the event type, the following will be the return values
-while mainLoop do
-    if event[1] == "mouse_click" then
-        local x = event[3]
-        local y = event[4]
-        for i, object in ipairs(gui.list) do
-            if object:contains(x, y) then
-                if object.onClick then
-                    object:onClick(x, y)
-                else
-                    searchBar:erase()
-                end
-            end
-        end
-    elseif event[1] == "mouse_scroll" then
-        listing:onScroll(event[2])
-        searchBar:erase()
-        searchBar:write(1, 1, "Click here to search...", colors.gray)
-    elseif event[1] == "char" then
-        searchBar:onClick(nil, nil, event[2])
-    elseif event[1] and event[1] ~= "key_up" and event[1] ~= "mouse_up" then
-        searchBar:erase()
-        searchBar:write(1, 1, "Click here to search...", colors.gray)
-    end
 
-    listing:populate()
-    screen:render()
-    event = { os.pullEvent() }
+-- Initialize the GUI (Draw most objects)
+init()
+
+-- Index 1 of `event` will be the event type, the following will be the return values
+local event = {}
+
+-- This loop will run once when the program starts, then waits for an event before running again.
+while mainLoop do
+	if event[1] == "mouse_click" then
+		local x = event[3]
+		local y = event[4]
+
+		-- Run the `onClick()` method for every object that contains the click location.
+		for i, object in ipairs(gui.list) do
+			if object:contains(x, y) then
+				if object.onClick then
+					object:onClick(x, y)
+				else
+					searchBar:erase()
+				end
+			end
+		end
+	elseif event[1] == "mouse_scroll" then
+		listing:onScroll(event[2])
+		searchBar:erase()
+		searchBar:write(1, 1, "Click here to search...", colors.gray)
+	elseif event[1] == "char" then
+		searchBar:onClick(nil, nil, event[2])
+	elseif event[1] and event[1] ~= "key_up" and event[1] ~= "mouse_up" then
+		searchBar:erase()
+		searchBar:write(1, 1, "Click here to search...", colors.gray)
+	end
+
+	-- Repopulate `listing` (In case the user scrolled or searched something), then rerender `screen`.
+	listing:populate()
+	screen:render()
+
+	-- Catch next event.
+	event = { os.pullEvent() }
 end
 
+-- Reset terminal on program exit.
 term.setBackgroundColor(colors.black)
 term.setCursorPos(1,1)
 term.clear()
