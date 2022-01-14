@@ -1,25 +1,47 @@
-local function expect(index, variable, ...)
-    local args = {...}
-    local passed = false
-    local typeString = ""
-    for i=1,#args do
-        typeString = typeString..args[i]..","
-        if type(variable) == args[i] then passed = true break end
-    end
-    if not passed then
-        error("Arg "..index.." expected "..typeString.." got "..type(variable), 3)
-    end
-    return true
-end
+--#### Module gui.lua ################
+-- The gui module can be used to draw a GUI to the screen of a computer or turtle.
+--
+-- To use gui.lua, you have access to `Screen` and `Object`.
+--
+-- `Screen` is a very fast wrapper for drawing to the screen.
+-- You "write" data to the `Screen`'s buffers, then render the `Screen` all at once.
+--
+-- `Object` allows a more abstract method of interacting with a `Screen` instance.
+-- `Object`s can be drawn within, filled with a color, written onto with text, and moved within the dimensions of its attached `Screen`.
+-- Once the `Object` has been drawn to its `Screen`, calling `:render()` on that `Screen` instance will draw the `Object` to the `Screen`.
+--
+-- Please note that drawing an `Object` to a `Screen` will *not* immediately display that `Object` on the `Screen`.
+-- Instead, you must `:render()` the `Screen` for the `Object` to display.
 
+--#### Setup #########################
+
+-- Imported modules:
+local expect = require("/ccpl")("expect").expect
+
+-- toBlit converts a normal CC color value to its `blit` equivalent.
 local function toBlit(color)
     return string.format("%x", math.floor(math.log(color) / math.log(2)))
 end
 
+--#### GUI Constructs ##########################
+
+--## Buffer:
+-- The Buffer class is an abstraction of one "layer" of a `Screen`.
+-- The three layers of a `Screen` are the background color layer,
+-- the text color layer, and the text layer. Each one of these layers runs on a Buffer,
+-- which actually holds the data stored in the `Screen`.
+--
+-- The Buffer class isn't an exported class, so most users of the gui module won't need to know about it.
+-- Nonetheless, knowing how it works is a good thing, so here's the documentation.
+
+-- Buffer is a class which abstracts a 2d array of character data.
+-- It's used as part of `Screen`.
 local Buffer = {}
 Buffer.__index = Buffer
 
-function Buffer:new(fillChar, width, height)
+-- creates a new instance of `Buffer` of width `width` and height `height`.
+-- Also fills the entire `Buffer` with `fillChar`.
+function Buffer:new(fillChar, width, height) -- returns: Buffer
     expect(1, fillChar, "string")
     expect(2, width, "number")
     expect(3, height, "number")
@@ -34,7 +56,9 @@ function Buffer:new(fillChar, width, height)
     return o
 end
 
-function Buffer:pushData(newData, line, xOffset)
+-- pushes `newData` into the `Buffer` at line `line`.
+-- Optionally offset the data horizontally by `xOffset` characters.
+function Buffer:pushData(newData, line, xOffset) -- returns: boolean
     expect(1, newData, "string")
     expect(2, line, "number")
     expect(3, xOffset, "number", "nil")
@@ -56,9 +80,18 @@ function Buffer:pushData(newData, line, xOffset)
     return self[line] ~= oldLine
 end
 
+--## Screen:
+-- (TODO) Screen description here
+
+-- The Screen class is an abstraction of the CC function `term.blit()`, the fastest way to display data in a CC terminal.
+-- Using it is far easier than using `term.blit()` directly, which is why I made it.
 local Screen = {}
 Screen.__index = Screen
-function Screen:new(width, height, debug)
+
+
+-- Creates a new `Screen` instance of width `width` and height `height`.
+-- There's an optional `debug` param, but you shouldn't need that.
+function Screen:new(width, height, debug) -- returns: Screen
     expect(1, width, "number")
     expect(2, height, "number")
     expect(3, debug, "boolean", "nil")
@@ -79,6 +112,10 @@ function Screen:new(width, height, debug)
     return o
 end
 
+-- Renders the `Screen`'s data onto its defined area on the display.
+--
+-- (BUG) All `Screen` instances are locked to the top left corner of the display.
+-- A possible workaround for this is wrapping a `Screen` instance inside of a terminal window.
 function Screen:render()
     for line=1,self.height do
         if self.debug then
@@ -91,6 +128,8 @@ function Screen:render()
     end
 end
 
+-- Updates the `Screen`'s text `Buffer`, as well as the `changedLines` table.
+-- `nText` is the data written to the `Buffer`, and it's top-left corner is located at `(x, y)`.
 function Screen:updateText(nText, x, y)
     expect(1, nText, "table", "string")
     expect(2, x, "number")
@@ -109,6 +148,8 @@ function Screen:updateText(nText, x, y)
     end
 end
 
+-- Updates the `Screen`'s text color `Buffer`, as well as the `changedLines` table.
+-- `nTextColor` is the data written to the `Buffer`, and it's top-left corner is located at `(x, y)`.
 function Screen:updateTextColor(nTextColor, x, y)
     expect(1, nTextColor, "table", "string")
     expect(2, x, "number")
@@ -127,6 +168,8 @@ function Screen:updateTextColor(nTextColor, x, y)
     end
 end
 
+-- Updates the `Screen`'s background color `Buffer`, as well as the `changedLines` table.
+-- `nBgColor` is the data written to the `Buffer`, and it's top-left corner is located at `(x, y)`.
 function Screen:updateBgColor(nBgColor, x, y)
     expect(1, nBgColor, "table", "string")
     expect(2, x, "number")

@@ -1,6 +1,7 @@
-local storage, gui = require("/ccpl")("storage","gui")
-
 --#### Setup ##################################
+
+-- Imported modules:
+local storage, gui = require("/ccpl")("storage","gui")
 
 -- Load warehouse info, if it exists.
 if not fs.exists("info.wh") then
