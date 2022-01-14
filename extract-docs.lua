@@ -118,13 +118,13 @@ local getNextComment = function(file, currentLine) -- returns: table
     end
 
     -- Describe the symbol this comment documents
-    if line:find("^local") then
+    if line:find("^local") and not line:find("^local function") then
         comment.symbol.exists = true
         comment.symbol.isAssignment = true
         comment.symbol.name = line:match("local ([%w_%:%.]+)%s*=")
         comment.symbol.code = line
     end
-    if line:find("^function") or line:find("^local%s[%w_%:%.]+%s*=%s*function") then
+    if line:find("^function") or line:find("^local function") or line:find("^local%s[%w_%:%.]+%s*=%s*function") then
         comment.symbol.exists = true
         comment.symbol.isFunction = true
         if not comment.symbol.isAssignment then

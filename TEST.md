@@ -3,6 +3,7 @@
 - [Module gui.lua](#module-guilua)
 - [Setup](#setup)
     - [`expect`](#expect)
+    - [`toBlit`](#toblit)
 - [GUI Constructs](#gui-constructs)
   - [Buffer](#buffer)
     - [`Buffer`](#buffer)
@@ -57,7 +58,8 @@ Imported modules:
 local expect = require("/ccpl")("expect").expect
 ```
 
-#### toBlit converts a normal CC color value to its `blit` equivalent.
+### `toBlit`
+toBlit converts a normal CC color value to its `blit` equivalent.
 ```lua
 local function toBlit(color)
 ```
