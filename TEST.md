@@ -16,7 +16,7 @@
     - [`Screen:updateText`](#screenupdatetext)
     - [`Screen:updateTextColor`](#screenupdatetextcolor)
     - [`Screen:updateBgColor`](#screenupdatebgcolor)
-- [Undocumented Exported Functions and Variables](#undocumented-exported-functions-and-variables)
+- [Undocumented Functions and Variables](#undocumented-functions-and-variables)
     - [`list`](#list)
     - [`GUIObject`](#guiobject)
     - [`GUIObject:new`](#guiobjectnew)
@@ -152,11 +152,12 @@ function Screen:updateBgColor(nBgColor, x, y)
 
 ----------------------------------------
 
-Undocumented Exported Functions and Variables
----------------------------------------------
-Below are all undocumented exports of this module.
+Undocumented Functions and Variables
+------------------------------------
+Below are the undocumented symbols in this module.
 
-**If an exported function or variable shows up here, please be a good person and document it.**
+***If an exported function or variable shows up here, please be a good person and document it.***
+
 Documentation is important. Don't make other people dig through your source code to figure out what something does.
 
 ### `list`
