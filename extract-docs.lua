@@ -219,8 +219,10 @@ local nodocExportChunk = {
 
 --#### Rest of the code ############################
 
-local write = writeLine(outFile)
-local newlines = writeReturns(outFile)
+-- writeToFile will write text to the file specified by `outFile`
+local writeToFile = writeLine(outFile)
+-- newlinesToFile will write newlines to the file specified by `outFile`
+local newlinesToFile = writeReturns(outFile)
 
 local comments = {}
 local exportedNames = {}
@@ -293,42 +295,42 @@ end
 
 --#### Writing to the output file ####################################
 
-write("# Table of Contents:")
-write("- [Table of Contents](table-of-contents)")
+writeToFile("# Table of Contents:")
+writeToFile("- [Table of Contents](table-of-contents)")
 for i, entry in ipairs(toc) do
     -- To make the link text (looks like "#some-text-here") from a header:
     -- Start with "#", make the entry text all lower case, remove all punctuation, replace all spaces with "-".
     local linkText = "#"..entry.text:lower():gsub("%p",""):gsub(" ","%-")
 
-    write(string.rep("  ", entry.layer-1).."- ["..entry.text.."]("..linkText..")")
+    writeToFile(string.rep("  ", entry.layer-1).."- ["..entry.text.."]("..linkText..")")
 end
 
 for i, comment in ipairs(comments) do
     for lineNumber, line in ipairs(comment.lines) do
         if lineNumber == 1 then
-            newlines(1)
+            newlinesToFile(1)
             if comment.type == "chunk" then
-                write(string.rep("-", 40))
-                newlines(1)
-                write(line)
-                write(string.rep("-", #line))
+                writeToFile(string.rep("-", 40))
+                newlinesToFile(1)
+                writeToFile(line)
+                writeToFile(string.rep("-", #line))
             elseif comment.type == "section" then
-                newlines(2)
-                write("### "..line)
+                newlinesToFile(2)
+                writeToFile("### "..line)
             else
                 if comment.symbol.name then
-                    write("### `"..comment.symbol.name.."`")
-                    write(line)
+                    writeToFile("### `"..comment.symbol.name.."`")
+                    writeToFile(line)
                 else
-                    write("#### "..line)
+                    writeToFile("#### "..line)
                 end
             end
         else
-            write(line)
+            writeToFile(line)
         end
     end
     if comment.symbol.code ~= "" then
-        write("```lua\n"..comment.symbol.code.."\n```")
+        writeToFile("```lua\n"..comment.symbol.code.."\n```")
     end
 end
 
