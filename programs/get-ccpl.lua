@@ -1,7 +1,10 @@
 --paths to ignore when grabbing CCPL
 local ignore = {
     "LICENSE",
-    "README.md"
+    "README.md",
+    "reference/",
+    "extract-docs.lua",
+    "TEST"
 }
 
 local args = { ... }
@@ -108,9 +111,9 @@ end
 
 local function includes(tArray, sVal)
     for i, item in ipairs(tArray) do
-        if item == sVal then
+        if item:find(sVal, 1, true) then
             return true
-        end 
+        end
     end
     return false
 end
