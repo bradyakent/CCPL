@@ -13,7 +13,7 @@
 -- Please note that drawing an `Object` to a `Screen` will *not* immediately display that `Object` on the `Screen`.
 -- Instead, you must `:render()` the `Screen` for the `Object` to display.
 
---#### Setup #########################
+--#### Setup
 
 -- Imported modules:
 local expect = require("/ccpl")("expect").expect
@@ -23,7 +23,7 @@ local function toBlit(color)
     return string.format("%x", math.floor(math.log(color) / math.log(2)))
 end
 
---#### GUI Constructs ##########################
+--#### GUI Constructs
 
 --## Buffer:
 -- The Buffer class is an abstraction of one "layer" of a `Screen`.
@@ -188,11 +188,20 @@ function Screen:updateBgColor(nBgColor, x, y)
     end
 end
 
+--## GUI Object:
+-- (TODO) GUIObject description here
+
+-- A list containing all GUIObjects that haven't been deleted (see `GUIObject:delete()`)
 local list = {}
 
+-- The GUIObject class is an abstraction of elements drawn on a Screen instance.
+-- The class methods allow interaction with a Screen instance
+-- in a far easier way than interacting with it directly.
 local GUIObject = {}
 GUIObject.__index = GUIObject
 
+-- Creates a new GUIObject instance, attached to `screen`. The top left corner
+-- of the instance is placed at `x` and `y`, with its width and height being `width` and `height`.
 function GUIObject:new(screen, x, y, width, height)
     expect(1, screen, "table")
     expect(2, x, "number")
@@ -213,6 +222,9 @@ function GUIObject:new(screen, x, y, width, height)
     return o
 end
 
+-- Moves a GUIObject's top left coordinates to `newX` and `newY`.
+-- Please note, this does not draw the GUIObject in that spot, it only moves the internal coordinates.
+-- You will need to re-draw the GUIObject to see the update to its coordinates.
 function GUIObject:move(newX, newY)
     expect(1, newX, "number")
     expect(2, newY, "number")
@@ -220,10 +232,14 @@ function GUIObject:move(newX, newY)
     self.y = newY
 end
 
+-- Removes the GUIObject from the list of all GUIObjects.
+-- (BUG) list extends over every screen instance. maybe fix that?
 function GUIObject:delete()
     list:remove(self.listIndex)
 end
 
+-- Draws (fills the bgColor buffer) a given color `color` to the coordinates `x` and `y`.
+-- Optionally draws a filled rectangle from `x` and `y` with width `width` and height `height`.
 function GUIObject:draw(x, y, color, width, height)
     expect(1, x, "number")
     expect(2, y, "number")
@@ -245,22 +261,41 @@ function GUIObject:draw(x, y, color, width, height)
     self.screen:updateBgColor(result, self.x + x - 1, self.y + y - 1)
 end
 
+-- Fills the GUIObject with a color `color`.
+-- `textColor` can be nil (not passed in), a boolean, or number.
+-- * If `textColor` is nil or false, the bgColor buffer will be filled with `color`.
+-- * If it is true, the textColor buffer will be filled instead.
+-- * If it is a number (i.e. a color), `color` will be used to fill the bgColor buffer,
+-- and `textColor` will be used to fill the textColor buffer.
 function GUIObject:fill(color, textColor)
     expect(1, color, "number")
-    expect(2, textColor, "boolean", "nil")
+    expect(2, textColor, "number", "boolean", "nil")
 
     local color_hex = toBlit(color)
     local result = {}
     for i=1,self.height do
         result[i] = color_hex:rep(self.width)
     end
-    if textColor then
-        self.screen:updateTextColor(result, self.x, self.y)
-    else
+    if type(textColor) == "number" then
+        local color2_hex = toBlit(textColor)
+        local result2 = {}
+        for i=1,self.height do
+            result2[i] = color2_hex:rep(self.width)
+        end
         self.screen:updateBgColor(result, self.x, self.y)
+        self.screen:updateTextColor(result2, self.x, self.y)
+    else
+        if textColor then
+            self.screen:updateTextColor(result, self.x, self.y)
+        else
+            self.screen:updateBgColor(result, self.x, self.y)
+        end
     end
 end
 
+-- Writes text at the coordinates `x` and `y`, optionally with some color `color`.
+-- The coordinates are relative to the GUIObject itself, not relative to the Screen instance
+-- attached to the GUIObject.
 function GUIObject:write(x, y, text, color)
     expect(1, x, "number")
     expect(2, y, "number")
@@ -275,11 +310,17 @@ function GUIObject:write(x, y, text, color)
     end
 end
 
+-- Erases text from coordinates `x` and `y`, optionally in a rectangle with width `width` and height `height`.
+-- if all four parameters are omitted, the entire GUIObject's area will be cleared of text.
 function GUIObject:erase(x, y, width, height)
     expect(1, x, "number", "nil")
     expect(2, y, "number", "nil")
     expect(3, width, "number", "nil")
     expect(4, height, "number", "nil")
+    if x or y then
+        width = width or 1
+        height = height or 1
+    end
     x = x or 1
     y = y or 1
     width = width or self.width
@@ -296,6 +337,8 @@ function GUIObject:erase(x, y, width, height)
     self.screen:updateText(result, self.x + x - 1, self.y + y - 1)
 end
 
+-- Highlights (fills the textColor buffer) with a given color `color` at `x` and `y`.
+-- Optionally highlights a rectangular area of `width` and `height`.
 function GUIObject:highlight(x, y, color, width, height)
     expect(1, x, "number")
     expect(2, y, "number")
@@ -317,6 +360,8 @@ function GUIObject:highlight(x, y, color, width, height)
     self.screen:updateTextColor(result, self.x + x - 1, self.y + y - 1)
 end
 
+-- Returns true if the coordinates `x` and `y` are contained within the GUIObject, false if not.
+-- `x` and `y` are relative to the Screen instance connected to the GUIObject.
 function GUIObject:contains(x, y)
     return (
         -- if x and y are in the bounds of the object, return true.
