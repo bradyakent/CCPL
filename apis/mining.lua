@@ -82,15 +82,15 @@ local function checkAdj(dig, handlers, noTurn)
         local block, blockInfo = tex.inspect()
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
-                if dig or (block and handlers.filter(blockInfo) or defaultFilter(blockInfo)) then
+                if dig or (block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo))) then
                     if handlers.dig then
                         parallel.waitForAll(function() handlers.dig(blockInfo.name) end, function() tex.forward(1, true) end)
                     else
                         tex.forward(1,true)
                     end
-                    checkAdj((block and handlers.filter(blockInfo) or defaultFilter(blockInfo)), handlers)
+                    checkAdj((block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo))), handlers)
                     tex.back()
-                    if handlers.fillIn and (dig or (block and handlers.filter(blockInfo) or defaultFilter(blockInfo))) then
+                    if handlers.fillIn and (dig or (block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo)))) then
                         handlers.fillIn(tex.place)
                     end
                 end
@@ -102,15 +102,15 @@ local function checkAdj(dig, handlers, noTurn)
         local block, blockInfo = tex.inspect()
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
-                if dig or (block and handlers.filter(blockInfo) or defaultFilter(blockInfo)) then
+                if dig or (block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo))) then
                     if handlers.dig then
                         parallel.waitForAll(function() handlers.dig(blockInfo.name) end, function() tex.forward(1, true) end)
                     else
                         tex.forward(1,true)
                     end
-                    checkAdj((block and handlers.filter(blockInfo) or defaultFilter(blockInfo)), handlers)
+                    checkAdj((block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo))), handlers)
                     tex.back()
-                    if handlers.fillIn and (dig or (block and handlers.filter(blockInfo) or defaultFilter(blockInfo))) then
+                    if handlers.fillIn and (dig or (block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo)))) then
                         handlers.fillIn(tex.place)
                     end
                 end
@@ -123,15 +123,15 @@ local function checkAdj(dig, handlers, noTurn)
         local block, blockInfo = tex.inspect()
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
-                if dig or (block and handlers.filter(blockInfo) or defaultFilter(blockInfo)) then
+                if dig or (block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo))) then
                     if handlers.dig then
                         parallel.waitForAll(function() handlers.dig(blockInfo.name) end, function() tex.forward(1, true) end)
                     else
                         tex.forward(1,true)
                     end
-                    checkAdj((block and handlers.filter(blockInfo) or defaultFilter(blockInfo)), handlers)
+                    checkAdj((block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo))), handlers)
                     tex.back()
-                    if handlers.fillIn and (dig or (block and handlers.filter(blockInfo) or defaultFilter(blockInfo))) then
+                    if handlers.fillIn and (dig or (block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo)))) then
                         handlers.fillIn(tex.place)
                     end
                 end
@@ -143,15 +143,15 @@ local function checkAdj(dig, handlers, noTurn)
         local block, blockInfo = tex.inspectUp()
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
-                if dig or (block and handlers.filter(blockInfo) or defaultFilter(blockInfo)) then
+                if dig or (block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo))) then
                     if handlers.dig then
                         parallel.waitForAll(function() handlers.dig(blockInfo.name) end, function() tex.up(1, true) end)
                     else
                         tex.up(1,true)
                     end
-                    checkAdj((block and handlers.filter(blockInfo) or defaultFilter(blockInfo)), handlers)
+                    checkAdj((block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo))), handlers)
                     tex.down()
-                    if handlers.fillIn and (dig or (block and handlers.filter(blockInfo) or defaultFilter(blockInfo))) then
+                    if handlers.fillIn and (dig or (block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo)))) then
                         handlers.fillIn(tex.placeUp)
                     end
                 end
@@ -162,15 +162,15 @@ local function checkAdj(dig, handlers, noTurn)
         local block, blockInfo = tex.inspectDown()
         if block then
             if blockInfo.name ~= "minecraft:bedrock" then
-                if dig or (block and handlers.filter(blockInfo) or defaultFilter(blockInfo)) then
+                if dig or (block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo))) then
                     if handlers.dig then
                         parallel.waitForAll(function() handlers.dig(blockInfo.name) end, function() tex.down(1, true) end)
                     else
                         tex.down(1,true)
                     end
-                    checkAdj((block and handlers.filter(blockInfo) or defaultFilter(blockInfo)), handlers)
+                    checkAdj((block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo))), handlers)
                     tex.up()
-                    if handlers.fillIn and (dig or (block and handlers.filter(blockInfo) or defaultFilter(blockInfo))) then
+                    if handlers.fillIn and (dig or (block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo)))) then
                         handlers.fillIn(tex.placeDown)
                     end
                 end
@@ -301,11 +301,11 @@ end
 local function layerGetOre(handlers, height)
     local block, blockInfo
     block, blockInfo = tex.inspectUp()
-    if block and handlers.filter(blockInfo) or defaultFilter(blockInfo) then
+    if block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo)) then
         tex.digUp()
     end
     block, blockInfo = tex.inspectDown()
-    if block and handlers.filter(blockInfo) or defaultFilter(blockInfo) then
+    if block and ((handlers.filter and handlers.filter(blockInfo)) or defaultFilter(blockInfo)) then
         tex.digDown()
     end
 end
