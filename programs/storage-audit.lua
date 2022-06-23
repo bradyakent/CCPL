@@ -3,7 +3,7 @@ local tex = require("/ccpl")("tex")
 local args = { ... }
 local width = tonumber(args[1]) or 1
 local height = tonumber(args[2]) or 1
-local logFile = args[3] or nil
+local logFile = args[3] or io.stdout
 
 
 --#### Movement Functions
@@ -32,31 +32,28 @@ local allItems = {}
 
 --#### Data Functions
 local function logItem(name, count, chestID)
-    local itemLog = allItems[name]
-    if itemLog == nil then
-        itemLog = {
+    if allItems[name] == nil then
+        allItems[name] = {
             count=count,
             chestIDs={chestID}
         }
     else
-        itemLog.count = itemLog.count + count
+        allItems[name].count = allItems[name].count + count
         local chestIDAlreadyLogged = false
-        for i, existingID in ipairs(itemLog.chestIDs) do
+        for i, existingID in ipairs(allItems[name].chestIDs) do
             if chestID == existingID then
                 chestIDAlreadyLogged = true
                 break
             end
         end
         if not chestIDAlreadyLogged then
-            itemLog.chestIDs[#itemLog.chestIDs+1] = chestID
+            allItems[name].chestIDs[#allItems[name].chestIDs+1] = chestID
         end
     end
 end
 
 local function writeToLog()
-    if logFile then
-        io.output(logFile)
-    end
+    io.output(logFile)
     for name, data in pairs(allItems) do
         io.write(name.."\n")
         io.write("   count: "..data.count.."\n")
@@ -65,7 +62,9 @@ local function writeToLog()
             io.write(id.." ".."\n")
         end
         io.write("\n")
+        io.flush()
     end
+    io.close()
 end
 
 --#### Running Code
