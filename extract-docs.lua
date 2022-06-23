@@ -57,7 +57,7 @@ local commented = string.upper(arguments[4] or "YES")
 
 local ignoreFlag = "!ignore"
 
---#### Helper Functions #############################
+--#### Helper Functions
 
 -- writeLine creates a wrapper for `file:write()` that automatically puts a `\n` at the end of `line`.
 local writeLine = function(file) -- returns: function(string)
@@ -88,8 +88,9 @@ local isPropertyOf = function(name, baseObject) -- returns: boolean
     return baseObject == name:match("([%a%d_]+)[%:%.]?.*")
 end
 
---#### Important Functions #########################
+--#### Important Functions
 
+-- pulls next comment block from the input file, adding some data about it along the way.
 local getNextComment = function(file, currentLine) -- returns: table
     local comment = {
         type = "",
@@ -139,6 +140,7 @@ local getNextComment = function(file, currentLine) -- returns: table
     return nil
 end
 
+-- returns all comments that actually document some code.
 local getDocComments = function(commentTable)
     local filteredComments = {}
 
@@ -167,6 +169,7 @@ local getDocComments = function(commentTable)
     return filteredComments
 end
 
+-- generates empty comments for any code that doesn't have documenting comments
 local formEmptyComments = function(commentTable)
     local retTable = {}
     for _, comment in ipairs(commentTable) do
@@ -189,6 +192,8 @@ local formEmptyComments = function(commentTable)
     return retTable
 end
 
+-- tags every comment block that documents an exported symbol.
+-- This is so I can filter out anything that isn't exported at the end of the file.
 local tagExports = function(exportTable, commentTable)
     for _, export in ipairs(exportTable) do
         for _, comment in ipairs(commentTable) do
@@ -199,8 +204,10 @@ local tagExports = function(exportTable, commentTable)
     end
 end
 
---#### Other global declarations ###################
+--#### Other global declarations
 
+-- a fake comment block to put after all other documentation, but before
+-- all undocumented pieces of code.
 local nodocExportChunk = {
     type = "chunk",
     lines = {
@@ -217,7 +224,7 @@ local nodocExportChunk = {
     }
 }
 
---#### Rest of the code ############################
+--#### Rest of the code
 
 -- writeToFile will write text to the file specified by `outFile`
 local writeToFile = writeLine(outFile)
@@ -293,7 +300,7 @@ for i, comment in ipairs(comments) do
     end
 end
 
---#### Writing to the output file ####################################
+--#### Writing to the output file
 
 writeToFile("# Table of Contents:")
 writeToFile("- [Table of Contents](table-of-contents)")

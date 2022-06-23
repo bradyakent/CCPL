@@ -1,14 +1,18 @@
 # ComputerCraft Personal Library
 
-This library is essentially just a collection of APIs and programs that I've written. Instead of having to write the same code over and over again, I decided to make an easily installable package.
+The CCPL (ComputerCraft Personal Library) is essentially just a collection of programs and modules I've written for myself. Instead of having to write the same code over and over again, I decided to make an easily installable package.
 
 ## Installation Instructions
+
+*Note: These instructions are meant to be done within a Computercraft computer, not in an actual terminal.*
 
 1. Download `get-ccpl.lua` by running `wget https://raw.githubusercontent.com/inq-cloud/CCPL/stable/programs/get-ccpl.lua`
 2. Run `get-ccpl.lua`
 And that's it! You can use the programs as if they were vanilla.
 
 ## Programs
+
+For CCPL, I've made programs to be used in-game with turtles. I haven't documented them all, and to find out all programs that come included with CCPL, run `(TODO)`
 
 The following are a list of programs included in this package:
 
@@ -37,11 +41,12 @@ When using this program, there are a few things to note:
 - Printing also starts in the bottom left corner of the structure, but the first block will be placed where the turtle is located.
 
 It's a good idea to test this program on a small structure to understand what it will do before trying to copy larger structures.
-_____________________________
+
+-------------------
 
 # Advanced Stuff
 
-You only need this stuff if you're going to be programming with CCPL.
+You only need this stuff if you're going to be programming with CCPL, i.e. using the modules, using programs currently being developed, etc.
 
 ## Advanced Installation
 
@@ -49,7 +54,7 @@ There are custom flags that you may use with the `get-ccpl.lua` program:
 
 | Flag             | Usage                                                         |
 | ---------------- | ------------------------------------------------------------- |
-| `-b <branch>`    | Download CCPL from `<branch>`                                 |
+| `-b <branch>`    | Download CCPL from a specific `<branch>`                      |
 | `-f`             | Force overwrites (does not stop custom path warning)          |
 | `-i <path>`      | Install CCPL at `<path>`; will break built-in programs.       |
 | `-l [path/file]` | Dumps debug output to a log file. File defaults to `/log.txt` |
@@ -78,3 +83,8 @@ local api1, api2 = require("/your/path/here/ccpl")("api1", "api2")
 local api3 = require("/your/path/here/ccpl.apis.api3")
 local api4 = require("/your/path/here/ccpl.apis.api4")
 ```
+
+## APIs
+
+Below is a (most likely incomplete) list of all APIs/modules contained within and used by CCPL. This part of CCPL is the part most frequently in flux, so functionality can and will change. Hopefully, git versioning can help alleviate this, but relying on these APIs to stay consistent is probably not a good idea.
+
