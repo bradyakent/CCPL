@@ -31,14 +31,24 @@ local allItems = {}
 
 --#### Data Functions
 local function logItem(name, count, chestID)
-    if allItems[name] == nil then
-        allItems[name] = {
+    local itemLog = allItems[name]
+    if itemLog == nil then
+        itemLog = {
             count=count,
             chestIDs={chestID}
         }
     else
-        allItems[name].count = allItems[name].count + count
-        allItems[name].chestIDs[#allItems[name].chestIDs+1] = chestID
+        itemLog.count = itemLog.count + count
+        local chestIDAlreadyLogged = false
+        for i, existingID in ipairs(itemLog.chestIDs) do
+            if chestID == existingID then
+                chestIDAlreadyLogged = true
+                break
+            end
+        end
+        if not chestIDAlreadyLogged then
+            itemLog.chestIDs[#itemLog.chestIDs+1] = chestID
+        end
     end
 end
 
