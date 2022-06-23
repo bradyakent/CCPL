@@ -58,7 +58,7 @@ local function writeToLog()
     io.output(logFile)
     for name, data in pairs(allItems) do
         if verbosity ~= "full" then
-            name = string.sub(name, 1, string.find(name, ":"))
+            name = string.sub(name, string.find(name, ":") + 1)
         end
         io.write(name)
         if verbosity == "summary" then
@@ -94,5 +94,4 @@ for y=1,height do
 end
 
 down(height-1)
-left(width-1)
 writeToLog()
