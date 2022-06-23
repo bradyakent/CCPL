@@ -83,24 +83,16 @@ local currentChest = 1
 for y=1,height do
     if y ~= 1 then up() end
     for x=1,width do
-        if x ~= 1 then
-            if y%2 == 1 then
-                right()
-            else
-                left()
-            end
-        end
         local chest = peripheral.wrap("front")
         for _, item in pairs(chest.list()) do
             logItem(item.name, item.count, currentChest)
         end
     end
 
+    left(width-1)
     currentChest = currentChest + 1
 end
 
 down(height-1)
-if height%2 == 1 then
-    left(width-1)
-end
+left(width-1)
 writeToLog()
