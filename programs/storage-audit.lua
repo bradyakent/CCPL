@@ -100,4 +100,7 @@ for y=1,height do
 end
 
 down(height-1)
+if height%2 == 1 then
+    left(width-1)
+end
 writeToLog()
