@@ -3,6 +3,7 @@ local tex = require("/ccpl")("tex")
 local args = { ... }
 local width = tonumber(args[1]) or 1
 local height = tonumber(args[2]) or 1
+local logFile = args[3] or nil
 
 
 --#### Movement Functions
@@ -53,14 +54,17 @@ local function logItem(name, count, chestID)
 end
 
 local function writeToLog()
+    if logFile then
+        io.output(logFile)
+    end
     for name, data in pairs(allItems) do
-        print(name)
-        print("   count: "..data.count)
-        write("  chests: ")
+        io.write(name.."\n")
+        io.write("   count: "..data.count.."\n")
+        io.write("  chests: ".."\n")
         for _, id in ipairs(data.chestIDs) do
-            write(id.." ")
+            io.write(id.." ".."\n")
         end
-        print()
+        io.write("\n")
     end
 end
 
