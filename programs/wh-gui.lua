@@ -277,11 +277,11 @@ function getButton:onClick()
 	local passed, failReason
 	if turtle then
 		passed, failReason = storage.get(itemTable)
+		failReason = string.lower(failReason)
 	else
 		passed = true
 	end
 
-	failReason = string.lower(failReason);
 
 	-- If the turtle failed at getting any of the items...
 	if not passed then
