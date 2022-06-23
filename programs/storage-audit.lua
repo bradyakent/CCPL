@@ -4,6 +4,8 @@ local args = { ... }
 local width = tonumber(args[1]) or 1
 local height = tonumber(args[2]) or 1
 local logFile = args[3] or io.stdout
+local verbosity = args[4] or "short-names"
+-- full or summary or short-names
 
 
 --#### Movement Functions
@@ -55,13 +57,21 @@ end
 local function writeToLog()
     io.output(logFile)
     for name, data in pairs(allItems) do
-        io.write(name.."\n")
-        io.write("   count: "..data.count.."\n")
-        io.write("  chests: ".."\n")
-        for _, id in ipairs(data.chestIDs) do
-            io.write(id.." ".."\n")
+        if verbosity ~= "full" then
+            name = string.sub(name, 1, string.find(name, ":"))
         end
-        io.write("\n")
+        io.write(name)
+        if verbosity == "summary" then
+            io.write(": "..data.count.."\n")
+        else
+            io.write("\n")
+            io.write("   count: "..data.count.."\n")
+            io.write("  chests: ")
+            for _, id in ipairs(data.chestIDs) do
+                io.write(id.." ")
+            end
+            io.write("\n")
+        end
         io.flush()
     end
     io.close()
