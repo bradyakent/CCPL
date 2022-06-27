@@ -97,7 +97,7 @@ function chestnet:pull(chestNameOrAlias, itemName, count, destinationSlot)
         return false, "destination cannot be of type 'input'"
     end
 
-    count = count or foundItems[1].chest.getItemDetail(foundItems[1].slot).maxCount
+    count = count or self:getChest(foundItems[1].chest).getItemDetail(foundItems[1].slot).maxCount
     for index, item in ipairs(foundItems) do
         if item.chest ~= "output" then
             local transferred = destination.pullItems(item.chest, item.slot, count, destinationSlot)
@@ -107,7 +107,7 @@ function chestnet:pull(chestNameOrAlias, itemName, count, destinationSlot)
             end
         end
     end
-    if count <= 0 then
+    if count > 0 then
         return false, "not enough items in the network"
     end
     return true
