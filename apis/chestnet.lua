@@ -79,7 +79,7 @@ end
 function chestnet:updateItemList()
     self.items = {}
     for chestName, chest in pairs(self.connections) do
-        for slot, chestItem in pairs(chest) do
+        for slot, chestItem in pairs(chest.list()) do
             if not self.items[chestItem.name] then
                 self.items[chestItem.name] = {}
             end
