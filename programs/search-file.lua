@@ -1,7 +1,15 @@
 local gui = require("/ccpl")("gui")
 
+local args = { ... }
 local filename = args[1]
+local lowerContext = args[2] or 0
+local upperContext = args[3] or 0
+
 io.input(filename)
+local lines = {}
+for line in io.lines() do
+    lines[#lines+1] = line
+end
 
 --#### GUI setup
 local mainLoop = true
@@ -11,7 +19,7 @@ screen:render()
 --#### GUI Objects and methods
 local resultDisplay = gui.Object:new(screen, 1, 1, screen.width, screen.height-1)
 local inputField = gui.Object:new(screen, 1, screen.height, screen.width, 1)
-local exitButton = gui.Object:new(screen, screen.width-6, screen.height, 4, 1)
+local exitButton = gui.Object:new(screen, screen.width-6, screen.height, 6, 1)
 function exitButton:onClick()
     mainLoop = false
 end
@@ -33,7 +41,7 @@ local searchResults = {}
 
 --#### Data functions
 local function matches(line, inputQuery)
-    if string.find(line, inputQuery, 1, true) ~= -1 then
+    if string.find(line, inputQuery, 1, true) then
         return true
     end
     return false
@@ -41,9 +49,15 @@ end
 
 local function getSearchResults()
     searchResults = {}
-    for i, line in ipairs(io.lines()) do
+    for i, line in ipairs(lines) do
         if matches(line, query) then
+            for j=0,upperContext do
+                searchResults[#searchResults+1] = lines[i-upperContext+j]
+            end
             searchResults[#searchResults+1] = line
+            for j=0,lowerContext do
+                searchResults[#searchResults+1] = lines[i+j+1]
+            end
         end
     end
 end
@@ -51,7 +65,7 @@ end
 local function displayResults()
     resultDisplay:erase()
     for i=1,resultDisplay.height do
-        resultDisplay.write(1, 1, searchResults[scrollAmount+i])
+        resultDisplay:write(1, i, searchResults[scrollAmount+i] or "")
     end
 end
 
@@ -61,7 +75,6 @@ screen:render()
 
 local event = {}
 while mainLoop do
-    term.setCursorBlink(true)
     event = { os.pullEvent() }
     if event[1] == "char" then
         query = query..event[2]
@@ -74,6 +87,7 @@ while mainLoop do
             mainLoop = false
         end
     end
+    inputField:erase()
     inputField:write(1, 1, query)
 
     getSearchResults()
