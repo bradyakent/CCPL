@@ -18,7 +18,7 @@ screen:render()
 
 --#### GUI Objects and methods
 local resultDisplay = gui.Object:new(screen, 1, 1, screen.width, screen.height-1)
-local inputField = gui.Object:new(screen, 1, screen.height, screen.width, 1)
+local inputField = gui.Object:new(screen, 1, screen.height, screen.width-6, 1)
 local exitButton = gui.Object:new(screen, screen.width-6, screen.height, 6, 1)
 function exitButton:onClick()
     mainLoop = false
@@ -54,9 +54,8 @@ local function getSearchResults()
             for j=0,upperContext do
                 searchResults[#searchResults+1] = lines[i-upperContext+j]
             end
-            searchResults[#searchResults+1] = line
-            for j=0,lowerContext do
-                searchResults[#searchResults+1] = lines[i+j+1]
+            for j=1,lowerContext do
+                searchResults[#searchResults+1] = lines[i+j]
             end
         end
     end
