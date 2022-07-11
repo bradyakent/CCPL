@@ -23,7 +23,9 @@ local flooring = #slots
 
 ux.displaySlots(slots)
 
-local fillBlocks
+local fillBlocks = {
+    "minecraft:torch"
+}
 
 local handlers = {}
 local fillIn = nil
@@ -51,6 +53,7 @@ end
 
 if arg[2] == "true" then
     fillBlocks = {
+        "minecraft:torch",
         "minecraft:cobblestone",
         "minecraft:diorite",
         "minecraft:granite",
@@ -73,9 +76,6 @@ if arg[2] == "true" then
         end
     end
 elseif arg[2] == "torch" then
-    fillBlocks = {
-        "minecraft:torch"
-    }
     fillIn = function(density)
         local placeAttempts = 0
         return function(placeFunction)
